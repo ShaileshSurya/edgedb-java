@@ -1,7 +1,7 @@
 package edgedb.client;
 
-import edgedb.decoder.BaseDecoder;
-import edgedb.protocol.write.ExecuteScript;
+import edgedb.protocol.server.reader.BaseDecoder;
+import edgedb.protocol.client.ExecuteScript;
 
 
 import java.io.*;
