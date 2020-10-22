@@ -9,12 +9,13 @@
 plugins {
     // Apply the java-library plugin to add support for Java Library
     `java-library`
+    id("io.freefair.lombok") version "5.2.1"
 }
 
 repositories {
     // Use jcenter for resolving dependencies.
     // You can declare any Maven/Ivy/file repository here.
-    jcenter()
+    mavenCentral()
 }
 
 dependencies {
