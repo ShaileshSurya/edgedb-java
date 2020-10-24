@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class Execute {
-    byte mType = (int)'E';
+    byte mType = (int) 'E';
     int messageLength;
     short headersLength;
     Header[] headers;

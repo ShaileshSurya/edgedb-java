@@ -1,14 +1,40 @@
 package edgedb.protocol.server.reader;
 
+import edgedb.exceptions.OverReadException;
 import edgedb.protocol.server.AuthenticationOK;
-import edgedb.protocol.server.BaseServerProtocol;
+import edgedb.protocol.server.readerhelper.Read;
+import edgedb.protocol.server.readerhelper.ReaderHelper;
+import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 
-public class AuthenticationOKReader implements Read {
+import java.io.DataInputStream;
+import java.io.IOException;
 
-    @Override
-    public BaseServerProtocol read() {
-        BaseServerProtocol authenticationOk = new AuthenticationOK();
+@Data
+@Slf4j
+public class AuthenticationOKReader extends BaseReader {
 
-        return authenticationOk;
+    public AuthenticationOKReader(DataInputStream dataInputStream, ReaderHelper readerHelper) {
+        super(dataInputStream, readerHelper);
+    }
+
+    public AuthenticationOKReader(DataInputStream dataInputStream) {
+        super(dataInputStream);
+    }
+
+    public AuthenticationOK read() throws IOException {
+        log.debug("Trying to read Authentication OK.");
+        AuthenticationOK authenticationOK = new AuthenticationOK();
+        try {
+            authenticationOK.setMessageLength(readerHelper.readUint32());
+            authenticationOK.setAuthStatus(readerHelper.readUint32());
+            return authenticationOK;
+        } catch (OverReadException e) {
+            e.printStackTrace();
+            return authenticationOK;
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw e;
+        }
     }
 }

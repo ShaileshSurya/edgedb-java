@@ -11,30 +11,30 @@ public class BaseDecoder {
 
     DataInputStream in;
 
-    public BaseDecoder(DataInputStream in){
-        this.in= in;
+    public BaseDecoder(DataInputStream in) {
+        this.in = in;
     }
 
     public String decode() throws Exception {
         // Read MType
         byte mType = this.in.readByte();
-        System.out.printf("mType %d >>>>> %c\n",(int)mType,(char)mType);
-        switch (mType){
-            case (int)'v':
+        System.out.printf("mType %d >>>>> %c\n", (int) mType, (char) mType);
+        switch (mType) {
+            case (int) 'v':
                 System.out.println("M Type was found of type v");
                 decodeServerHandshake();
                 break;
-            case (int)'E':
+            case (int) 'E':
                 System.out.println("M Type was found of type E");
                 decodeErrorResponse();
                 break;
 
-            case (int)'R':
+            case (int) 'R':
                 System.out.println("M Type was found of type R");
                 decodeAuthenticationOK();
                 break;
 
-            case (int)'K':
+            case (int) 'K':
                 System.out.println("M Type was found of type R");
                 decodeServerKeyData();
                 break;
@@ -44,10 +44,10 @@ public class BaseDecoder {
         return "";
     }
 
-    public void decodeServerKeyData() throws IOException{
+    public void decodeServerKeyData() throws IOException {
         ServerKeyData serverKeyData = new ServerKeyData();
         serverKeyData.setMessageLength(in.readInt());
-        serverKeyData.setData(in.readByte());
+        //serverKeyData.setData(in.readByte());
         System.out.println(serverKeyData);
     }
 
@@ -57,6 +57,7 @@ public class BaseDecoder {
         authSASL.setAuthStatus(in.readInt());
         System.out.println(authSASL.toString());
     }
+
     public void decodeErrorResponse() throws IOException {
         System.out.println("Decoding the Error Response");
         ErrorResponse errorResponse = new ErrorResponse();
@@ -65,8 +66,8 @@ public class BaseDecoder {
         //errorResponse.setSeverity(in.readByte());
         errorResponse.setErrorCode(in.readInt());
         int messageLength = in.readInt();
-        byte[] message=new byte[messageLength];
-        in.read(message,0,messageLength);
+        byte[] message = new byte[messageLength];
+        in.read(message, 0, messageLength);
         errorResponse.setMessage(new String(message));
         errorResponse.setHeaderAttributeLength(in.readShort());
 
@@ -81,6 +82,7 @@ public class BaseDecoder {
         serverHandshake.setProtocolExtensionLength(in.readShort());
         System.out.println(serverHandshake);
     }
+
     public void decodeErrorResponseX() throws IOException {
 //        System.out.println("Decoding the Error Response");
 //        ErrorResponse errorResponse = new ErrorResponse();

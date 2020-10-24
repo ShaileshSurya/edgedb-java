@@ -10,4 +10,7 @@ public final class MessageType {
 
     public static final char SERVER_HANDSHAKE = 'v';
     public static final char AUTHENTICATION_OK = 'R';
+    public static final char ERROR_RESPONSE = 'E';
+    public static final char COMMAND_COMPLETE = 'C';
+    public static final char SERVER_KEY_DATA = 'K';
 }

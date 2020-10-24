@@ -1,6 +1,6 @@
 package edgedb.protocol.server;
 
-import edgedb.protocol.client.ClientProtocolExtension;
+import edgedb.protocol.client.ProtocolExtension;
 import lombok.Data;
 
 @Data
@@ -10,6 +10,6 @@ public class ServerHandshake {
     short majorVersion;
     short minorVersion;
     short protocolExtensionLength;
-    ClientProtocolExtension[] protocolExtensions;
+    ProtocolExtension[] protocolExtensions;
 
 }

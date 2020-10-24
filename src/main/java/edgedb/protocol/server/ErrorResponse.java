@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class ErrorResponse {
-    byte mType= (byte) 'E';
+    byte mType = (byte) 'E';
     int messageLength;
     int errorCode;
     String message;

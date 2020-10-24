@@ -2,10 +2,11 @@ package edgedb.protocol.client.writerhelper;
 
 import lombok.AllArgsConstructor;
 
-import java.io.*;
+import java.io.DataOutputStream;
+import java.io.IOException;
 
 @AllArgsConstructor
-public class WriteHelper implements Write {
+public class WriteHelper implements WriteHelp {
     DataOutputStream dataOutputStream;
 
 
@@ -27,6 +28,12 @@ public class WriteHelper implements Write {
     @Override
     public void writeString(String str) throws IOException {
         dataOutputStream.writeInt(str.getBytes().length);
-        dataOutputStream.write(str.getBytes(),0,str.getBytes().length);
+        dataOutputStream.write(str.getBytes(), 0, str.getBytes().length);
+    }
+
+    @Override
+    public void writeByte(byte[] value) throws IOException {
+        dataOutputStream.writeInt(value.length);
+        dataOutputStream.write(value, 0, value.length);
     }
 }

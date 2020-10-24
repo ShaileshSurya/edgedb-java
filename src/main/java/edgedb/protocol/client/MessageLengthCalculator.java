@@ -19,4 +19,9 @@ public class MessageLengthCalculator {
         int lengthOfString = value.getBytes().length;
         return Integer.SIZE / Byte.SIZE + lengthOfString;
     }
+
+    public int calculate(byte[] value) {
+        int lengthOfByte = value.length;
+        return Integer.SIZE / Byte.SIZE + lengthOfByte;
+    }
 }

@@ -1,11 +1,11 @@
 package edgedb.client;
 
+import edgedb.exceptions.*;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 
-import static org.junit.Assert.assertEquals;
+import java.io.IOException;
 
 public class EdgeDBTest {
 
@@ -15,15 +15,35 @@ public class EdgeDBTest {
     @Before
 
     @Test
-    public void connectTest(){
-//        String user = "edgeDBUser";
-//        String database = "edgeDBDatabase";
-//        String dbServerAddress = "localhost";
-//        String port = "5656";
-//
-//        String dsn= "edgedb://"+user +"@localhost:5656/"+database;
-//        EdgeDB db = new EdgeDB().connect(dsn);
-//        assertEquals(db.getConnection().getUser(),user);
-//        assertEquals(db.getConnection().getDatabase(),database);
+    public void connectTest() {
+        String user = "edgedb";
+        String database = "tutorial";
+
+        String hostEcho = "localhost";
+        String portEcho = "8083";
+        String hostReal = "10.199.198.56";
+        String portReal = "5656";
+
+        boolean isEcho = false;
+        String port = isEcho ? portEcho : portReal;
+        String host = isEcho ? hostEcho : hostReal;
+
+        String dsn = "edgedb://" + user + "@" + host + ":" + port + "/" + database;
+        EdgeDBClient db = new EdgeDBClient().withDSN(dsn);
+        try {
+            db.connect();
+
+            db.executeScript("SELECT Movie { id, title, year }");
+        } catch (FailedToConnectEdgeDBServer e) {
+            e.printStackTrace();
+        } catch (FailedToDecodeServerResponseException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (EdgeDBServerException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 }
