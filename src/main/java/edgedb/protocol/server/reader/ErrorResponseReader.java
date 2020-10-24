@@ -1,13 +1,20 @@
 package edgedb.protocol.server.reader;
 
-import edgedb.protocol.server.BaseServerProtocol;
 import edgedb.protocol.server.ErrorResponse;
+import edgedb.protocol.server.readerhelper.ReaderHelper;
+import lombok.Data;
 
-public class ErrorResponseReader implements Read{
+import java.io.DataInputStream;
+
+@Data
+public class ErrorResponseReader extends BaseReader {
     ErrorResponse errorResponse;
 
-    @Override
-    public BaseServerProtocol read() {
-        return null;
+    public ErrorResponseReader(DataInputStream dataInputStream, ReaderHelper readerHelper) {
+        super(dataInputStream, readerHelper);
+    }
+
+    public ErrorResponseReader(DataInputStream dataInputStream) {
+        super(dataInputStream);
     }
 }

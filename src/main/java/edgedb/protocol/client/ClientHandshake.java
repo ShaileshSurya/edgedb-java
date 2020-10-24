@@ -10,8 +10,8 @@ import static edgedb.protocol.constants.MessageType.CLIENT_HANDSHAKE;
 @Slf4j
 public class ClientHandshake extends BaseClientProtocol {
 
-    public final int MAJOR_VERSION = 8;
-    public final int MINOR_VERSION = 0;
+    public final int MAJOR_VERSION = 0;
+    public final int MINOR_VERSION = 8;
 
     byte mType = (int) CLIENT_HANDSHAKE;
     int messageLength;
@@ -20,7 +20,7 @@ public class ClientHandshake extends BaseClientProtocol {
     short connectionParamLength;
     ConnectionParams[] connectionParams;
     short protocolExtensionLength;
-    ClientProtocolExtension[] protocolExtensions;
+    ProtocolExtension[] protocolExtensions;
 
     public ClientHandshake(Connection connection) {
 
@@ -45,17 +45,17 @@ public class ClientHandshake extends BaseClientProtocol {
         length += calculator.calculate(minorVersion);
         length += calculator.calculate(connectionParamLength);
 
-        for (int i = 0; i < connectionParamLength; i++){
+        for (int i = 0; i < connectionParamLength; i++) {
             length += connectionParams[i].calculateMessageLength();
         }
 
         length += calculator.calculate(protocolExtensionLength);
 
-        for (int i = 0; i < protocolExtensionLength; i++){
+        for (int i = 0; i < protocolExtensionLength; i++) {
             length += protocolExtensions[i].calculateMessageLength();
         }
 
-        log.debug("Calculated Length of message {}",length);
+        log.debug("Calculated Length of message {}", length);
         return length;
     }
 }

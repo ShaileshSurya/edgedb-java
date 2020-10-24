@@ -11,7 +11,11 @@ public class ConnectionParams extends BaseClientProtocol {
 
     @Override
     public int calculateMessageLength() {
+        MessageLengthCalculator calculator = new MessageLengthCalculator();
         int length = 0;
+        length += calculator.calculate(name);
+        length += calculator.calculate(value);
         return length;
     }
+
 }
