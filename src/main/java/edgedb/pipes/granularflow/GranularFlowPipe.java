@@ -3,8 +3,7 @@ package edgedb.pipes.granularflow;
 import edgedb.client.SocketStream;
 import edgedb.exceptions.FailedToDecodeServerResponseException;
 import edgedb.protocol.client.*;
-import edgedb.protocol.client.writer.PrepareWriter;
-import edgedb.protocol.client.writer.SyncMessageWriter;
+import edgedb.protocol.client.writer.*;
 import edgedb.protocol.constants.*;
 import edgedb.protocol.server.*;
 import edgedb.protocol.server.reader.*;
@@ -25,34 +24,13 @@ public class GranularFlowPipe {
         writePrepareMessage(command);
         writeSyncMessageAndFlush();
         PrepareComplete prepareComplete = readPrepareCompleteServerResponse();
+
         log.debug("PrepareComplete {}", prepareComplete);
     }
 
     public PrepareComplete readPrepareCompleteServerResponse() throws IOException, FailedToDecodeServerResponseException {
 
-        log.info("readPrepareCompleteServerResponse~~~~~");
-        int iter =0;
-
-        while(socketStream.getDataInputStream().available() < 1 && iter <10){
-            try {
-                log.debug("In Iterator");
-                log.debug("~~readPrepareCompleteServerResponse~~~~~");
-                iter++ ;
-                Thread.sleep(5000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-                throw new FailedToDecodeServerResponseException();
-            }
-        }
-
-        if (iter == 10){
-            log.debug("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" +
-                    "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" +
-                    "~~~~~~~~~~~~~~~~~~~ERORE~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-            throw new FailedToDecodeServerResponseException();
-        }
-
-        log.info("No of bytes available to read {}",socketStream.getDataInputStream().available());
+        PrepareComplete prepareComplete = null;
         while (true) {
             byte mType = socketStream.getDataInputStream().readByte();
             log.debug("MType was found of Decimal Value {} and Char Value {}", (int) mType, (char) mType);
@@ -68,13 +46,14 @@ public class GranularFlowPipe {
                     break;
                 case (int) PREPARE_COMPLETE:
                     PrepareCompleteReader prepareCompleteReader = new PrepareCompleteReader(socketStream.getDataInputStream());
-                    PrepareComplete prepareComplete = prepareCompleteReader.read();
-                    return prepareComplete;
+                    prepareComplete = prepareCompleteReader.read();
+                    log.debug("Printing Prepare Complete {}",prepareComplete);
+                    break;
                 case (int) READY_FOR_COMMAND:
                     ReadyForCommandReader readyForCommandReader = new ReadyForCommandReader(socketStream.getDataInputStream());
                     ReadyForCommand readyForCommand = readyForCommandReader.read();
                     log.info("Ready For Command Reader {}", readyForCommand);
-                    break;
+                    return prepareComplete;
                 default:
                     throw new FailedToDecodeServerResponseException();
             }
@@ -92,6 +71,22 @@ public class GranularFlowPipe {
         writer.write();
     }
 
+    public void writeExecuteMessage(String query) throws IOException {
+        Execute execute = buildExecuteMessage();
+        log.debug("Execute Script {}",execute);
+        ExecuteWriter executeWriter = new ExecuteWriter(socketStream.getDataOutputStream(),execute);
+        executeWriter.write();
+    }
+
+    public Execute buildExecuteMessage(){
+        log.debug("Trying to build execute Script");
+        Execute execute = new Execute();
+        execute.setHeadersLength((short) 0);
+        execute.setStatementName("".getBytes());
+        execute.setArguments("".getBytes());
+        execute.setMessageLength(18);
+        return execute;
+    }
 
     public Prepare buildPrepareMessage(String command) {
         Prepare prepare = new Prepare();
@@ -105,18 +100,58 @@ public class GranularFlowPipe {
     }
 
     private void writeSyncMessageAndFlush() throws IOException {
+        log.debug("Trying to write Sync message");
         SyncMessage syncMessage = buildSyncMessage();
+        log.debug("Sync Message {}",syncMessage);
         SyncMessageWriter syncMessageWriter = new SyncMessageWriter(socketStream.getDataOutputStream(),syncMessage);
         syncMessageWriter.writeAndFlush();
     }
 
     public SyncMessage buildSyncMessage(){
+        log.debug("Trying to build Sync message");
         SyncMessage syncMessage = new SyncMessage();
         syncMessage.setMessageLength(syncMessage.calculateMessageLength());
         return syncMessage;
     }
-    public void write() {
 
+    public DataResponse readExecuteServerResponse() throws IOException, FailedToDecodeServerResponseException {
+        DataResponse dataResponse = null;
+        while (true) {
+            byte mType = socketStream.getDataInputStream().readByte();
+            log.debug("MType was found of Decimal Value {} and Char Value {}", (int) mType, (char) mType);
+
+            switch (mType) {
+                case (int) DATA_RESPONSE:
+                    dataResponse = readDataResponse();
+                    log.debug("Printing Server Key Data {}", dataResponse);
+                    break;
+                case (int) COMMAND_COMPLETE:
+                    CommandComplete commandComplete = readCommandComplete();
+                    log.debug("Printing Server Key Data {}", commandComplete);
+                    break;
+                default:
+                    throw new FailedToDecodeServerResponseException();
+            }
+        }
+    }
+
+    public DataResponse readDataResponse() throws IOException {
+        DataResponseReader reader = new DataResponseReader(socketStream.getDataInputStream());
+        return reader.read();
+    }
+
+
+    public CommandComplete readCommandComplete() throws IOException {
+        CommandCompleteReader reader = new CommandCompleteReader(socketStream.getDataInputStream());
+        return reader.read();
+    }
+    public String execute(String query) throws IOException, FailedToDecodeServerResponseException {
+        log.info("Trying to execute in granular flow");
+        writeExecuteMessage(query);
+        writeSyncMessageAndFlush();
+        DataResponse response = readExecuteServerResponse();
+        log.debug("Data Response {}",response);
+        return "";
     }
 
 }

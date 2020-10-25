@@ -24,4 +24,6 @@ public final class MessageType {
     public static final char AUTHENTICATION_SASL_RESPONSE = 'r';
     public static final char TERMINATE = 'X';
 
+    public static final char DATA_RESPONSE = 'D';
+
 }

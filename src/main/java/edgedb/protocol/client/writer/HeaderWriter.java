@@ -19,4 +19,9 @@ public class HeaderWriter implements Write {
         WriteHelper writeHelper = new WriteHelper(dataOutputStream);
         writeHelper.writeUint16(header.getCode());
     }
+
+    @Override
+    public void writeAndFlush() throws IOException {
+
+    }
 }

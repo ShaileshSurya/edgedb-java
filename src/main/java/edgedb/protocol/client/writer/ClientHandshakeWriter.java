@@ -33,4 +33,9 @@ public class ClientHandshakeWriter implements Write {
         dataOutputStream.flush();
     }
 
+    @Override
+    public void writeAndFlush() throws IOException {
+
+    }
+
 }

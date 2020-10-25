@@ -17,7 +17,7 @@ public class SyncMessageWriter {
     SyncMessage syncMessage;
 
     public void write() throws IOException {
-        log.debug("PrepareWriter {}",syncMessage.toString());
+        log.debug("SyncMessageWriter {}",syncMessage.toString());
         WriteHelper writerHelper= new WriteHelper(dataOutputStream);
         writerHelper.writeUint8(syncMessage.getMType());
         writerHelper.writeUint32(syncMessage.getMessageLength());

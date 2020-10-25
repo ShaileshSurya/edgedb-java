@@ -43,10 +43,11 @@ public class EdgeDBClient {
         return "";
     }
 
-    public String execute(String statement) throws IOException, FailedToDecodeServerResponseException {
-        log.debug("Started executing statement {}",statement);
+    public String execute(String query) throws IOException, FailedToDecodeServerResponseException {
+        log.debug("Started executing statement {}",query);
         GranularFlowPipe granularFlowPipe = new GranularFlowPipe(socketStream);
-        granularFlowPipe.setup(statement);
+        granularFlowPipe.setup(query);
+        granularFlowPipe.execute(query);
         return "";
     }
 

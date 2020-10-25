@@ -33,4 +33,9 @@ public class ExecuteScriptWriter implements Write {
         dataOutputStream.flush();
         log.debug("Writing Execute Script succesfull");
     }
+
+    @Override
+    public void writeAndFlush() throws IOException {
+
+    }
 }
