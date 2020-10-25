@@ -12,4 +12,6 @@ public interface Read {
     public short readUint16() throws IOException, OverReadException;
 
     public String readString() throws IOException, OverReadException;
+
+    public byte[] readUUID() throws OverReadException, IOException;
 }

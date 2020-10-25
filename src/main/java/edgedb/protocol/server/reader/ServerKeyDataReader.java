@@ -22,14 +22,14 @@ public class ServerKeyDataReader extends BaseReader {
         ServerKeyData serverKeyData = new ServerKeyData();
 
         try{
+            log.debug("AVAILABLE ~~~~{}",String.valueOf(dataInputStream.available()));
             int messageLength = readerHelper.readUint32();
             readerHelper.setMessageLength(messageLength);
             serverKeyData.setMessageLength(messageLength);
 
-            byte[] data = new byte[messageLength-4];
-            int readBytes = readerHelper.getDataInputStream().read(data,0,32);
-            log.debug(">>>>>>>>>readBytes>>>>>>>>>{}",readBytes);
-            serverKeyData.setData(data);
+            byte[] bytes= new byte[34];
+            int readBytes = dataInputStream.read(bytes,0,32);
+            serverKeyData.setData(bytes);
 
             return serverKeyData;
         } catch (OverReadException e) {

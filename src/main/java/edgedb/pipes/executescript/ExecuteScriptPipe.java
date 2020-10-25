@@ -3,6 +3,7 @@ package edgedb.pipes.executescript;
 import edgedb.client.SocketStream;
 import edgedb.exceptions.EdgeDBServerException;
 import edgedb.exceptions.FailedToDecodeServerResponseException;
+import edgedb.pipes.BasePipe;
 import edgedb.pipes.pipe;
 import edgedb.protocol.client.ExecuteScript;
 import edgedb.protocol.client.writer.ExecuteScriptWriter;

@@ -4,5 +4,4 @@ import lombok.Data;
 
 @Data
 abstract public class BaseServerProtocol {
-    byte mType;
 }

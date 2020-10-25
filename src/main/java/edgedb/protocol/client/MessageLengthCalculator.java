@@ -1,27 +1,33 @@
 package edgedb.protocol.client;
 
-public class MessageLengthCalculator {
+public final class MessageLengthCalculator {
 
-    public int calculate(int value) {
+    public static final int calculate(int value) {
         return Integer.SIZE / Byte.SIZE;
     }
 
-    public int calculate(byte value) {
-        return Integer.SIZE / Byte.SIZE;
+    public static final int calculate(byte value) {
+        return Byte.SIZE/Byte.SIZE;
     }
 
-    public int calculate(short value) {
+    public static final int calculate(short value) {
         return Short.SIZE / Byte.SIZE;
     }
 
     // Size of String is encoded as 4 Byte length + Size of string
-    public int calculate(String value) {
-        int lengthOfString = value.getBytes().length;
-        return Integer.SIZE / Byte.SIZE + lengthOfString;
+    public static final int calculate(String value) {
+        if (value != null) {
+            int lengthOfString = value.getBytes().length;
+            return Integer.SIZE / Byte.SIZE + lengthOfString;
+        }
+        return 0;
     }
 
-    public int calculate(byte[] value) {
-        int lengthOfByte = value.length;
-        return Integer.SIZE / Byte.SIZE + lengthOfByte;
+    public final int calculate(byte[] value) {
+        if (value != null) {
+            int lengthOfByte = value.length;
+            return Integer.SIZE / Byte.SIZE + lengthOfByte;
+        }
+        return 0;
     }
 }

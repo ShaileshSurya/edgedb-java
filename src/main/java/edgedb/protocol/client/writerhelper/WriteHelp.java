@@ -11,5 +11,5 @@ public interface WriteHelp {
 
     public void writeString(String str) throws IOException;
 
-    public void writeByte(byte[] value) throws IOException;
+    public void writeBytes(byte[] value) throws IOException;
 }

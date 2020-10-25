@@ -23,7 +23,7 @@ public class HeaderReader extends BaseReader {
         Header header = new Header();
         try {
             header.setCode(readerHelper.readUint16());
-            header.setValue(readerHelper.readByteArray());
+            header.setValue(readerHelper.readBytes());
             return header;
         } catch (OverReadException e) {
             return header;

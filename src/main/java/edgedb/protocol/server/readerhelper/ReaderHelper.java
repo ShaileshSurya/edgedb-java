@@ -63,7 +63,19 @@ public class ReaderHelper implements Read {
         return new String(stringChar);
     }
 
-    public byte[] readByteArray() throws OverReadException, IOException {
+    @Override
+    public byte[] readUUID() throws OverReadException, IOException {
+        checkReadCount();
+        final int UUID_BYTE_ARRAY_LENGTH = 16;
+
+        byte[] uuid = new byte[UUID_BYTE_ARRAY_LENGTH];
+        dataInputStream.read(uuid, 0, UUID_BYTE_ARRAY_LENGTH);
+        currentReadCount += UUID_BYTE_ARRAY_LENGTH / typeSizeHelper.getByteSize();
+
+        return uuid;
+    }
+
+    public byte[] readBytes() throws OverReadException, IOException {
         checkReadCount();
         int length = dataInputStream.readInt();
         currentReadCount += typeSizeHelper.getIntSize();

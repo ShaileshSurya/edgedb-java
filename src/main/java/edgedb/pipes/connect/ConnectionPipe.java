@@ -9,8 +9,7 @@ import edgedb.protocol.client.ClientHandshake;
 import edgedb.protocol.client.writer.ClientHandshakeWriter;
 import edgedb.protocol.client.writer.Write;
 import edgedb.protocol.server.*;
-import edgedb.protocol.server.reader.AuthenticationOKReader;
-import edgedb.protocol.server.reader.ServerHandshakeReader;
+import edgedb.protocol.server.reader.*;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.*;
@@ -19,13 +18,14 @@ import java.net.Socket;
 
 import static edgedb.protocol.constants.MessageType.*;
 
+import static edgedb.protocol.constants.TransactionState.*;
+
+
 @Slf4j
 public class ConnectionPipe implements pipe {
 
     private Connection connection;
-    private AuthenticationOK authenticationOK;
-    private ServerHandshake serverHandshake;
-    private ErrorResponse errorResponse;
+
 
     public ConnectionPipe(Connection connection) {
         this.connection = connection;
@@ -78,30 +78,61 @@ public class ConnectionPipe implements pipe {
 
     private void readServerResponse(DataInputStream dataInputStream) throws IOException, FailedToDecodeServerResponseException {
         log.debug("Trying to read Server Response");
-        byte mType = dataInputStream.readByte();
 
-        log.debug("MType was found of Decimal Value {} and Char Value {}", (int) mType, (char) mType);
 
-        switch (mType) {
-            case (int) SERVER_HANDSHAKE:
-                log.debug("Server response SERVER_HANDSHAKE received");
-                ServerHandshake serverHandshake = readServerHandshake(dataInputStream);
-                log.debug("Server Handshake {}", serverHandshake);
-                break;
-
-            case (int) AUTHENTICATION_OK:
-                log.debug("Server response AUTHENTICATION_OK received");
-                AuthenticationOK authenticationOK= readAuthenticationOK(dataInputStream);
-                log.debug("AuthenticationOk {}", authenticationOK);
-                break;
-            case (int) ERROR_RESPONSE:
-                log.debug("Server response AUTHENTICATION_OK received");
-                readErrorResponse(dataInputStream);
-                throw new FailedToDecodeServerResponseException();
-            default:
-                log.debug("Failed to decode Server Response");
-                throw new FailedToDecodeServerResponseException();
+        while (true) {
+            byte mType = dataInputStream.readByte();
+            log.debug("MType was found of Decimal Value {} and Char Value {}", (int) mType, (char) mType);
+            switch (mType) {
+                case (int) SERVER_HANDSHAKE:
+                    log.debug("Server response SERVER_HANDSHAKE received");
+                    ServerHandshake serverHandshake = readServerHandshake(dataInputStream);
+                    log.debug("Server Handshake {}", serverHandshake);
+                    throw new FailedToDecodeServerResponseException();
+                case (int) SERVER_KEY_DATA:
+                    ServerKeyData serverKeyData = readServerKeyData(dataInputStream);
+                    log.debug("Printing Server Key Data {}", serverKeyData);
+                    break;
+                case (int) READY_FOR_COMMAND:
+                    ReadyForCommandReader readyForCommandReader = new ReadyForCommandReader(dataInputStream);
+                    ReadyForCommand readyForCommand = readyForCommandReader.read();
+                    log.info("Ready For Command Reader {}", readyForCommand);
+                    log.info("Transaction State {} {}",readyForCommand.getTransactionState(),decodeTransactionState(readyForCommand.getTransactionState()));
+                    log.info("No of bytes available to read {}",dataInputStream.available());
+                    return;
+                case (int) SERVER_AUTHENTICATION:
+                    log.debug("Server response AUTHENTICATION_OK received");
+                    ServerAuthentication authentication = readAuthentication(dataInputStream);
+                    log.debug("AuthenticationOk {}", authentication);
+                    break;
+                case (int) ERROR_RESPONSE:
+                    log.debug("Server response AUTHENTICATION_OK received");
+                    readErrorResponse(dataInputStream);
+                    throw new FailedToDecodeServerResponseException();
+                default:
+                    log.debug("Failed to decode Server Response");
+                    throw new FailedToDecodeServerResponseException();
+            }
         }
+    }
+
+    public String decodeTransactionState(short state){
+
+        switch (state) {
+            case (int) IN_TRANSACTION:
+                return "IN_TRANSACTION";
+            case (int) IN_FAILED_TRANSACTION:
+                return "IN_FAILED_TRANSACTION";
+            case (int) NOT_IN_TRANSACTION:
+                return "NOT_IN_TRANSACTION";
+            default:
+                return "";
+        }
+    }
+
+    public ServerKeyData readServerKeyData(DataInputStream dataInputStream) throws IOException {
+        ServerKeyDataReader reader = new ServerKeyDataReader(dataInputStream);
+        return reader.read();
     }
 
     private void readErrorResponse(DataInputStream dataInputStream) {
@@ -114,9 +145,9 @@ public class ConnectionPipe implements pipe {
         return reader.read();
     }
 
-    private AuthenticationOK readAuthenticationOK(DataInputStream dataInputStream) throws IOException {
+    private ServerAuthentication readAuthentication(DataInputStream dataInputStream) throws IOException, FailedToDecodeServerResponseException {
         log.debug("Trying to read Authentication OK");
-        AuthenticationOKReader reader = new AuthenticationOKReader(dataInputStream);
+        ServerAuthenticationReader reader = new ServerAuthenticationReader(dataInputStream);
         return reader.read();
     }
 }

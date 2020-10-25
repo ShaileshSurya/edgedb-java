@@ -33,17 +33,19 @@ public class EdgeDBTest {
         try {
             db.connect();
 
-            db.executeScript("SELECT Movie { id, title, year }");
-        } catch (FailedToConnectEdgeDBServer e) {
-            e.printStackTrace();
-        } catch (FailedToDecodeServerResponseException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (EdgeDBServerException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
+            //db.execute("SELECT Movie { id, title, year }");
+            db.execute("SELECT 1 + 1");
+        } catch (FailedToConnectEdgeDBServer | IOException | FailedToDecodeServerResponseException e) {
             e.printStackTrace();
         }
+//        } catch (FailedToDecodeServerResponseException e) {
+//            e.printStackTrace();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        } catch (EdgeDBServerException e) {
+//            e.printStackTrace();
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
     }
 }

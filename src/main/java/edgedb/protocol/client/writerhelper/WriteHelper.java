@@ -27,13 +27,17 @@ public class WriteHelper implements WriteHelp {
 
     @Override
     public void writeString(String str) throws IOException {
-        dataOutputStream.writeInt(str.getBytes().length);
-        dataOutputStream.write(str.getBytes(), 0, str.getBytes().length);
+        if (str != null) {
+            dataOutputStream.writeInt(str.getBytes().length);
+            dataOutputStream.write(str.getBytes(), 0, str.getBytes().length);
+        }
     }
 
     @Override
-    public void writeByte(byte[] value) throws IOException {
-        dataOutputStream.writeInt(value.length);
-        dataOutputStream.write(value, 0, value.length);
+    public void writeBytes(byte[] value) throws IOException {
+        if (value != null) {
+            dataOutputStream.writeInt(value.length);
+            dataOutputStream.write(value, 0, value.length);
+        }
     }
 }

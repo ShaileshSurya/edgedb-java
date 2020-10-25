@@ -3,6 +3,7 @@ package edgedb.client;
 import edgedb.exceptions.*;
 import edgedb.pipes.connect.ConnectionPipe;
 import edgedb.pipes.executescript.ExecuteScriptPipe;
+import edgedb.pipes.granularflow.GranularFlowPipe;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,6 +40,13 @@ public class EdgeDBClient {
         Thread.sleep(10000);
         String result = executeScriptPipe.read();
         log.debug("Result from the Execute Script {}", result);
+        return "";
+    }
+
+    public String execute(String statement) throws IOException, FailedToDecodeServerResponseException {
+        log.debug("Started executing statement {}",statement);
+        GranularFlowPipe granularFlowPipe = new GranularFlowPipe(socketStream);
+        granularFlowPipe.setup(statement);
         return "";
     }
 
