@@ -7,6 +7,7 @@ import edgedb.protocol.client.writer.*;
 import edgedb.protocol.constants.*;
 import edgedb.protocol.server.*;
 import edgedb.protocol.server.reader.*;
+import edgedb.protocol.typedescriptor.BaseScalarType;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -16,16 +17,21 @@ import java.io.IOException;
 import static edgedb.protocol.constants.MessageType.*;
 
 @Slf4j
-@AllArgsConstructor
 public class GranularFlowPipe {
     SocketStream socketStream;
+    BaseScalarType argumentType;
+    BaseScalarType resultType;
+
+    public GranularFlowPipe(SocketStream socketStream){
+        this.socketStream= socketStream;
+    }
 
     public void setup(String command) throws IOException, FailedToDecodeServerResponseException {
         writePrepareMessage(command);
         writeSyncMessageAndFlush();
         PrepareComplete prepareComplete = readPrepareCompleteServerResponse();
-
-        log.debug("PrepareComplete {}", prepareComplete);
+        argumentType= prepareComplete.getArgumentDataDiscriptor();
+        resultType= prepareComplete.getResultDataDescriptor();
     }
 
     public PrepareComplete readPrepareCompleteServerResponse() throws IOException, FailedToDecodeServerResponseException {
@@ -141,7 +147,7 @@ public class GranularFlowPipe {
 
     public DataResponse readDataResponse() throws IOException {
         DataResponseReader reader = new DataResponseReader(socketStream.getDataInputStream());
-        return reader.read();
+        return reader.read(argumentType,resultType);
     }
 
 

@@ -1,9 +1,10 @@
 package edgedb.protocol.server.reader;
 
-import edgedb.exceptions.OverReadException;
+import edgedb.exceptions.*;
 import edgedb.protocol.client.Header;
 import edgedb.protocol.server.PrepareComplete;
 import edgedb.protocol.server.readerhelper.ReaderHelper;
+import edgedb.protocol.typedescriptor.decoder.ScalarTypeDecoder;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.DataInputStream;
@@ -19,7 +20,7 @@ public class PrepareCompleteReader extends BaseReader {
         super(dataInputStream);
     }
 
-    public PrepareComplete read() throws IOException {
+    public PrepareComplete read() throws IOException, FailedToDecodeServerResponseException {
         PrepareComplete prepareComplete = new PrepareComplete();
         try {
             prepareComplete.setMessageLength(readerHelper.readUint32());
@@ -36,8 +37,14 @@ public class PrepareCompleteReader extends BaseReader {
 
             prepareComplete.setCardinality(readerHelper.readUint8());
 
-            prepareComplete.setArgumentDataDescriptorID(readerHelper.readUUID());
-            prepareComplete.setResultDataDescriptorID(readerHelper.readUUID());
+            byte[] argumentDataDescriptorID = readerHelper.readUUID();
+            ScalarTypeDecoder decoder = new ScalarTypeDecoder();
+            prepareComplete.setArgumentDataDescriptorID(argumentDataDescriptorID);
+            prepareComplete.setResultDataDescriptor(decoder.decode(argumentDataDescriptorID));
+
+            byte[] resultDataDescriptorID = readerHelper.readUUID();
+            prepareComplete.setResultDataDescriptorID(resultDataDescriptorID);
+            prepareComplete.setResultDataDescriptor(decoder.decode(resultDataDescriptorID));
 
             return prepareComplete;
         } catch (OverReadException e) {
@@ -46,16 +53,11 @@ public class PrepareCompleteReader extends BaseReader {
         } catch (IOException e) {
             e.printStackTrace();
             throw e;
+        } catch (ScalarTypeNotFoundException e) {
+            e.printStackTrace();
+            throw new FailedToDecodeServerResponseException();
         }
     }
 
-    public static byte[] longToBytes(long l) {
-        byte[] result = new byte[8];
-        for (int i = 7; i >= 0; i--) {
-            result[i] = (byte) (l & 0xFF);
-            l >>= 8;
-        }
-        return result;
-    }
 
-    }
+}

@@ -1,6 +1,7 @@
 package edgedb.protocol.server;
 
 import edgedb.protocol.client.Header;
+import edgedb.protocol.typedescriptor.BaseScalarType;
 import lombok.Data;
 
 import static edgedb.protocol.constants.MessageType.PREPARE_COMPLETE;
@@ -17,11 +18,11 @@ public class PrepareComplete {
 
     byte[] argumentDataDescriptorID;
     // decoded argumentDataDescriptorID in String format
-    String argumentDataDiscriptor;
+    BaseScalarType argumentDataDiscriptor;
 
     byte[] resultDataDescriptorID;
     // decoded resultDataDescriptorID in String format
-    String resultDataDescriptor;
+    BaseScalarType resultDataDescriptor;
 
 
 }

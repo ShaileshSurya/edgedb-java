@@ -36,8 +36,20 @@ public class EdgeDBTest {
             //db.execute("SELECT Movie { id, title, year }");
             //String result = db.execute("SELECT 1 + 1");
 
-            System.out.println(db.execute("SELECT Movie { id, title, year }"));
-            System.out.println(db.execute("SELECT Movie { id, title}"));
+            System.out.println(db.execute("INSERT Movie {\n" +
+                    "    title := 'Shailesh_test',\n" +
+                    "    director := (\n" +
+                    "        SELECT Person\n" +
+                    "        FILTER\n" +
+                    "            # the last name is sufficient\n" +
+                    "            # to identify the right person\n" +
+                    "            .last_name = 'Villeneuve'\n" +
+                    "        # the LIMIT is needed to satisfy the single\n" +
+                    "        # link requirement validation\n" +
+                    "        LIMIT 1\n" +
+                    "    )\n" +
+                    "};"));
+            //System.out.println(db.execute("SELECT Movie { id, title}"));
 
 
             //db.execute("SELECT 2 + 5");

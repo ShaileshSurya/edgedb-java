@@ -6,6 +6,7 @@ import edgedb.pipes.executescript.ExecuteScriptPipe;
 import edgedb.pipes.granularflow.GranularFlowPipe;
 import edgedb.pipes.terminate.TerminatePipe;
 import edgedb.protocol.client.Terminate;
+import edgedb.protocol.server.PrepareComplete;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
