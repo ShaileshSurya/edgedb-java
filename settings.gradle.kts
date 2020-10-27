@@ -8,3 +8,4 @@
  */
 
 rootProject.name = "edgedb-java"
+
