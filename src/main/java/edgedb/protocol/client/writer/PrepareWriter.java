@@ -11,7 +11,7 @@ import java.io.IOException;
 
 @Slf4j
 @AllArgsConstructor
-public class PrepareWriter {
+public class PrepareWriter implements Write{
 
     DataOutputStream dataOutputStream;
     Prepare prepare;

@@ -4,6 +4,8 @@ import edgedb.exceptions.*;
 import edgedb.pipes.connect.ConnectionPipe;
 import edgedb.pipes.executescript.ExecuteScriptPipe;
 import edgedb.pipes.granularflow.GranularFlowPipe;
+import edgedb.pipes.terminate.TerminatePipe;
+import edgedb.protocol.client.Terminate;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -47,8 +49,15 @@ public class EdgeDBClient {
         log.debug("Started executing statement {}",query);
         GranularFlowPipe granularFlowPipe = new GranularFlowPipe(socketStream);
         granularFlowPipe.setup(query);
-        granularFlowPipe.execute(query);
-        return "";
+        String result = granularFlowPipe.execute(query);
+        return result;
+    }
+
+    //TODO: Should this return boolean flag
+    public void terminate() throws IOException {
+        log.debug("Trying to terminate EdgeDB connection");
+        TerminatePipe terminatePipe = new TerminatePipe(socketStream);
+        terminatePipe.terminate();
     }
 
 

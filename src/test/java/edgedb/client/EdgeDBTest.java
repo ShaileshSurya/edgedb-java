@@ -34,7 +34,14 @@ public class EdgeDBTest {
             db.connect();
 
             //db.execute("SELECT Movie { id, title, year }");
-            db.execute("SELECT 1 + 1");
+            //String result = db.execute("SELECT 1 + 1");
+
+            System.out.println(db.execute("SELECT Movie { id, title, year }"));
+            System.out.println(db.execute("SELECT Movie { id, title}"));
+
+
+            //db.execute("SELECT 2 + 5");
+
         } catch (FailedToConnectEdgeDBServer | IOException | FailedToDecodeServerResponseException e) {
             e.printStackTrace();
         }

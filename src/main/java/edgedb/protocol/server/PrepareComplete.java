@@ -16,6 +16,12 @@ public class PrepareComplete {
     byte cardinality;
 
     byte[] argumentDataDescriptorID;
+    // decoded argumentDataDescriptorID in String format
+    String argumentDataDiscriptor;
+
     byte[] resultDataDescriptorID;
+    // decoded resultDataDescriptorID in String format
+    String resultDataDescriptor;
+
 
 }

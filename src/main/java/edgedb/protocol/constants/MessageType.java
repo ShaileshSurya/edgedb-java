@@ -26,4 +26,5 @@ public final class MessageType {
 
     public static final char DATA_RESPONSE = 'D';
 
+
 }

@@ -2,11 +2,12 @@ package edgedb.protocol.client;
 
 import lombok.Data;
 
-import static edgedb.protocol.constants.MessageType.SYNC_MESSAGE;
+import static edgedb.protocol.constants.MessageType.TERMINATE;
 
 @Data
-public class SyncMessage extends BaseClientProtocol{
-    byte mType = (int)SYNC_MESSAGE;
+public class Terminate extends BaseClientProtocol{
+
+    byte mType= (int)TERMINATE;
     int messageLength;
 
     @Override

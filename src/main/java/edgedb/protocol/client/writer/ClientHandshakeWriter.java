@@ -30,12 +30,13 @@ public class ClientHandshakeWriter implements Write {
             write.writeString(param.getValue());
         }
         write.writeUint16(clientHandshake.getProtocolExtensionLength());
-        dataOutputStream.flush();
+
     }
 
     @Override
     public void writeAndFlush() throws IOException {
-
+        write();
+        dataOutputStream.flush();
     }
 
 }

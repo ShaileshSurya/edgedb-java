@@ -53,6 +53,10 @@ public class GranularFlowPipe {
                     ReadyForCommandReader readyForCommandReader = new ReadyForCommandReader(socketStream.getDataInputStream());
                     ReadyForCommand readyForCommand = readyForCommandReader.read();
                     log.info("Ready For Command Reader {}", readyForCommand);
+                    if(prepareComplete==null){
+                        writeSyncMessageAndFlush();
+                        break;
+                    }
                     return prepareComplete;
                 default:
                     throw new FailedToDecodeServerResponseException();
@@ -91,7 +95,7 @@ public class GranularFlowPipe {
     public Prepare buildPrepareMessage(String command) {
         Prepare prepare = new Prepare();
         prepare.setHeadersLength((short) 0);
-        prepare.setIoFormat((byte) IOFormat.BINARY);
+        prepare.setIoFormat((byte) IOFormat.JSON);
         prepare.setExpectedCardinality((byte) Cardinality.MANY);
         prepare.setStatementName("".getBytes());
         prepare.setCommand(command);
@@ -123,12 +127,12 @@ public class GranularFlowPipe {
             switch (mType) {
                 case (int) DATA_RESPONSE:
                     dataResponse = readDataResponse();
-                    log.debug("Printing Server Key Data {}", dataResponse);
+                    log.debug("Printing Data Response {}", dataResponse);
                     break;
                 case (int) COMMAND_COMPLETE:
                     CommandComplete commandComplete = readCommandComplete();
                     log.debug("Printing Server Key Data {}", commandComplete);
-                    break;
+                    return dataResponse;
                 default:
                     throw new FailedToDecodeServerResponseException();
             }
@@ -150,8 +154,8 @@ public class GranularFlowPipe {
         writeExecuteMessage(query);
         writeSyncMessageAndFlush();
         DataResponse response = readExecuteServerResponse();
-        log.debug("Data Response {}",response);
-        return "";
+        byte[] responseByteArray = response.getDataElements()[0].getDataElement();
+        return new String(responseByteArray);
     }
 
 }

@@ -1,26 +1,28 @@
 package edgedb.protocol.client.writer;
 
-import edgedb.protocol.client.Header;
+import edgedb.protocol.client.Terminate;
 import edgedb.protocol.client.writerhelper.WriteHelper;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-@Data
+@Slf4j
 @AllArgsConstructor
-public class HeaderWriter implements Write {
-    Header header;
-    DataOutputStream dataOutputStream;
+public class TerminateWriter implements Write{
 
-    @Override
+    DataOutputStream dataOutputStream;
+    Terminate terminate;
+
     public void write() throws IOException {
-        WriteHelper writeHelper = new WriteHelper(dataOutputStream);
-        writeHelper.writeUint16(header.getCode());
+        log.debug("Writing terminate Message {}",terminate);
+        WriteHelper helper = new WriteHelper(dataOutputStream);
+
+        helper.writeUint8(terminate.getMType());
+        helper.writeUint32(terminate.getMessageLength());
     }
 
-    @Override
     public void writeAndFlush() throws IOException {
         write();
         dataOutputStream.flush();

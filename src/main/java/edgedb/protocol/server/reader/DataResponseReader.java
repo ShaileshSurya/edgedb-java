@@ -24,17 +24,20 @@ public class DataResponseReader extends BaseReader {
 
         DataResponse dataResponse = new DataResponse();
         try {
-            dataResponse.setMessageLength(readerHelper.readUint32());
-            dataResponse.setReserved(readerHelper.readUint32());
+            int messageLength = readerHelper.readUint32();
+            dataResponse.setMessageLength(messageLength);
 
             short dataLength = readerHelper.readUint16();
             dataResponse.setDataLength(dataLength);
+
 
             DataElement[] dataElements = new DataElement[dataLength];
             DataElementReader dataElementReader = new DataElementReader(dataInputStream,readerHelper);
             for (int i = 0; i < (int) dataLength; i++) {
                 dataElements[i] = dataElementReader.read();
             }
+
+            dataResponse.setDataElements(dataElements);
             return dataResponse;
         } catch (OverReadException e) {
             e.printStackTrace();

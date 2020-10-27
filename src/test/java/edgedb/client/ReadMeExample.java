@@ -1,12 +1,3 @@
-# EdgeDB-JAVA
-This is an unofficial EdgeDB driver for JAVA ecosystem.
-
-# ⚠️ WIP ⚠️
-This project is far from production ready. Contributions welcome! 😊
-
-## Basic Recipes
-```java
-
 package edgedb.client;
 
 import edgedb.exceptions.FailedToConnectEdgeDBServer;
@@ -23,16 +14,9 @@ public class ReadMeExample {
         try {
             db.connect();
             String jsonResult = db.execute("SELECT Movie { id, title}");
-            System.out.Println(result);
             db.terminate();
         } catch (FailedToDecodeServerResponseException |FailedToConnectEdgeDBServer| IOException e) {
             e.printStackTrace();
-        } 
+        }
     }
 }
-
-```
-
-## License
-edgedb-java is developed and distributed under the Apache 2.0 license.
-    

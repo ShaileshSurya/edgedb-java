@@ -42,7 +42,7 @@ public class ConnectionPipe implements pipe {
             DataInputStream dataInputStream = new DataInputStream(
                     new BufferedInputStream(socket.getInputStream()));
 
-            writeClientHandshake(dataOutputStream);
+            writeAndFlushClientHandshake(dataOutputStream);
             readServerResponse(dataInputStream);
             log.debug("After WriteHandshake");
             /*try{
@@ -68,11 +68,11 @@ public class ConnectionPipe implements pipe {
         }
     }
 
-    private void writeClientHandshake(DataOutputStream dataOutputStream) throws IOException {
+    private void writeAndFlushClientHandshake(DataOutputStream dataOutputStream) throws IOException {
         log.debug("Trying to write client handshake");
         ClientHandshake clientHandshake = new ClientHandshake(connection);
         Write write = new ClientHandshakeWriter(dataOutputStream, clientHandshake);
-        write.write();
+        write.writeAndFlush();
         log.debug("Write client handshake successful");
     }
 
