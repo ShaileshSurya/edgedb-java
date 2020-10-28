@@ -1,6 +1,8 @@
 package edgedb.protocol.server.reader;
 
+import edgedb.exceptions.FailedToDecodeServerResponseException;
 import edgedb.exceptions.OverReadException;
+import edgedb.protocol.server.BaseServerProtocol;
 import edgedb.protocol.server.DataElement;
 import edgedb.protocol.server.readerhelper.ReaderHelper;
 import edgedb.protocol.typedescriptor.BaseScalarType;
@@ -21,10 +23,11 @@ public class DataElementReader extends BaseReader {
         super(dataInputStream);
     }
 
-    public DataElement read(BaseScalarType resultType,BaseScalarType argumentType) throws IOException {
+    @Override
+    public DataElement read() throws IOException {
         DataElement dataElement = new DataElement();
 
-        try{
+        try {
             int dataElementsLength = readerHelper.readUint32();
             dataElement.setDataLength(dataElementsLength);
 
@@ -36,9 +39,9 @@ public class DataElementReader extends BaseReader {
 //            }
 
             byte[] data = new byte[dataElementsLength];
-            for(int i=0;i<dataElementsLength;i++){
-                data[i]= readerHelper.getDataInputStream().readByte();
-                System.out.print((char)data[i] + " ");
+            for (int i = 0; i < dataElementsLength; i++) {
+                data[i] = readerHelper.getDataInputStream().readByte();
+                System.out.print((char) data[i] + " ");
             }
             dataElement.setDataElement(data);
 

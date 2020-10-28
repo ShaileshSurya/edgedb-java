@@ -10,7 +10,7 @@ import java.io.IOException;
 
 @Slf4j
 @AllArgsConstructor
-public class TerminateWriter implements Write{
+public class TerminateWriter extends BaseWriter{
 
     DataOutputStream dataOutputStream;
     Terminate terminate;

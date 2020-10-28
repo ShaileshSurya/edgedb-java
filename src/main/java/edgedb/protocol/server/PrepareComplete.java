@@ -1,13 +1,13 @@
 package edgedb.protocol.server;
 
-import edgedb.protocol.client.Header;
+import edgedb.protocol.common.Header;
 import edgedb.protocol.typedescriptor.BaseScalarType;
 import lombok.Data;
 
 import static edgedb.protocol.constants.MessageType.PREPARE_COMPLETE;
 
 @Data
-public class PrepareComplete {
+public class PrepareComplete extends BaseServerProtocol{
     byte mType = (byte) PREPARE_COMPLETE;
     int messageLength;
 

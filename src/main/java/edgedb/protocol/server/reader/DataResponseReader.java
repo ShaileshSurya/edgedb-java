@@ -1,8 +1,8 @@
 package edgedb.protocol.server.reader;
 
+import edgedb.exceptions.FailedToDecodeServerResponseException;
 import edgedb.exceptions.OverReadException;
-import edgedb.protocol.server.DataElement;
-import edgedb.protocol.server.DataResponse;
+import edgedb.protocol.server.*;
 import edgedb.protocol.server.readerhelper.ReaderHelper;
 import edgedb.protocol.typedescriptor.BaseScalarType;
 import lombok.extern.slf4j.Slf4j;
@@ -12,6 +12,7 @@ import java.io.IOException;
 
 @Slf4j
 public class DataResponseReader extends BaseReader {
+
     public DataResponseReader(DataInputStream dataInputStream, ReaderHelper readerHelper) {
         super(dataInputStream, readerHelper);
     }
@@ -20,7 +21,7 @@ public class DataResponseReader extends BaseReader {
         super(dataInputStream);
     }
 
-    public DataResponse read(BaseScalarType resultType,BaseScalarType argumentType) throws IOException {
+    public DataResponse read() throws IOException {
         log.debug("Trying to read DataResponse.");
 
         DataResponse dataResponse = new DataResponse();
@@ -35,7 +36,7 @@ public class DataResponseReader extends BaseReader {
             DataElement[] dataElements = new DataElement[dataLength];
             DataElementReader dataElementReader = new DataElementReader(dataInputStream, readerHelper);
             for (int i = 0; i < (int) dataLength; i++) {
-                dataElements[i] = dataElementReader.read(resultType,argumentType);
+                dataElements[i] = dataElementReader.read();
             }
 
             dataResponse.setDataElements(dataElements);

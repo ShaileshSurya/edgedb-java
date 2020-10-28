@@ -1,5 +1,6 @@
 package edgedb.protocol.client;
 
+import edgedb.protocol.common.Header;
 import lombok.Data;
 
 @Data
@@ -10,6 +11,14 @@ public class Execute extends BaseClientProtocol{
     Header[] headers;
     byte[] statementName;
     byte[] arguments;
+
+    public Execute(){
+        this.headersLength = (short)0;
+        this.statementName= "".getBytes();
+        this.arguments= "".getBytes();
+        // Remove this hardcoded value.
+        this.messageLength = 18;
+    }
 
     @Override
     public int calculateMessageLength() {

@@ -1,14 +1,14 @@
-package edgedb.protocol.client;
+package edgedb.protocol.server;
 
+import edgedb.protocol.client.BaseClientProtocol;
 import lombok.Data;
 
 @Data
 // No Protocol Extensions are currently Defined.
-public class ProtocolExtension extends BaseClientProtocol {
+public class ProtocolExtension {
     String name;
     short headersLength;
 
-    @Override
     public int calculateMessageLength() {
         return 0;
     }

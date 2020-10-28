@@ -1,6 +1,7 @@
 package edgedb.protocol.client;
 
 import edgedb.client.Connection;
+import edgedb.protocol.server.ProtocolExtension;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 

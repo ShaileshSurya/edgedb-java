@@ -2,6 +2,7 @@ package edgedb.protocol.client.writer;
 
 import edgedb.protocol.client.*;
 import edgedb.protocol.client.writerhelper.WriteHelper;
+import edgedb.protocol.common.HeaderWriter;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -10,7 +11,7 @@ import java.io.IOException;
 
 @AllArgsConstructor
 @Slf4j
-public class ExecuteWriter implements Write{
+public class ExecuteWriter extends BaseWriter{
     DataOutputStream dataOutputStream;
     Execute execute;
 

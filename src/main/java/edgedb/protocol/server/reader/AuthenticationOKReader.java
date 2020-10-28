@@ -2,7 +2,6 @@ package edgedb.protocol.server.reader;
 
 import edgedb.exceptions.OverReadException;
 import edgedb.protocol.server.AuthenticationOK;
-import edgedb.protocol.server.readerhelper.Read;
 import edgedb.protocol.server.readerhelper.ReaderHelper;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;

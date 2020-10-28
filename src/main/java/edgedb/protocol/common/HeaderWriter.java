@@ -1,6 +1,7 @@
-package edgedb.protocol.client.writer;
+package edgedb.protocol.common;
 
-import edgedb.protocol.client.Header;
+import edgedb.protocol.client.writer.BaseWriter;
+import edgedb.protocol.common.Header;
 import edgedb.protocol.client.writerhelper.WriteHelper;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -10,7 +11,7 @@ import java.io.IOException;
 
 @Data
 @AllArgsConstructor
-public class HeaderWriter implements Write {
+public class HeaderWriter extends BaseWriter {
     Header header;
     DataOutputStream dataOutputStream;
 

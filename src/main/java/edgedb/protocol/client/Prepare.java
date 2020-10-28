@@ -1,6 +1,8 @@
 package edgedb.protocol.client;
 
-import edgedb.protocol.client.Header;
+import edgedb.protocol.common.Header;
+import edgedb.protocol.constants.Cardinality;
+import edgedb.protocol.constants.IOFormat;
 import lombok.Data;
 
 import static edgedb.protocol.constants.MessageType.PREPARE;
@@ -15,6 +17,15 @@ public class Prepare extends BaseClientProtocol{
     byte expectedCardinality;
     byte[] statementName;
     String command;
+
+    public Prepare(char IOFormat,char expectedCardinality,String command){
+        this.headersLength= (short)0;
+        this.ioFormat= (byte) IOFormat;
+        this.expectedCardinality = (byte) expectedCardinality;
+        this.statementName= "".getBytes();
+        this.command= command;
+        this.messageLength= calculateMessageLength();
+    }
 
     @Override
     public int calculateMessageLength() {

@@ -12,7 +12,7 @@ import java.io.IOException;
 
 @Slf4j
 @AllArgsConstructor
-public class ClientHandshakeWriter implements Write {
+public class ClientHandshakeWriter extends BaseWriter {
     DataOutputStream dataOutputStream;
     ClientHandshake clientHandshake;
 

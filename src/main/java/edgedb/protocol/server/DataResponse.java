@@ -5,7 +5,7 @@ import lombok.Data;
 import static edgedb.protocol.constants.MessageType.DATA_RESPONSE;
 
 @Data
-public class DataResponse {
+public class DataResponse extends BaseServerProtocol{
     byte mType=DATA_RESPONSE;
     int messageLength;
 

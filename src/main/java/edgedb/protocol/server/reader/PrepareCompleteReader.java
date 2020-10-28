@@ -1,7 +1,8 @@
 package edgedb.protocol.server.reader;
 
 import edgedb.exceptions.*;
-import edgedb.protocol.client.Header;
+import edgedb.protocol.common.Header;
+import edgedb.protocol.common.HeaderReader;
 import edgedb.protocol.server.PrepareComplete;
 import edgedb.protocol.server.readerhelper.ReaderHelper;
 import edgedb.protocol.typedescriptor.decoder.ScalarTypeDecoder;
@@ -40,11 +41,11 @@ public class PrepareCompleteReader extends BaseReader {
             byte[] argumentDataDescriptorID = readerHelper.readUUID();
             ScalarTypeDecoder decoder = new ScalarTypeDecoder();
             prepareComplete.setArgumentDataDescriptorID(argumentDataDescriptorID);
-            prepareComplete.setResultDataDescriptor(decoder.decode(argumentDataDescriptorID));
+            //prepareComplete.setResultDataDescriptor(decoder.decode(argumentDataDescriptorID));
 
             byte[] resultDataDescriptorID = readerHelper.readUUID();
             prepareComplete.setResultDataDescriptorID(resultDataDescriptorID);
-            prepareComplete.setResultDataDescriptor(decoder.decode(resultDataDescriptorID));
+            //prepareComplete.setResultDataDescriptor(decoder.decode(resultDataDescriptorID));
 
             return prepareComplete;
         } catch (OverReadException e) {
@@ -53,10 +54,11 @@ public class PrepareCompleteReader extends BaseReader {
         } catch (IOException e) {
             e.printStackTrace();
             throw e;
-        } catch (ScalarTypeNotFoundException e) {
-            e.printStackTrace();
-            throw new FailedToDecodeServerResponseException();
         }
+//        } catch (ScalarTypeNotFoundException e) {
+//            e.printStackTrace();
+//            throw new FailedToDecodeServerResponseException();
+//        }
     }
 
 

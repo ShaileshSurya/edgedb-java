@@ -1,20 +1,25 @@
 package edgedb.protocol.server.reader;
 
 import edgedb.exceptions.OverReadException;
-import edgedb.protocol.client.Header;
-import edgedb.protocol.client.ProtocolExtension;
+import edgedb.protocol.common.Header;
+import edgedb.protocol.common.HeaderReader;
+import edgedb.protocol.server.ProtocolExtension;
 import edgedb.protocol.server.readerhelper.ReaderHelper;
 
 import java.io.DataInputStream;
 import java.io.IOException;
 
-public class ProtocolExtensionReader extends BaseReader {
+public class ProtocolExtensionReader{
+    private DataInputStream dataInputStream;
+    private ReaderHelper readerHelper;
+
     public ProtocolExtensionReader(DataInputStream dataInputStream, ReaderHelper readerHelper) {
-        super(dataInputStream, readerHelper);
+        this.dataInputStream = dataInputStream;
+        this.readerHelper = readerHelper;
     }
 
     public ProtocolExtensionReader(DataInputStream dataInputStream) {
-        super(dataInputStream);
+        this.dataInputStream= dataInputStream;
     }
 
     public ProtocolExtension read() throws IOException {

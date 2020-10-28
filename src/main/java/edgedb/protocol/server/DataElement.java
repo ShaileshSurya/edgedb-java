@@ -3,7 +3,7 @@ package edgedb.protocol.server;
 import lombok.Data;
 
 @Data
-public class DataElement {
+public class DataElement extends BaseServerProtocol{
     int dataLength;
     byte[] dataElement;
     byte[] dataElementInBinary;

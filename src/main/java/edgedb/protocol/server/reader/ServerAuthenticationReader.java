@@ -2,6 +2,7 @@ package edgedb.protocol.server.reader;
 
 import edgedb.exceptions.FailedToDecodeServerResponseException;
 import edgedb.exceptions.OverReadException;
+import edgedb.protocol.server.AuthenticationOK;
 import edgedb.protocol.server.ServerAuthentication;
 import edgedb.protocol.server.readerhelper.ReaderHelper;
 

@@ -11,7 +11,7 @@ import java.io.IOException;
 
 @Slf4j
 @AllArgsConstructor
-public class SyncMessageWriter implements Write{
+public class SyncMessageWriter extends BaseWriter{
 
     DataOutputStream dataOutputStream;
     SyncMessage syncMessage;

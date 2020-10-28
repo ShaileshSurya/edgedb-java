@@ -3,7 +3,7 @@ package edgedb.protocol.server;
 import lombok.Data;
 
 @Data
-public class ErrorResponse {
+public class ErrorResponse extends BaseServerProtocol{
     byte mType = (byte) 'E';
     int messageLength;
     int errorCode;

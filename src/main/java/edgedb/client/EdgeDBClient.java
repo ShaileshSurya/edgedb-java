@@ -50,7 +50,7 @@ public class EdgeDBClient {
         log.debug("Started executing statement {}",query);
         GranularFlowPipe granularFlowPipe = new GranularFlowPipe(socketStream);
         granularFlowPipe.setup(query);
-        String result = granularFlowPipe.execute(query);
+        String result = granularFlowPipe.execute();
         return result;
     }
 

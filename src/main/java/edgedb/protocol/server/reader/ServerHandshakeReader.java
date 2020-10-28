@@ -1,7 +1,7 @@
 package edgedb.protocol.server.reader;
 
 import edgedb.exceptions.OverReadException;
-import edgedb.protocol.client.ProtocolExtension;
+import edgedb.protocol.server.ProtocolExtension;
 import edgedb.protocol.server.ServerHandshake;
 import edgedb.protocol.server.readerhelper.ReaderHelper;
 import lombok.Data;

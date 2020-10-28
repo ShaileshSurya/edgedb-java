@@ -1,15 +1,17 @@
-package edgedb.protocol.client;
+package edgedb.protocol.common;
 
+import edgedb.protocol.client.BaseClientProtocol;
+import edgedb.protocol.client.MessageLengthCalculator;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 @Data
 @Slf4j
-public class Header extends BaseClientProtocol {
+public class Header {
     short code;
     byte[] value;
 
-    @Override
+
     public int calculateMessageLength() {
         int messageLength = 0;
         MessageLengthCalculator calculator = new MessageLengthCalculator();

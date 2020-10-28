@@ -1,10 +1,9 @@
 package edgedb.protocol.server;
 
-import edgedb.protocol.client.ProtocolExtension;
 import lombok.Data;
 
 @Data
-public class ServerHandshake {
+public class ServerHandshake extends BaseServerProtocol{
     byte mType = 'v';
     int messageLength;
     short majorVersion;

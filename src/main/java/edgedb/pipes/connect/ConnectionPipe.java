@@ -5,9 +5,8 @@ import edgedb.client.SocketStream;
 import edgedb.exceptions.FailedToConnectEdgeDBServer;
 import edgedb.exceptions.FailedToDecodeServerResponseException;
 import edgedb.pipes.pipe;
-import edgedb.protocol.client.ClientHandshake;
-import edgedb.protocol.client.writer.ClientHandshakeWriter;
-import edgedb.protocol.client.writer.Write;
+import edgedb.protocol.client.*;
+import edgedb.protocol.client.writer.*;
 import edgedb.protocol.server.*;
 import edgedb.protocol.server.reader.*;
 import lombok.extern.slf4j.Slf4j;
@@ -42,19 +41,10 @@ public class ConnectionPipe implements pipe {
             DataInputStream dataInputStream = new DataInputStream(
                     new BufferedInputStream(socket.getInputStream()));
 
-            writeAndFlushClientHandshake(dataOutputStream);
-            readServerResponse(dataInputStream);
-            log.debug("After WriteHandshake");
-            /*try{
-                while(true) {
+            writeAndFlush(new ClientHandshakeWriter(dataOutputStream,new ClientHandshake(connection)));
 
-                    byte ch;
-                    ch = dataInputStream.readByte();
-                    System.out.print((char) ch + "\t");
-                }
-            }catch (EOFException e){
-                log.debug("EOF Exception {}", e);
-            }*/
+            readServerResponse(dataInputStream,dataOutputStream);
+            log.debug("After WriteHandshake");
 
             return new SocketStream(dataInputStream, dataOutputStream);
 
@@ -68,17 +58,9 @@ public class ConnectionPipe implements pipe {
         }
     }
 
-    private void writeAndFlushClientHandshake(DataOutputStream dataOutputStream) throws IOException {
-        log.debug("Trying to write client handshake");
-        ClientHandshake clientHandshake = new ClientHandshake(connection);
-        Write write = new ClientHandshakeWriter(dataOutputStream, clientHandshake);
-        write.writeAndFlush();
-        log.debug("Write client handshake successful");
-    }
 
-    private void readServerResponse(DataInputStream dataInputStream) throws IOException, FailedToDecodeServerResponseException {
+    private void readServerResponse(DataInputStream dataInputStream,DataOutputStream dataOutputStream) throws IOException, FailedToDecodeServerResponseException {
         log.debug("Trying to read Server Response");
-
 
         while (true) {
             byte mType = dataInputStream.readByte();
@@ -86,28 +68,36 @@ public class ConnectionPipe implements pipe {
             switch (mType) {
                 case (int) SERVER_HANDSHAKE:
                     log.debug("Server response SERVER_HANDSHAKE received");
-                    ServerHandshake serverHandshake = readServerHandshake(dataInputStream);
+                    ServerHandshake serverHandshake = read(new ServerHandshakeReader(dataInputStream));
                     log.debug("Server Handshake {}", serverHandshake);
                     throw new FailedToDecodeServerResponseException();
                 case (int) SERVER_KEY_DATA:
-                    ServerKeyData serverKeyData = readServerKeyData(dataInputStream);
+                    ServerKeyData serverKeyData = read(new ServerKeyDataReader(dataInputStream));
                     log.debug("Printing Server Key Data {}", serverKeyData);
                     break;
                 case (int) READY_FOR_COMMAND:
-                    ReadyForCommandReader readyForCommandReader = new ReadyForCommandReader(dataInputStream);
-                    ReadyForCommand readyForCommand = readyForCommandReader.read();
+                    ReadyForCommand readyForCommand = read(new ReadyForCommandReader(dataInputStream));
                     log.info("Ready For Command Reader {}", readyForCommand);
-                    log.info("Transaction State {} {}",readyForCommand.getTransactionState(),decodeTransactionState(readyForCommand.getTransactionState()));
-                    log.info("No of bytes available to read {}",dataInputStream.available());
-                    return;
+
+                    switch (readyForCommand.getTransactionState()){
+                        case (int)IN_FAILED_TRANSACTION:
+                            writeAndFlush(new SyncMessageWriter(dataOutputStream,buildSyncMessage()));
+                            break;
+                        case (int)IN_TRANSACTION:
+                            break;
+                        case (int)NOT_IN_TRANSACTION:
+                            return;
+                        default:
+                            throw new FailedToDecodeServerResponseException();
+                    }
                 case (int) SERVER_AUTHENTICATION:
                     log.debug("Server response AUTHENTICATION_OK received");
-                    ServerAuthentication authentication = readAuthentication(dataInputStream);
+                    ServerAuthentication authentication = read(new ServerAuthenticationReader(dataInputStream));
                     log.debug("AuthenticationOk {}", authentication);
                     break;
                 case (int) ERROR_RESPONSE:
                     log.debug("Server response AUTHENTICATION_OK received");
-                    readErrorResponse(dataInputStream);
+                    ErrorResponse errorResponse = read(new ErrorResponseReader(dataInputStream));
                     throw new FailedToDecodeServerResponseException();
                 default:
                     log.debug("Failed to decode Server Response");
@@ -116,38 +106,22 @@ public class ConnectionPipe implements pipe {
         }
     }
 
-    public String decodeTransactionState(short state){
-
-        switch (state) {
-            case (int) IN_TRANSACTION:
-                return "IN_TRANSACTION";
-            case (int) IN_FAILED_TRANSACTION:
-                return "IN_FAILED_TRANSACTION";
-            case (int) NOT_IN_TRANSACTION:
-                return "NOT_IN_TRANSACTION";
-            default:
-                return "";
-        }
+    public <S extends Read,T extends BaseServerProtocol> T read(S reader) throws IOException, FailedToDecodeServerResponseException {
+        return (T) reader.read();
     }
 
-    public ServerKeyData readServerKeyData(DataInputStream dataInputStream) throws IOException {
-        ServerKeyDataReader reader = new ServerKeyDataReader(dataInputStream);
-        return reader.read();
+    public <S extends BaseWriter> void write(S writer) throws IOException {
+        writer.write();
     }
 
-    private void readErrorResponse(DataInputStream dataInputStream) {
-        log.debug("Trying to read Error Response");
+    public <S extends BaseWriter> void writeAndFlush(S writer) throws IOException {
+        writer.writeAndFlush();
     }
 
-    private ServerHandshake readServerHandshake(DataInputStream dataInputStream) throws IOException {
-        log.debug("Trying to read Server Handshake");
-        ServerHandshakeReader reader = new ServerHandshakeReader(dataInputStream);
-        return reader.read();
-    }
-
-    private ServerAuthentication readAuthentication(DataInputStream dataInputStream) throws IOException, FailedToDecodeServerResponseException {
-        log.debug("Trying to read Authentication OK");
-        ServerAuthenticationReader reader = new ServerAuthenticationReader(dataInputStream);
-        return reader.read();
+    public SyncMessage buildSyncMessage(){
+        log.debug("Trying to build Sync message");
+        SyncMessage syncMessage = new SyncMessage();
+        syncMessage.setMessageLength(syncMessage.calculateMessageLength());
+        return syncMessage;
     }
 }

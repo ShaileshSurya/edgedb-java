@@ -1,7 +1,6 @@
-package edgedb.protocol.server.reader;
+package edgedb.protocol.common;
 
 import edgedb.exceptions.OverReadException;
-import edgedb.protocol.client.Header;
 import edgedb.protocol.server.readerhelper.ReaderHelper;
 import lombok.Data;
 
@@ -9,14 +8,19 @@ import java.io.DataInputStream;
 import java.io.IOException;
 
 @Data
-public class HeaderReader extends BaseReader {
+public class HeaderReader  {
+
+    private DataInputStream dataInputStream;
+    private ReaderHelper readerHelper;
 
     public HeaderReader(DataInputStream dataInputStream, ReaderHelper readerHelper) {
-        super(dataInputStream, readerHelper);
+        this.dataInputStream = dataInputStream;
+        this.readerHelper= readerHelper;
     }
 
     public HeaderReader(DataInputStream dataInputStream) {
-        super(dataInputStream);
+        this.dataInputStream = dataInputStream;
+        this.readerHelper = new ReaderHelper(dataInputStream);
     }
 
     public Header read() throws IOException {
