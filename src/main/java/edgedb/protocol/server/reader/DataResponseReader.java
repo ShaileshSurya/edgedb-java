@@ -1,6 +1,6 @@
 package edgedb.protocol.server.reader;
 
-import edgedb.exceptions.FailedToDecodeServerResponseException;
+import edgedb.exceptions.EdgeDBInternalErrException;
 import edgedb.exceptions.OverReadException;
 import edgedb.protocol.server.*;
 import edgedb.protocol.server.readerhelper.ReaderHelper;

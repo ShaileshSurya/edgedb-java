@@ -12,8 +12,6 @@ public class EdgeDBTest {
     @Mock
     Connection connection;
 
-    @Before
-
     @Test
     public void connectTest() {
         String user = "edgedb";
@@ -52,12 +50,12 @@ public class EdgeDBTest {
             System.out.println(db.execute("SELECT Movie { id, title}"));
 
 
-            //db.execute("SELECT 2 + 5");
+            db.execute("SELECT 2 + 5");
 
-        } catch (FailedToConnectEdgeDBServer | IOException | FailedToDecodeServerResponseException e) {
+        } catch (IOException | EdgeDBInternalErrException e) {
             e.printStackTrace();
         }
-//        } catch (FailedToDecodeServerResponseException e) {
+//        } catch (EdgeDBInternalErrException e) {
 //            e.printStackTrace();
 //        } catch (IOException e) {
 //            e.printStackTrace();
@@ -66,5 +64,13 @@ public class EdgeDBTest {
 //        } catch (InterruptedException e) {
 //            e.printStackTrace();
 //        }
+    }
+
+    @Test
+    public void test(){
+       byte[] arr=  new byte[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1};
+       for(byte b : arr){
+           System.out.print(Character.forDigit((b >> 4 & 0xF), 16)+ " ");
+       }
     }
 }

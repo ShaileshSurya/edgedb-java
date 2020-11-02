@@ -1,6 +1,6 @@
 package edgedb.exceptions;
 
-public class BaseException extends Exception {
+public class BaseException extends RuntimeException {
     String errMessage;
     // TODO: We want to throw the stack trace as well.
     // TODO: How do we do that?

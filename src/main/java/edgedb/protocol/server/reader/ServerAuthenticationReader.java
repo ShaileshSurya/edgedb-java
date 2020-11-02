@@ -1,6 +1,6 @@
 package edgedb.protocol.server.reader;
 
-import edgedb.exceptions.FailedToDecodeServerResponseException;
+import edgedb.exceptions.EdgeDBInternalErrException;
 import edgedb.exceptions.OverReadException;
 import edgedb.protocol.server.AuthenticationOK;
 import edgedb.protocol.server.ServerAuthentication;
@@ -9,6 +9,7 @@ import edgedb.protocol.server.readerhelper.ReaderHelper;
 import java.io.DataInputStream;
 import java.io.IOException;
 
+import static edgedb.exceptions.ErrorMessage.FAILED_TO_DECODE_SERVER_RESPONSE;
 import static edgedb.protocol.constants.AuthenticationStatus.*;
 
 public class ServerAuthenticationReader extends BaseReader{
@@ -20,7 +21,7 @@ public class ServerAuthenticationReader extends BaseReader{
         super(dataInputStream);
     }
 
-    public ServerAuthentication read() throws IOException, FailedToDecodeServerResponseException {
+    public ServerAuthentication read() throws IOException, EdgeDBInternalErrException {
         ServerAuthentication serverAuthentication = new ServerAuthentication();
 
         try {
@@ -42,7 +43,7 @@ public class ServerAuthenticationReader extends BaseReader{
                     return serverAuthentication;
 
                 default:
-                    throw new FailedToDecodeServerResponseException();
+                    throw new EdgeDBInternalErrException(FAILED_TO_DECODE_SERVER_RESPONSE);
             }
 
         } catch (OverReadException e) {

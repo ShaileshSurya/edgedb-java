@@ -1,6 +1,6 @@
 package edgedb.protocol.typedescriptor;
 
-public enum BaseScalarType {
+public enum BaseScalarType implements TypeDescriptor {
     UUID,
     STRING,
     BYTES,

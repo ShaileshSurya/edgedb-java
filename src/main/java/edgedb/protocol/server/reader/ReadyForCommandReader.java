@@ -1,6 +1,6 @@
 package edgedb.protocol.server.reader;
 
-import edgedb.exceptions.FailedToDecodeServerResponseException;
+import edgedb.exceptions.EdgeDBInternalErrException;
 import edgedb.exceptions.OverReadException;
 import edgedb.protocol.common.Header;
 import edgedb.protocol.common.HeaderReader;
@@ -10,6 +10,7 @@ import edgedb.protocol.server.readerhelper.ReaderHelper;
 import java.io.DataInputStream;
 import java.io.IOException;
 
+import static edgedb.exceptions.ErrorMessage.FAILED_TO_DECODE_SERVER_RESPONSE;
 import static edgedb.protocol.constants.TransactionState.*;
 
 public class ReadyForCommandReader extends BaseReader{
@@ -23,7 +24,7 @@ public class ReadyForCommandReader extends BaseReader{
         super(dataInputStream);
     }
 
-    public ReadyForCommand read() throws IOException, FailedToDecodeServerResponseException {
+    public ReadyForCommand read() throws IOException, EdgeDBInternalErrException {
         ReadyForCommand readyForCommand = new ReadyForCommand();
 
         try{
@@ -49,19 +50,6 @@ public class ReadyForCommandReader extends BaseReader{
         } catch (IOException e) {
             e.printStackTrace();
             throw e;
-        }
-    }
-    public String decodeTransactionState(short state) throws FailedToDecodeServerResponseException {
-
-        switch (state) {
-            case (int) IN_TRANSACTION:
-                return "IN_TRANSACTION";
-            case (int) IN_FAILED_TRANSACTION:
-                return "IN_FAILED_TRANSACTION";
-            case (int) NOT_IN_TRANSACTION:
-                return "NOT_IN_TRANSACTION";
-            default:
-                throw new FailedToDecodeServerResponseException();
         }
     }
 }

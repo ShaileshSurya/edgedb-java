@@ -1,47 +1,54 @@
 package edgedb.protocol.typedescriptor.decoder;
 
 import edgedb.exceptions.ScalarTypeNotFoundException;
-import edgedb.protocol.typedescriptor.BaseScalarType;
+import edgedb.protocol.typedescriptor.*;
 
 import java.util.Arrays;
 
-public final class ScalarTypeDecoder {
+public final class KnownTypeDecoder<T extends TypeDescriptor> {
 
-    public static final BaseScalarType decode(byte[] value) throws ScalarTypeNotFoundException {
+    public final T decode(byte[] value) throws ScalarTypeNotFoundException {
 
         if (Arrays.equals(value, new byte[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0})) {
-            return BaseScalarType.UUID;
+            return (T) BaseScalarType.UUID;
         } else if (Arrays.equals(value, new byte[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1})) {
-            return BaseScalarType.STRING;
+            return (T) BaseScalarType.STRING;
         } else if (Arrays.equals(value, new byte[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2})) {
-            return BaseScalarType.BYTES;
+            return (T) BaseScalarType.BYTES;
         } else if (Arrays.equals(value, new byte[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 3})) {
-            return BaseScalarType.INT16;
+            return (T) BaseScalarType.INT16;
         } else if (Arrays.equals(value, new byte[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 4})) {
-            return BaseScalarType.INT32;
+            return (T) BaseScalarType.INT32;
         } else if (Arrays.equals(value, new byte[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 5})) {
-            return BaseScalarType.INT64;
+            return (T) BaseScalarType.INT64;
         } else if (Arrays.equals(value, new byte[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 6})) {
-            return BaseScalarType.FLOAT32;
+            return (T) BaseScalarType.FLOAT32;
         } else if (Arrays.equals(value, new byte[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 7})) {
-            return BaseScalarType.FLOAT64;
+            return (T) BaseScalarType.FLOAT64;
         } else if (Arrays.equals(value, new byte[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 8})) {
-            return BaseScalarType.DECIMAL;
+            return (T) BaseScalarType.DECIMAL;
         } else if (Arrays.equals(value, new byte[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 9})) {
-            return BaseScalarType.BOOL;
+            return (T) BaseScalarType.BOOL;
         } else if (Arrays.equals(value, new byte[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 10})) {
-            return BaseScalarType.DATETIME;
+            return (T) BaseScalarType.DATETIME;
         } else if (Arrays.equals(value, new byte[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 11})) {
-            return BaseScalarType.LOCAL_DATE_TIME;
+            return (T) BaseScalarType.LOCAL_DATE_TIME;
         } else if (Arrays.equals(value, new byte[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 12})) {
-            return BaseScalarType.LOCAL_DATE;
+            return (T) BaseScalarType.LOCAL_DATE;
         } else if (Arrays.equals(value, new byte[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 13})) {
-            return BaseScalarType.LOCAL_TIME;
+            return (T) BaseScalarType.LOCAL_TIME;
         } else if (Arrays.equals(value, new byte[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 14})) {
-            return BaseScalarType.DURATION;
+            return (T) BaseScalarType.DURATION;
         } else if (Arrays.equals(value, new byte[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 15})) {
-            return BaseScalarType.JSON;
-        } else {
+            return (T) BaseScalarType.JSON;
+        }else if (Arrays.equals(value, new byte[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1})) {
+            throw new ScalarTypeNotFoundException();
+        }else if (Arrays.equals(value, new byte[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1})) {
+            return (T) TupleType.ANY_TUPLE;
+        }else if (Arrays.equals(value, new byte[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2})) {
+            return (T) TupleType.ANY_TUPLE;
+        }
+        else {
             throw new ScalarTypeNotFoundException();
         }
     }

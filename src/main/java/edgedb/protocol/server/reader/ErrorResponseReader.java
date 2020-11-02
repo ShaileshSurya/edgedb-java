@@ -1,6 +1,6 @@
 package edgedb.protocol.server.reader;
 
-import edgedb.exceptions.FailedToDecodeServerResponseException;
+import edgedb.exceptions.EdgeDBInternalErrException;
 import edgedb.protocol.server.BaseServerProtocol;
 import edgedb.protocol.server.ErrorResponse;
 import edgedb.protocol.server.readerhelper.ReaderHelper;
@@ -22,7 +22,7 @@ public class ErrorResponseReader extends BaseReader {
     }
 
     @Override
-    public BaseServerProtocol read() throws IOException, FailedToDecodeServerResponseException {
+    public BaseServerProtocol read() throws IOException, EdgeDBInternalErrException {
         return null;
     }
 }

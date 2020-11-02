@@ -2,9 +2,8 @@ package edgedb.pipes.connect;
 
 import edgedb.client.Connection;
 import edgedb.client.SocketStream;
-import edgedb.exceptions.FailedToConnectEdgeDBServer;
-import edgedb.exceptions.FailedToDecodeServerResponseException;
-import edgedb.pipes.pipe;
+import edgedb.exceptions.*;
+import edgedb.pipes.BasePipe;
 import edgedb.protocol.client.*;
 import edgedb.protocol.client.writer.*;
 import edgedb.protocol.server.*;
@@ -15,26 +14,27 @@ import java.io.*;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 
+import static edgedb.exceptions.ErrorMessage.FAILED_TO_DECODE_SERVER_RESPONSE;
 import static edgedb.protocol.constants.MessageType.*;
 
 import static edgedb.protocol.constants.TransactionState.*;
 
 
 @Slf4j
-public class ConnectionPipe implements pipe {
+public class ConnectionPipe extends BasePipe {
 
     private Connection connection;
 
-
     public ConnectionPipe(Connection connection) {
+        super(null);
         this.connection = connection;
     }
 
-    public SocketStream open() throws FailedToConnectEdgeDBServer {
+    public SocketStream open() {
         try {
             log.debug("Opening up a socket");
-            Socket socket = new Socket();
-            socket.connect(new InetSocketAddress(connection.getHost(), connection.getPort()));
+            Socket socket = openSocket();
+
             DataOutputStream dataOutputStream = new DataOutputStream(
                     new BufferedOutputStream(socket.getOutputStream()));
 
@@ -42,24 +42,28 @@ public class ConnectionPipe implements pipe {
                     new BufferedInputStream(socket.getInputStream()));
 
             writeAndFlush(new ClientHandshakeWriter(dataOutputStream,new ClientHandshake(connection)));
-
             readServerResponse(dataInputStream,dataOutputStream);
             log.debug("After WriteHandshake");
 
             return new SocketStream(dataInputStream, dataOutputStream);
 
-        } catch (IOException e) {
+        } catch (IOException | EdgeDBInternalErrException | EdgeDBSocketException e) {
             log.debug("Failed to connect to EdgeDB server {}", e);
-            throw new FailedToConnectEdgeDBServer();
-
-        } catch (FailedToDecodeServerResponseException e) {
-            log.debug("Failed to connect to EdgeDB server {}", e);
-            throw new FailedToConnectEdgeDBServer();
+            throw new EdgeDBFailedToConnectServer(e);
         }
     }
 
+    public Socket openSocket() throws EdgeDBSocketException{
+        Socket socket = new Socket();
+        try {
+            socket.connect(new InetSocketAddress(connection.getHost(), connection.getPort()));
+            return socket;
+        } catch (IOException e) {
+            throw new EdgeDBSocketException(e,connection.getHost(),connection.getPort());
+        }
+    }
 
-    private void readServerResponse(DataInputStream dataInputStream,DataOutputStream dataOutputStream) throws IOException, FailedToDecodeServerResponseException {
+    private void readServerResponse(DataInputStream dataInputStream,DataOutputStream dataOutputStream) throws IOException, EdgeDBInternalErrException {
         log.debug("Trying to read Server Response");
 
         while (true) {
@@ -70,7 +74,7 @@ public class ConnectionPipe implements pipe {
                     log.debug("Server response SERVER_HANDSHAKE received");
                     ServerHandshake serverHandshake = read(new ServerHandshakeReader(dataInputStream));
                     log.debug("Server Handshake {}", serverHandshake);
-                    throw new FailedToDecodeServerResponseException();
+                    throw new EdgeDBInternalErrException(FAILED_TO_DECODE_SERVER_RESPONSE);
                 case (int) SERVER_KEY_DATA:
                     ServerKeyData serverKeyData = read(new ServerKeyDataReader(dataInputStream));
                     log.debug("Printing Server Key Data {}", serverKeyData);
@@ -81,14 +85,14 @@ public class ConnectionPipe implements pipe {
 
                     switch (readyForCommand.getTransactionState()){
                         case (int)IN_FAILED_TRANSACTION:
-                            writeAndFlush(new SyncMessageWriter(dataOutputStream,buildSyncMessage()));
+                            writeAndFlush(new SyncMessageWriter(dataOutputStream,new SyncMessage()));
                             break;
                         case (int)IN_TRANSACTION:
                             break;
                         case (int)NOT_IN_TRANSACTION:
                             return;
                         default:
-                            throw new FailedToDecodeServerResponseException();
+                            throw new EdgeDBInternalErrException(FAILED_TO_DECODE_SERVER_RESPONSE);
                     }
                 case (int) SERVER_AUTHENTICATION:
                     log.debug("Server response AUTHENTICATION_OK received");
@@ -98,30 +102,11 @@ public class ConnectionPipe implements pipe {
                 case (int) ERROR_RESPONSE:
                     log.debug("Server response AUTHENTICATION_OK received");
                     ErrorResponse errorResponse = read(new ErrorResponseReader(dataInputStream));
-                    throw new FailedToDecodeServerResponseException();
+                    throw new EdgeDBInternalErrException(FAILED_TO_DECODE_SERVER_RESPONSE);
                 default:
                     log.debug("Failed to decode Server Response");
-                    throw new FailedToDecodeServerResponseException();
+                    throw new EdgeDBInternalErrException(FAILED_TO_DECODE_SERVER_RESPONSE);
             }
         }
-    }
-
-    public <S extends Read,T extends BaseServerProtocol> T read(S reader) throws IOException, FailedToDecodeServerResponseException {
-        return (T) reader.read();
-    }
-
-    public <S extends BaseWriter> void write(S writer) throws IOException {
-        writer.write();
-    }
-
-    public <S extends BaseWriter> void writeAndFlush(S writer) throws IOException {
-        writer.writeAndFlush();
-    }
-
-    public SyncMessage buildSyncMessage(){
-        log.debug("Trying to build Sync message");
-        SyncMessage syncMessage = new SyncMessage();
-        syncMessage.setMessageLength(syncMessage.calculateMessageLength());
-        return syncMessage;
     }
 }

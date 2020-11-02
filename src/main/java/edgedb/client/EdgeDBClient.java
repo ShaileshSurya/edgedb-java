@@ -28,7 +28,7 @@ public class EdgeDBClient {
     }
 
 
-    public EdgeDBClient connect() throws FailedToConnectEdgeDBServer {
+    public EdgeDBClient connect() throws EdgeDBFailedToConnectServer {
         log.debug("Connection to EdgeDB started with connection {}", connection);
         ConnectionPipe connectionPipe = new ConnectionPipe(connection);
         socketStream = connectionPipe.open();
@@ -36,7 +36,7 @@ public class EdgeDBClient {
         return this;
     }
 
-    public String executeScript(String script) throws EdgeDBServerException, FailedToDecodeServerResponseException, IOException, InterruptedException {
+    public String executeScript(String script) throws EdgeDBServerException, EdgeDBInternalErrException, IOException, InterruptedException {
         log.debug("Started executing script {}", script);
         ExecuteScriptPipe executeScriptPipe = new ExecuteScriptPipe(socketStream);
         executeScriptPipe.write(script);
@@ -46,7 +46,7 @@ public class EdgeDBClient {
         return "";
     }
 
-    public String execute(String query) throws IOException, FailedToDecodeServerResponseException {
+    public String execute(String query) throws IOException, EdgeDBInternalErrException {
         log.debug("Started executing statement {}",query);
         GranularFlowPipe granularFlowPipe = new GranularFlowPipe(socketStream);
         granularFlowPipe.setup(query);

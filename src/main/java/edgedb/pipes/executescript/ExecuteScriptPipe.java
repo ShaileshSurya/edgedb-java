@@ -2,7 +2,7 @@ package edgedb.pipes.executescript;
 
 import edgedb.client.SocketStream;
 import edgedb.exceptions.EdgeDBServerException;
-import edgedb.exceptions.FailedToDecodeServerResponseException;
+import edgedb.exceptions.EdgeDBInternalErrException;
 import edgedb.pipes.BasePipe;
 import edgedb.pipes.pipe;
 import edgedb.protocol.client.ExecuteScript;
@@ -16,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.io.*;
 
+import static edgedb.exceptions.ErrorMessage.FAILED_TO_DECODE_SERVER_RESPONSE;
 import static edgedb.protocol.constants.MessageType.*;
 
 @AllArgsConstructor
@@ -28,7 +29,7 @@ public class ExecuteScriptPipe implements pipe {
         writeExecuteScript(executeScript);
     }
 
-    public String read() throws EdgeDBServerException, IOException, FailedToDecodeServerResponseException {
+    public String read() throws EdgeDBServerException, IOException, EdgeDBInternalErrException {
         CommandComplete commandComplete = readServerResponse(socketStream.getDataInputStream());
         log.debug("~~~~~~~~~~~~Printing Command Complete~~~~~~~~~~~~~~~~~");
         log.debug("Printing Command complete {}", commandComplete.toString());
@@ -49,7 +50,7 @@ public class ExecuteScriptPipe implements pipe {
         executeScriptWriter.write();
     }
 
-    public CommandComplete readServerResponse(DataInputStream dataInputStream) throws IOException, FailedToDecodeServerResponseException, EdgeDBServerException {
+    public CommandComplete readServerResponse(DataInputStream dataInputStream) throws IOException, EdgeDBInternalErrException, EdgeDBServerException {
         byte mType = dataInputStream.readByte();
         log.debug("MType was found of Decimal Value {} and Char Value {}", (int) mType, (char) mType);
 
@@ -63,7 +64,7 @@ public class ExecuteScriptPipe implements pipe {
                 ServerKeyData serverKeyData = readServerKeyData(dataInputStream);
                 log.debug("Printing Server Key Data {}",serverKeyData);
             default:
-                throw new FailedToDecodeServerResponseException();
+                throw new EdgeDBInternalErrException(FAILED_TO_DECODE_SERVER_RESPONSE);
         }
     }
 

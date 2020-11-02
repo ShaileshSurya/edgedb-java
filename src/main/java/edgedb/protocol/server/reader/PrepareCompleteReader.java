@@ -5,7 +5,7 @@ import edgedb.protocol.common.Header;
 import edgedb.protocol.common.HeaderReader;
 import edgedb.protocol.server.PrepareComplete;
 import edgedb.protocol.server.readerhelper.ReaderHelper;
-import edgedb.protocol.typedescriptor.decoder.ScalarTypeDecoder;
+import edgedb.protocol.typedescriptor.decoder.KnownTypeDecoder;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.DataInputStream;
@@ -21,7 +21,7 @@ public class PrepareCompleteReader extends BaseReader {
         super(dataInputStream);
     }
 
-    public PrepareComplete read() throws IOException, FailedToDecodeServerResponseException {
+    public PrepareComplete read() throws IOException, EdgeDBInternalErrException {
         PrepareComplete prepareComplete = new PrepareComplete();
         try {
             prepareComplete.setMessageLength(readerHelper.readUint32());
@@ -39,7 +39,7 @@ public class PrepareCompleteReader extends BaseReader {
             prepareComplete.setCardinality(readerHelper.readUint8());
 
             byte[] argumentDataDescriptorID = readerHelper.readUUID();
-            ScalarTypeDecoder decoder = new ScalarTypeDecoder();
+            KnownTypeDecoder decoder = new KnownTypeDecoder();
             prepareComplete.setArgumentDataDescriptorID(argumentDataDescriptorID);
             //prepareComplete.setResultDataDescriptor(decoder.decode(argumentDataDescriptorID));
 
@@ -57,7 +57,7 @@ public class PrepareCompleteReader extends BaseReader {
         }
 //        } catch (ScalarTypeNotFoundException e) {
 //            e.printStackTrace();
-//            throw new FailedToDecodeServerResponseException();
+//            throw new EdgeDBInternalErrException();
 //        }
     }
 

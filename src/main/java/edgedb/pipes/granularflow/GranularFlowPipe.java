@@ -1,7 +1,8 @@
 package edgedb.pipes.granularflow;
 
 import edgedb.client.SocketStream;
-import edgedb.exceptions.FailedToDecodeServerResponseException;
+import edgedb.exceptions.EdgeDBInternalErrException;
+import edgedb.pipes.BasePipe;
 import edgedb.protocol.client.*;
 import edgedb.protocol.client.writer.*;
 import edgedb.protocol.constants.*;
@@ -13,19 +14,19 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 
+import static edgedb.exceptions.ErrorMessage.FAILED_TO_DECODE_SERVER_RESPONSE;
 import static edgedb.protocol.constants.MessageType.*;
 
 @Slf4j
-public class GranularFlowPipe {
-    SocketStream socketStream;
+public class GranularFlowPipe extends BasePipe {
     BaseScalarType argumentType;
     BaseScalarType resultType;
 
     public GranularFlowPipe(SocketStream socketStream){
-        this.socketStream= socketStream;
+        super(socketStream);
     }
 
-    public void setup(String command) throws IOException, FailedToDecodeServerResponseException {
+    public void setup(String command) throws IOException, EdgeDBInternalErrException {
         write(new PrepareWriter(socketStream.getDataOutputStream(),buildPrepareMessage(command)));
         writeAndFlush(new SyncMessageWriter(socketStream.getDataOutputStream(),buildSyncMessage()));
 
@@ -34,7 +35,7 @@ public class GranularFlowPipe {
         resultType= prepareComplete.getResultDataDescriptor();
     }
 
-    public PrepareComplete readPrepareCompleteServerResponse() throws IOException, FailedToDecodeServerResponseException {
+    public PrepareComplete readPrepareCompleteServerResponse() throws IOException, EdgeDBInternalErrException {
 
         PrepareComplete prepareComplete = null;
         while (true) {
@@ -62,22 +63,9 @@ public class GranularFlowPipe {
                     }
                     return prepareComplete;
                 default:
-                    throw new FailedToDecodeServerResponseException();
+                    throw new EdgeDBInternalErrException(FAILED_TO_DECODE_SERVER_RESPONSE);
             }
         }
-    }
-
-
-    public <S extends Read,T extends BaseServerProtocol> T read(S reader) throws IOException, FailedToDecodeServerResponseException {
-        return (T) reader.read();
-    }
-
-    public <S extends BaseWriter> void write(S writer) throws IOException {
-        writer.write();
-    }
-
-    public <S extends BaseWriter> void writeAndFlush(S writer) throws IOException {
-        writer.writeAndFlush();
     }
 
     public Execute buildExecuteMessage(){
@@ -93,7 +81,8 @@ public class GranularFlowPipe {
         return new SyncMessage();
     }
 
-    public String execute() throws IOException, FailedToDecodeServerResponseException {
+
+    public String execute() throws IOException, EdgeDBInternalErrException {
         log.info("Trying to execute in granular flow");
         write(new ExecuteWriter(socketStream.getDataOutputStream(),buildExecuteMessage()));
         writeAndFlush(new SyncMessageWriter(socketStream.getDataOutputStream(),buildSyncMessage()));
@@ -103,7 +92,7 @@ public class GranularFlowPipe {
         return new String(responseByteArray);
     }
 
-    public DataResponse readExecuteServerResponse() throws IOException, FailedToDecodeServerResponseException {
+    public DataResponse readExecuteServerResponse() throws IOException, EdgeDBInternalErrException {
         DataResponse dataResponse = null;
         while (true) {
             byte mType = socketStream.getDataInputStream().readByte();
@@ -120,7 +109,7 @@ public class GranularFlowPipe {
                     log.debug("Printing Server Key Data {}", commandComplete);
                     return dataResponse;
                 default:
-                    throw new FailedToDecodeServerResponseException();
+                    throw new EdgeDBInternalErrException(FAILED_TO_DECODE_SERVER_RESPONSE);
             }
         }
     }

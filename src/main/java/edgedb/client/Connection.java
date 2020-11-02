@@ -1,6 +1,5 @@
 package edgedb.client;
 
-import edgedb.exceptions.FailedToConnectEdgeDBServer;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
@@ -24,35 +23,10 @@ public class Connection {
     public Connection(String dsn) {
         URI uri = URI.create(dsn);
         user = uri.getUserInfo();
-        //database = uri.getPath();
+        // TODO: remove this hardcoded
         database = "tutorial";
         host = uri.getHost();
         port = uri.getPort();
     }
 
-    public void connect() throws FailedToConnectEdgeDBServer {
-
-//            Socket socket = new Socket();
-//            socket.connect(new InetSocketAddress(host, port));
-//            DataOutputStream dataOutputStream = new DataOutputStream(
-//                    new BufferedOutputStream(socket.getOutputStream()));
-//
-//            DataInputStream dataInputStream = new DataInputStream(
-//                    new BufferedInputStream(socket.getInputStream()));
-//
-//            writeClientHandshake(dataOutputStream);
-//
-//            // TODO: This code is ugly. Will need to refactor later big time.
-//            ReaderFactory readerFactory = new ReaderFactory(dataInputStream);
-//            Read reader = readerFactory.getReader();
-//            BaseServerProtocol readProtocol = reader.read();
-//
-//        } catch (IOException ex) {
-//            log.debug("Failed to connect to EdgeDB server {}", ex);
-//            throw new FailedToConnectEdgeDBServer();
-//        } catch (FailedToDecodeServerResponseException e) {
-//            log.debug("Failed to read response from EdgeDB server {}", e);
-//            throw new FailedToConnectEdgeDBServer();
-//        }
-    }
 }
