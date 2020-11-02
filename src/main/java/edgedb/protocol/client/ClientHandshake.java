@@ -5,14 +5,13 @@ import edgedb.protocol.server.ProtocolExtension;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
+import static edgedb.protocol.constants.CommonConstants.MAJOR_VERSION;
+import static edgedb.protocol.constants.CommonConstants.MINOR_VERSION;
 import static edgedb.protocol.constants.MessageType.CLIENT_HANDSHAKE;
 
 @Data
 @Slf4j
 public class ClientHandshake extends BaseClientProtocol {
-
-    public final int MAJOR_VERSION = 0;
-    public final int MINOR_VERSION = 8;
 
     byte mType = (int) CLIENT_HANDSHAKE;
     int messageLength;

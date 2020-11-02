@@ -50,7 +50,13 @@ public class EdgeDBTest {
             System.out.println(db.execute("SELECT Movie { id, title}"));
 
 
-            db.execute("SELECT 2 + 5");
+            String result = db.execute("SELECT 2 + 5");
+
+            System.out.println("~~~~~~~~~~~Result~~~~~~~~~~");
+            System.out.println("~~~~~~~~~~~Result~~~~~~~~~~");
+            System.out.println("~~~~~~~~~~~Result~~~~~~~~~~");
+            System.out.println("~~~~~~~~~~~Result~~~~~~~~~~");
+            System.out.println(result);
 
         } catch (IOException | EdgeDBInternalErrException e) {
             e.printStackTrace();
