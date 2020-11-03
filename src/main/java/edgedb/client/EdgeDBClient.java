@@ -1,12 +1,12 @@
 package edgedb.client;
 
 import edgedb.exceptions.*;
-import edgedb.pipes.connect.ConnectionPipe;
-import edgedb.pipes.executescript.ExecuteScriptPipe;
-import edgedb.pipes.granularflow.GranularFlowPipe;
-import edgedb.pipes.terminate.TerminatePipe;
-import edgedb.protocol.constants.Cardinality;
-import edgedb.protocol.constants.IOFormat;
+import edgedb.internal.pipes.connect.ConnectionPipe;
+import edgedb.internal.pipes.executescript.ExecuteScriptPipe;
+import edgedb.internal.pipes.granularflow.GranularFlowPipe;
+import edgedb.internal.pipes.terminate.TerminatePipe;
+import edgedb.internal.protocol.constants.Cardinality;
+import edgedb.internal.protocol.constants.IOFormat;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

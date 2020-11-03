@@ -1,6 +1,6 @@
 package edgedb.exceptions;
 
-import edgedb.protocol.server.ErrorResponse;
+import edgedb.internal.protocol.server.ErrorResponse;
 import lombok.Data;
 
 @Data
