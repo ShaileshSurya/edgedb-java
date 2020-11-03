@@ -41,14 +41,13 @@ public final class KnownTypeDecoder<T extends TypeDescriptor> {
             return (T) BaseScalarType.DURATION;
         } else if (Arrays.equals(value, new byte[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 15})) {
             return (T) BaseScalarType.JSON;
-        }else if (Arrays.equals(value, new byte[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1})) {
+        } else if (Arrays.equals(value, new byte[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1})) {
             throw new ScalarTypeNotFoundException();
-        }else if (Arrays.equals(value, new byte[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1})) {
+        } else if (Arrays.equals(value, new byte[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1})) {
             return (T) TupleType.ANY_TUPLE;
-        }else if (Arrays.equals(value, new byte[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2})) {
+        } else if (Arrays.equals(value, new byte[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2})) {
             return (T) TupleType.ANY_TUPLE;
-        }
-        else {
+        } else {
             throw new ScalarTypeNotFoundException();
         }
     }

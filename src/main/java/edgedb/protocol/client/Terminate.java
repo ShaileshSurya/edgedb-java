@@ -5,9 +5,9 @@ import lombok.Data;
 import static edgedb.protocol.constants.MessageType.TERMINATE;
 
 @Data
-public class Terminate extends BaseClientProtocol{
+public class Terminate extends BaseClientProtocol {
 
-    byte mType= (int)TERMINATE;
+    byte mType = (int) TERMINATE;
     int messageLength;
 
     @Override

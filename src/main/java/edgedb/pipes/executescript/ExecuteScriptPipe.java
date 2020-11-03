@@ -1,9 +1,8 @@
 package edgedb.pipes.executescript;
 
 import edgedb.client.SocketStream;
-import edgedb.exceptions.EdgeDBServerException;
 import edgedb.exceptions.EdgeDBInternalErrException;
-import edgedb.pipes.BasePipe;
+import edgedb.exceptions.EdgeDBServerException;
 import edgedb.pipes.pipe;
 import edgedb.protocol.client.ExecuteScript;
 import edgedb.protocol.client.writer.ExecuteScriptWriter;
@@ -14,7 +13,8 @@ import edgedb.protocol.server.reader.ServerKeyDataReader;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.*;
+import java.io.DataInputStream;
+import java.io.IOException;
 
 import static edgedb.exceptions.ErrorMessage.FAILED_TO_DECODE_SERVER_RESPONSE;
 import static edgedb.protocol.constants.MessageType.*;
@@ -62,7 +62,7 @@ public class ExecuteScriptPipe implements pipe {
                 throw new EdgeDBServerException();
             case (int) SERVER_KEY_DATA:
                 ServerKeyData serverKeyData = readServerKeyData(dataInputStream);
-                log.debug("Printing Server Key Data {}",serverKeyData);
+                log.debug("Printing Server Key Data {}", serverKeyData);
             default:
                 throw new EdgeDBInternalErrException(FAILED_TO_DECODE_SERVER_RESPONSE);
         }

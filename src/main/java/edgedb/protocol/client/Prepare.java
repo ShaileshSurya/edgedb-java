@@ -1,14 +1,12 @@
 package edgedb.protocol.client;
 
 import edgedb.protocol.common.Header;
-import edgedb.protocol.constants.Cardinality;
-import edgedb.protocol.constants.IOFormat;
 import lombok.Data;
 
 import static edgedb.protocol.constants.MessageType.PREPARE;
 
 @Data
-public class Prepare extends BaseClientProtocol{
+public class Prepare extends BaseClientProtocol {
     byte mType = PREPARE;
     int messageLength;
     short headersLength;
@@ -18,30 +16,30 @@ public class Prepare extends BaseClientProtocol{
     byte[] statementName;
     String command;
 
-    public Prepare(char IOFormat,char expectedCardinality,String command){
-        this.headersLength= (short)0;
-        this.ioFormat= (byte) IOFormat;
+    public Prepare(char IOFormat, char expectedCardinality, String command) {
+        this.headersLength = (short) 0;
+        this.ioFormat = (byte) IOFormat;
         this.expectedCardinality = (byte) expectedCardinality;
-        this.statementName= "".getBytes();
-        this.command= command;
-        this.messageLength= calculateMessageLength();
+        this.statementName = "".getBytes();
+        this.command = command;
+        this.messageLength = calculateMessageLength();
     }
 
     @Override
     public int calculateMessageLength() {
-        int length =0 ;
+        int length = 0;
         MessageLengthCalculator messageLengthCalculator = new MessageLengthCalculator();
-        length+= messageLengthCalculator.calculate(messageLength);
+        length += messageLengthCalculator.calculate(messageLength);
 
-        length+=messageLengthCalculator.calculate(headersLength);
-        for (int i=0;i<headersLength;i++){
-            length+=headers[i].calculateMessageLength();
+        length += messageLengthCalculator.calculate(headersLength);
+        for (int i = 0; i < headersLength; i++) {
+            length += headers[i].calculateMessageLength();
         }
 
-        length+=messageLengthCalculator.calculate(ioFormat);
-        length+=messageLengthCalculator.calculate(expectedCardinality);
-        length+=messageLengthCalculator.calculate(statementName);
-        length+=messageLengthCalculator.calculate(command);
+        length += messageLengthCalculator.calculate(ioFormat);
+        length += messageLengthCalculator.calculate(expectedCardinality);
+        length += messageLengthCalculator.calculate(statementName);
+        length += messageLengthCalculator.calculate(command);
 
         return length;
     }

@@ -6,8 +6,8 @@ import lombok.Data;
 import static edgedb.protocol.constants.MessageType.COMMAND_COMPLETE;
 
 @Data
-public class CommandComplete extends BaseServerProtocol{
-    byte mType = (int) COMMAND_COMPLETE;
+public class CommandComplete extends BaseServerProtocol {
+    byte mType = COMMAND_COMPLETE;
     int messageLength;
     short headersLength;
     Header[] headers;

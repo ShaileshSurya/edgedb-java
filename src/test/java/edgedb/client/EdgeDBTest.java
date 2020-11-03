@@ -1,7 +1,6 @@
 package edgedb.client;
 
 import edgedb.exceptions.*;
-import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
@@ -47,7 +46,18 @@ public class EdgeDBTest {
 //                    "        LIMIT 1\n" +
 //                    "    )\n" +
 //                    "};"));
-            System.out.println(db.execute("SELECT Movie { id, title}"));
+//            System.out.println(db.queryOneJSON("SELECT Movie {\n" +
+//                    "    id,\n" +
+//                    "    title,\n" +
+//                    "    year\n" +
+//                    "}\n" +
+//                    "FILTER .id = <uuid>'40913868-1856-11eb-811a-9b60813706a4'"));
+
+            System.out.println(db.queryJSON("SELECT Movie {\n" +
+                    "    id,\n" +
+                    "    title,\n" +
+                    "    year\n" +
+                    "}"));
 
 
             String result = db.execute("SELECT 2 + 5");
@@ -58,8 +68,12 @@ public class EdgeDBTest {
             System.out.println("~~~~~~~~~~~Result~~~~~~~~~~");
             System.out.println(result);
 
-        } catch (IOException | EdgeDBInternalErrException e) {
+        } catch (IOException | EdgeDBInternalErrException | EdgeDBFailedToConnectServer | EdgeDBCommandException e) {
             e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } catch (Throwable throwable) {
+            throwable.printStackTrace();
         }
 //        } catch (EdgeDBInternalErrException e) {
 //            e.printStackTrace();
@@ -73,10 +87,10 @@ public class EdgeDBTest {
     }
 
     @Test
-    public void test(){
-       byte[] arr=  new byte[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1};
-       for(byte b : arr){
-           System.out.print(Character.forDigit((b >> 4 & 0xF), 16)+ " ");
-       }
+    public void test() {
+        byte[] arr = new byte[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1};
+        for (byte b : arr) {
+            System.out.print(Character.forDigit((b >> 4 & 0xF), 16) + " ");
+        }
     }
 }

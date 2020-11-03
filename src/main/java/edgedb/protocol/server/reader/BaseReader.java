@@ -8,7 +8,7 @@ import java.io.DataInputStream;
 
 @Data
 @AllArgsConstructor
-public abstract class BaseReader implements Read{
+public abstract class BaseReader implements Read {
     DataInputStream dataInputStream;
     ReaderHelper readerHelper;
 

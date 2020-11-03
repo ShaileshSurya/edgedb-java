@@ -1,7 +1,6 @@
 package edgedb.pipes.connect;
 
-import edgedb.client.Connection;
-import edgedb.client.SocketStream;
+import edgedb.client.*;
 import edgedb.exceptions.*;
 import edgedb.pipes.BasePipe;
 import edgedb.protocol.client.ClientHandshake;
@@ -15,8 +14,7 @@ import java.io.*;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 
-import static edgedb.exceptions.ErrorMessage.DRIVER_INCOMPATIBLE_ERROR;
-import static edgedb.exceptions.ErrorMessage.FAILED_TO_DECODE_SERVER_TRANSACTION_STATE;
+import static edgedb.exceptions.ErrorMessage.*;
 import static edgedb.protocol.constants.TransactionState.*;
 
 
@@ -30,7 +28,7 @@ public class ConnectionPipe extends BasePipe {
         this.connection = connection;
     }
 
-    public SocketStream open() {
+    public SocketStream open() throws Throwable {
         try {
             log.debug("Opening up a socket");
             Socket socket = openSocket();
@@ -38,12 +36,11 @@ public class ConnectionPipe extends BasePipe {
 
             writeAndFlush(new ClientHandshakeWriter(socketStream.getDataOutputStream(), new ClientHandshake(connection)));
             tryConnect();
-            log.debug("After WriteHandshake");
-
+            log.debug("Connection Successful");
             return socketStream;
-        } catch (IOException | EdgeDBInternalErrException | EdgeDBSocketException e) {
+        } catch (IOException | EdgeDBInternalErrException | EdgeDBSocketException | EdgeDBIncompatibleDriverException e) {
             log.debug("Failed to connect to EdgeDB server {}", e);
-            throw new EdgeDBFailedToConnectServer(e);
+            throw new EdgeDBFailedToConnectServer(FAILED_TO_CONNECT_EDGEDB_SERVER).initCause(e);
         }
     }
 
@@ -66,7 +63,7 @@ public class ConnectionPipe extends BasePipe {
         }
     }
 
-    public <T extends BaseServerProtocol> void tryConnect() throws IOException {
+    public <T extends BaseServerProtocol> void tryConnect() throws IOException, EdgeDBInternalErrException, EdgeDBIncompatibleDriverException {
         while (socketStream.getDataInputStream().available() > 0) {
             T response = readServerResponse();
             if (response instanceof ServerHandshake) {

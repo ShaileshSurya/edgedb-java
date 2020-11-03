@@ -1,9 +1,5 @@
 package edgedb.client;
 
-import edgedb.exceptions.EdgeDBInternalErrException;
-
-import java.io.IOException;
-
 public class ReadMeExample {
 
 //    public static void main(String[] args) {

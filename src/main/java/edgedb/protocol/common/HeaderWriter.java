@@ -1,7 +1,6 @@
 package edgedb.protocol.common;
 
 import edgedb.protocol.client.writer.BaseWriter;
-import edgedb.protocol.common.Header;
 import edgedb.protocol.client.writerhelper.WriteHelper;
 import lombok.AllArgsConstructor;
 import lombok.Data;

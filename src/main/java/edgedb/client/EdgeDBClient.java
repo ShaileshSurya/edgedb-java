@@ -5,8 +5,8 @@ import edgedb.pipes.connect.ConnectionPipe;
 import edgedb.pipes.executescript.ExecuteScriptPipe;
 import edgedb.pipes.granularflow.GranularFlowPipe;
 import edgedb.pipes.terminate.TerminatePipe;
-import edgedb.protocol.client.Terminate;
-import edgedb.protocol.server.PrepareComplete;
+import edgedb.protocol.constants.Cardinality;
+import edgedb.protocol.constants.IOFormat;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,7 +28,7 @@ public class EdgeDBClient {
     }
 
 
-    public EdgeDBClient connect() throws EdgeDBFailedToConnectServer {
+    public EdgeDBClient connect() throws Throwable {
         log.debug("Connection to EdgeDB started with connection {}", connection);
         ConnectionPipe connectionPipe = new ConnectionPipe(connection);
         socketStream = connectionPipe.open();
@@ -46,8 +46,8 @@ public class EdgeDBClient {
         return "";
     }
 
-    public String execute(String query) throws IOException, EdgeDBInternalErrException {
-        log.debug("Started executing statement {}",query);
+    public String execute(String query) throws IOException, EdgeDBInternalErrException, EdgeDBCommandException {
+        log.debug("Started executing statement {}", query);
         GranularFlowPipe granularFlowPipe = new GranularFlowPipe(socketStream);
         granularFlowPipe.setup(query);
         String result = granularFlowPipe.execute();
@@ -61,5 +61,30 @@ public class EdgeDBClient {
         terminatePipe.terminate();
     }
 
+
+    public String Query(String query) throws IOException, EdgeDBInternalErrException {
+        return null;
+    }
+
+    public String QueryOne(String query) throws IOException, EdgeDBInternalErrException {
+        return null;
+    }
+
+
+    public String queryOneJSON(String query) throws IOException, EdgeDBInternalErrException, EdgeDBCommandException {
+        log.debug("Started executing QueryOneJSON {}", query);
+        GranularFlowPipe granularFlowPipe = new GranularFlowPipe(socketStream);
+        granularFlowPipe.setup(query, Cardinality.ONE, IOFormat.JSON);
+        String result = granularFlowPipe.execute();
+        return result;
+    }
+
+    public String queryJSON(String query) throws IOException, EdgeDBInternalErrException, EdgeDBCommandException {
+        log.debug("Started executing QueryOneJSON {}", query);
+        GranularFlowPipe granularFlowPipe = new GranularFlowPipe(socketStream);
+        granularFlowPipe.setup(query, Cardinality.MANY, IOFormat.JSON);
+        String result = granularFlowPipe.execute();
+        return result;
+    }
 
 }

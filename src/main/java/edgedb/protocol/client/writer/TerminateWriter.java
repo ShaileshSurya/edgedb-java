@@ -10,13 +10,13 @@ import java.io.IOException;
 
 @Slf4j
 @AllArgsConstructor
-public class TerminateWriter extends BaseWriter{
+public class TerminateWriter extends BaseWriter {
 
     DataOutputStream dataOutputStream;
     Terminate terminate;
 
     public void write() throws IOException {
-        log.debug("Writing terminate Message {}",terminate);
+        log.debug("Writing terminate Message {}", terminate);
         WriteHelper helper = new WriteHelper(dataOutputStream);
 
         helper.writeUint8(terminate.getMType());

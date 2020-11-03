@@ -1,6 +1,5 @@
 package edgedb.protocol.server;
 
-import edgedb.protocol.client.BaseClientProtocol;
 import lombok.Data;
 
 @Data

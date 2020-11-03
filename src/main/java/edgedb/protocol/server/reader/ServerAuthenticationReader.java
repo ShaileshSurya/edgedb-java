@@ -2,7 +2,6 @@ package edgedb.protocol.server.reader;
 
 import edgedb.exceptions.EdgeDBInternalErrException;
 import edgedb.exceptions.OverReadException;
-import edgedb.protocol.server.AuthenticationOK;
 import edgedb.protocol.server.ServerAuthentication;
 import edgedb.protocol.server.readerhelper.ReaderHelper;
 
@@ -12,7 +11,7 @@ import java.io.IOException;
 import static edgedb.exceptions.ErrorMessage.FAILED_TO_DECODE_SERVER_RESPONSE;
 import static edgedb.protocol.constants.AuthenticationStatus.*;
 
-public class ServerAuthenticationReader extends BaseReader{
+public class ServerAuthenticationReader extends BaseReader {
     public ServerAuthenticationReader(DataInputStream dataInputStream, ReaderHelper readerHelper) {
         super(dataInputStream, readerHelper);
     }
@@ -30,7 +29,7 @@ public class ServerAuthenticationReader extends BaseReader{
             int authStatus = readerHelper.readUint32();
             serverAuthentication.setAuthStatus(authStatus);
 
-            switch (authStatus){
+            switch (authStatus) {
                 case AUTHENTICATION_OK:
                     return serverAuthentication;
 
@@ -60,7 +59,7 @@ public class ServerAuthenticationReader extends BaseReader{
         int methodsLength = readerHelper.readUint32();
         serverAuthentication.setMethodsLength(methodsLength);
         String[] authMethods = new String[methodsLength];
-        for(int i=0;i<methodsLength;i++){
+        for (int i = 0; i < methodsLength; i++) {
             authMethods[i] = readerHelper.readString();
         }
         return serverAuthentication;

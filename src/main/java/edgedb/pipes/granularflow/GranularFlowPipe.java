@@ -1,6 +1,7 @@
 package edgedb.pipes.granularflow;
 
 import edgedb.client.SocketStream;
+import edgedb.exceptions.EdgeDBCommandException;
 import edgedb.exceptions.EdgeDBInternalErrException;
 import edgedb.pipes.BasePipe;
 import edgedb.protocol.client.*;
@@ -8,7 +9,6 @@ import edgedb.protocol.client.writer.*;
 import edgedb.protocol.constants.Cardinality;
 import edgedb.protocol.constants.IOFormat;
 import edgedb.protocol.server.*;
-
 import edgedb.protocol.typedescriptor.BaseScalarType;
 import lombok.extern.slf4j.Slf4j;
 
@@ -24,8 +24,16 @@ public class GranularFlowPipe extends BasePipe {
         super(socketStream);
     }
 
-    public void setup(String command) throws IOException, EdgeDBInternalErrException {
-        write(new PrepareWriter(socketStream.getDataOutputStream(), buildPrepareMessage(command)));
+    public void setup(String command) throws IOException, EdgeDBCommandException, EdgeDBInternalErrException {
+        setup(command, new Prepare(IOFormat.JSON, Cardinality.MANY, command));
+    }
+
+    public void setup(String command, char cardinality, char ioFormat) throws IOException, EdgeDBCommandException, EdgeDBInternalErrException {
+        setup(command, new Prepare(ioFormat, cardinality, command));
+    }
+
+    private void setup(String command, Prepare prepare) throws IOException, EdgeDBInternalErrException, EdgeDBCommandException {
+        write(new PrepareWriter(socketStream.getDataOutputStream(), prepare));
         writeAndFlush(new SyncMessageWriter(socketStream.getDataOutputStream(), buildSyncMessage()));
 
         PrepareComplete prepareComplete = readPrepareComplete();
@@ -33,13 +41,25 @@ public class GranularFlowPipe extends BasePipe {
         resultType = prepareComplete.getResultDataDescriptor();
     }
 
-    public <T extends BaseServerProtocol> PrepareComplete readPrepareComplete() throws IOException {
-        PrepareComplete prepareComplete= null;
+    public <T extends BaseServerProtocol> PrepareComplete readPrepareComplete() throws IOException, EdgeDBInternalErrException, EdgeDBCommandException {
+        PrepareComplete prepareComplete = null;
+        log.debug("Trying to read PrepareComplete");
         while (socketStream.getDataInputStream().available() > 0 || prepareComplete == null) {
             T response = readServerResponse();
             if (response instanceof PrepareComplete) {
-                log.debug("Response is an Instance Of Preparecomplete {}",(PrepareComplete) response);
+                log.debug("Response is an Instance Of Preparecomplete {}", (PrepareComplete) response);
                 prepareComplete = (PrepareComplete) response;
+            }
+
+            if (response instanceof ErrorResponse) {
+                log.debug("Response is an Instance Of Error {}", (ErrorResponse) response);
+                ErrorResponse err = (ErrorResponse) response;
+                throw new EdgeDBCommandException(err);
+            }
+
+            if (response instanceof ReadyForCommand) {
+                log.debug("Response is an Instance Of ReadyForCommand {}", (ReadyForCommand) response);
+                ReadyForCommand readyForCommand = (ReadyForCommand) response;
             }
         }
         return prepareComplete;
@@ -56,12 +76,12 @@ public class GranularFlowPipe extends BasePipe {
     }
 
 
-    public <T extends BaseServerProtocol> DataResponse readExecuteResponse() throws IOException {
-        DataResponse dataResponse= null;
+    public <T extends BaseServerProtocol> DataResponse readExecuteResponse() throws IOException, EdgeDBInternalErrException {
+        DataResponse dataResponse = null;
         while (socketStream.getDataInputStream().available() > 0 || dataResponse == null) {
             T response = readServerResponse();
             if (response instanceof DataResponse) {
-                log.debug("Response is an Instance Of DataResponse {}",(DataResponse) response);
+                log.debug("Response is an Instance Of DataResponse {}", (DataResponse) response);
                 dataResponse = (DataResponse) response;
             }
         }
@@ -71,11 +91,6 @@ public class GranularFlowPipe extends BasePipe {
     public Execute buildExecuteMessage() {
         return new Execute();
     }
-
-    public Prepare buildPrepareMessage(String command) {
-        return new Prepare(IOFormat.JSON, Cardinality.MANY, command);
-    }
-
 
     public SyncMessage buildSyncMessage() {
         return new SyncMessage();

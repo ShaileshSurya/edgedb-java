@@ -9,7 +9,7 @@ import edgedb.protocol.server.readerhelper.ReaderHelper;
 import java.io.DataInputStream;
 import java.io.IOException;
 
-public class ProtocolExtensionReader{
+public class ProtocolExtensionReader {
     private DataInputStream dataInputStream;
     private ReaderHelper readerHelper;
 
@@ -19,7 +19,7 @@ public class ProtocolExtensionReader{
     }
 
     public ProtocolExtensionReader(DataInputStream dataInputStream) {
-        this.dataInputStream= dataInputStream;
+        this.dataInputStream = dataInputStream;
     }
 
     public ProtocolExtension read() throws IOException {

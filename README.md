@@ -4,6 +4,12 @@ This is an unofficial EdgeDB driver for JAVA ecosystem.
 # ⚠️ WIP ⚠️
 This project is far from production ready. We need your support, feel free to contribute !
 
+## API Support
+##### BlockingIO Connection 
+1. QueryJSON(String command)
+2. QueryOneJSON(String command)
+3. Execute(String command)
+
 ## Basic Recipes
 ```java
 

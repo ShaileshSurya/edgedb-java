@@ -10,10 +10,7 @@ import edgedb.protocol.server.readerhelper.ReaderHelper;
 import java.io.DataInputStream;
 import java.io.IOException;
 
-import static edgedb.exceptions.ErrorMessage.FAILED_TO_DECODE_SERVER_RESPONSE;
-import static edgedb.protocol.constants.TransactionState.*;
-
-public class ReadyForCommandReader extends BaseReader{
+public class ReadyForCommandReader extends BaseReader {
 
 
     public ReadyForCommandReader(DataInputStream dataInputStream, ReaderHelper readerHelper) {
@@ -27,15 +24,15 @@ public class ReadyForCommandReader extends BaseReader{
     public ReadyForCommand read() throws IOException, EdgeDBInternalErrException {
         ReadyForCommand readyForCommand = new ReadyForCommand();
 
-        try{
+        try {
             readyForCommand.setMessageLength(readerHelper.readUint32());
 
             short headersLength = readerHelper.readUint16();
             readyForCommand.setHeadersLength(headersLength);
 
-            Header[] headers= new Header[headersLength];
-            HeaderReader headerReader = new HeaderReader(dataInputStream,readerHelper);
-            for(int i=0;i<headersLength;i++){
+            Header[] headers = new Header[headersLength];
+            HeaderReader headerReader = new HeaderReader(dataInputStream, readerHelper);
+            for (int i = 0; i < headersLength; i++) {
                 headers[i] = headerReader.read();
             }
             readyForCommand.setHeaders(headers);

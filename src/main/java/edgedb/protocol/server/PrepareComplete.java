@@ -7,8 +7,8 @@ import lombok.Data;
 import static edgedb.protocol.constants.MessageType.PREPARE_COMPLETE;
 
 @Data
-public class PrepareComplete extends BaseServerProtocol{
-    byte mType = (byte) PREPARE_COMPLETE;
+public class PrepareComplete extends BaseServerProtocol {
+    byte mType = (int) PREPARE_COMPLETE;
     int messageLength;
 
     short headersLength;

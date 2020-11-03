@@ -4,7 +4,6 @@ import edgedb.protocol.client.Prepare;
 import edgedb.protocol.client.writerhelper.WriteHelper;
 import edgedb.protocol.common.HeaderWriter;
 import lombok.AllArgsConstructor;
-
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.DataOutputStream;
@@ -12,14 +11,14 @@ import java.io.IOException;
 
 @Slf4j
 @AllArgsConstructor
-public class PrepareWriter extends BaseWriter{
+public class PrepareWriter extends BaseWriter {
 
     DataOutputStream dataOutputStream;
     Prepare prepare;
 
     public void write() throws IOException {
-        log.debug("PrepareWriter {}",prepare.toString());
-        WriteHelper writerHelper= new WriteHelper(dataOutputStream);
+        log.debug("PrepareWriter {}", prepare.toString());
+        WriteHelper writerHelper = new WriteHelper(dataOutputStream);
         writerHelper.writeUint8(prepare.getMType());
         writerHelper.writeUint32(prepare.getMessageLength());
 

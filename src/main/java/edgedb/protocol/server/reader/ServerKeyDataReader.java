@@ -1,7 +1,6 @@
 package edgedb.protocol.server.reader;
 
 import edgedb.exceptions.OverReadException;
-import edgedb.protocol.server.AuthenticationOK;
 import edgedb.protocol.server.ServerKeyData;
 import edgedb.protocol.server.readerhelper.ReaderHelper;
 import lombok.extern.slf4j.Slf4j;
@@ -22,14 +21,13 @@ public class ServerKeyDataReader extends BaseReader {
     public ServerKeyData read() throws IOException {
         ServerKeyData serverKeyData = new ServerKeyData();
 
-        try{
-            log.debug("AVAILABLE ~~~~{}",String.valueOf(dataInputStream.available()));
+        try {
             int messageLength = readerHelper.readUint32();
             readerHelper.setMessageLength(messageLength);
             serverKeyData.setMessageLength(messageLength);
 
-            byte[] bytes= new byte[34];
-            int readBytes = dataInputStream.read(bytes,0,32);
+            byte[] bytes = new byte[34];
+            int readBytes = dataInputStream.read(bytes, 0, 32);
             serverKeyData.setData(bytes);
 
             return serverKeyData;

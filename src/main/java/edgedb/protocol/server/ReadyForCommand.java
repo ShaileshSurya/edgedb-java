@@ -7,7 +7,7 @@ import lombok.Data;
 import static edgedb.protocol.constants.MessageType.READY_FOR_COMMAND;
 
 @Data
-public class ReadyForCommand extends BaseServerProtocol{
+public class ReadyForCommand extends BaseServerProtocol {
     byte mType = READY_FOR_COMMAND;
 
     int messageLength;

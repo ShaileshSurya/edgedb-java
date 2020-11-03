@@ -1,6 +1,7 @@
 package edgedb.protocol.server.reader;
 
-import edgedb.exceptions.*;
+import edgedb.exceptions.EdgeDBInternalErrException;
+import edgedb.exceptions.OverReadException;
 import edgedb.protocol.common.Header;
 import edgedb.protocol.common.HeaderReader;
 import edgedb.protocol.server.PrepareComplete;
@@ -55,10 +56,6 @@ public class PrepareCompleteReader extends BaseReader {
             e.printStackTrace();
             throw e;
         }
-//        } catch (ScalarTypeNotFoundException e) {
-//            e.printStackTrace();
-//            throw new EdgeDBInternalErrException();
-//        }
     }
 
 

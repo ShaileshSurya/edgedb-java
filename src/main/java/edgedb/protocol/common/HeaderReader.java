@@ -8,14 +8,18 @@ import java.io.DataInputStream;
 import java.io.IOException;
 
 @Data
-public class HeaderReader  {
+public class HeaderReader {
 
     private DataInputStream dataInputStream;
     private ReaderHelper readerHelper;
 
+    private HeaderReader() {
+
+    }
+
     public HeaderReader(DataInputStream dataInputStream, ReaderHelper readerHelper) {
         this.dataInputStream = dataInputStream;
-        this.readerHelper= readerHelper;
+        this.readerHelper = readerHelper;
     }
 
     public HeaderReader(DataInputStream dataInputStream) {

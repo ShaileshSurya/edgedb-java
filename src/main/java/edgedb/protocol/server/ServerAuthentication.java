@@ -5,8 +5,8 @@ import lombok.Data;
 import static edgedb.protocol.constants.MessageType.SERVER_AUTHENTICATION;
 
 @Data
-public class ServerAuthentication extends BaseServerProtocol{
-    byte mType= SERVER_AUTHENTICATION;
+public class ServerAuthentication extends BaseServerProtocol {
+    byte mType = SERVER_AUTHENTICATION;
 
     int messageLength;
     int authStatus;

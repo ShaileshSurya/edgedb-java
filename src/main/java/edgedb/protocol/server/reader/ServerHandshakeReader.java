@@ -26,16 +26,13 @@ public class ServerHandshakeReader extends BaseReader {
         log.debug("Trying to read Server Handshake");
         ServerHandshake serverHandshake = new ServerHandshake();
         try {
-            log.debug("~~~~~~~~~~~~~~~~~~~~1");
             int messageLength = readerHelper.readUint32();
             serverHandshake.setMessageLength(messageLength);
             readerHelper.setMessageLength(messageLength);
 
-            log.debug("~~~~~~~~~~~~~~~~~~~~2");
             serverHandshake.setMajorVersion(readerHelper.readUint16());
             serverHandshake.setMinorVersion(readerHelper.readUint16());
 
-            log.debug("~~~~~~~~~~~~~~~~~~~~3");
             short protocolExtensionLength = readerHelper.readUint16();
             log.debug("Read protocolExtensionLength {}", protocolExtensionLength);
             serverHandshake.setProtocolExtensionLength(protocolExtensionLength);

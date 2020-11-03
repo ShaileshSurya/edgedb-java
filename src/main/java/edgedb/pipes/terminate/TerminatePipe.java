@@ -18,11 +18,11 @@ public class TerminatePipe {
 
     private void writeAndFlushTerminateMessage() throws IOException {
         Terminate terminate = buildTerminateMessage();
-        TerminateWriter writer = new TerminateWriter(socketStream.getDataOutputStream(),terminate);
+        TerminateWriter writer = new TerminateWriter(socketStream.getDataOutputStream(), terminate);
         writer.writeAndFlush();
     }
 
-    private Terminate buildTerminateMessage(){
+    private Terminate buildTerminateMessage() {
         Terminate terminate = new Terminate();
         terminate.setMessageLength(terminate.calculateMessageLength());
         return terminate;

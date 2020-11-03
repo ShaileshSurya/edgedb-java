@@ -7,7 +7,7 @@ public final class MessageLengthCalculator {
     }
 
     public static final int calculate(byte value) {
-        return Byte.SIZE/Byte.SIZE;
+        return Byte.SIZE / Byte.SIZE;
     }
 
     public static final int calculate(short value) {

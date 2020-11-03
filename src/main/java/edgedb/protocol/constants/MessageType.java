@@ -18,7 +18,7 @@ public final class MessageType {
     public static final char PREPARE = 'P';
     public static final char PREPARE_COMPLETE = '1';
 
-    public static final char READY_FOR_COMMAND= 'Z';
+    public static final char READY_FOR_COMMAND = 'Z';
 
     public static final char AUTHENTICATION_SASL_INTIAL_RESPONSE = 'p';
     public static final char AUTHENTICATION_SASL_RESPONSE = 'r';

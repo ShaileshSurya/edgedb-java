@@ -1,6 +1,6 @@
 package edgedb.protocol.client.writer;
 
-import edgedb.protocol.client.*;
+import edgedb.protocol.client.Execute;
 import edgedb.protocol.client.writerhelper.WriteHelper;
 import edgedb.protocol.common.HeaderWriter;
 import lombok.AllArgsConstructor;
@@ -11,14 +11,14 @@ import java.io.IOException;
 
 @AllArgsConstructor
 @Slf4j
-public class ExecuteWriter extends BaseWriter{
+public class ExecuteWriter extends BaseWriter {
     DataOutputStream dataOutputStream;
     Execute execute;
 
 
     @Override
     public void write() throws IOException {
-        log.debug("ExecuteWriter {}",execute);
+        log.debug("ExecuteWriter {}", execute);
 
         WriteHelper write = new WriteHelper(dataOutputStream);
         write.writeUint8(execute.getMType());
@@ -38,7 +38,7 @@ public class ExecuteWriter extends BaseWriter{
         write.writeUint32(0);
     }
 
-    public void writeAndFlush(){
+    public void writeAndFlush() {
 
     }
 }
