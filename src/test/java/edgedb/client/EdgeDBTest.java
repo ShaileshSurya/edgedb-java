@@ -5,6 +5,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 
 import java.io.IOException;
+import java.util.List;
 
 public class EdgeDBTest {
 
@@ -53,20 +54,31 @@ public class EdgeDBTest {
 //                    "}\n" +
 //                    "FILTER .id = <uuid>'40913868-1856-11eb-811a-9b60813706a4'"));
 
-            System.out.println(db.queryJSON("SELECT Movie {\n" +
+//            System.out.println(db.queryJSON("SELECT Movie {\n" +
+//                    "    id,\n" +
+//                    "    title,\n" +
+//                    "    year\n" +
+//                    "}"));
+
+            List<MovieEntity> list = db.queryJSON("SELECT Movie {\n" +
                     "    id,\n" +
                     "    title,\n" +
                     "    year\n" +
-                    "}"));
+                    "}",MovieEntity.class);
+
+            for(MovieEntity entity: list){
+                System.out.print(" >>>>>>>>>>>>>>>>>>>>>>>>>> ");
+                System.out.println(entity);
+            }
 
 
-            String result = db.execute("SELECT 2 + 5");
-
-            System.out.println("~~~~~~~~~~~Result~~~~~~~~~~");
-            System.out.println("~~~~~~~~~~~Result~~~~~~~~~~");
-            System.out.println("~~~~~~~~~~~Result~~~~~~~~~~");
-            System.out.println("~~~~~~~~~~~Result~~~~~~~~~~");
-            System.out.println(result);
+//            String result = db.execute("SELECT 2 + 5");
+//
+//            System.out.println("~~~~~~~~~~~Result~~~~~~~~~~");
+//            System.out.println("~~~~~~~~~~~Result~~~~~~~~~~");
+//            System.out.println("~~~~~~~~~~~Result~~~~~~~~~~");
+//            System.out.println("~~~~~~~~~~~Result~~~~~~~~~~");
+//            System.out.println(result);
 
         } catch (IOException | EdgeDBInternalErrException | EdgeDBFailedToConnectServer | EdgeDBCommandException e) {
             e.printStackTrace();

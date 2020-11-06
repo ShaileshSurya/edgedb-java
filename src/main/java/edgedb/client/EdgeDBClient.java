@@ -1,6 +1,7 @@
 package edgedb.client;
 
 import edgedb.exceptions.*;
+import edgedb.internal.parser.JsonProcessor;
 import edgedb.internal.pipes.connect.ConnectionPipe;
 import edgedb.internal.pipes.executescript.ExecuteScriptPipe;
 import edgedb.internal.pipes.granularflow.GranularFlowPipe;
@@ -12,6 +13,7 @@ import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
+import java.util.List;
 
 @Data
 @Slf4j
@@ -79,12 +81,28 @@ public class EdgeDBClient {
         return result;
     }
 
+    public <T> T queryOneJSON(String query,Class<T> classType) throws IOException, EdgeDBInternalErrException, EdgeDBCommandException {
+        log.debug("Started executing QueryOneJSON {}", query);
+        GranularFlowPipe granularFlowPipe = new GranularFlowPipe(socketStream);
+        granularFlowPipe.setup(query, Cardinality.ONE, IOFormat.JSON);
+        String result = granularFlowPipe.execute();
+        return JsonProcessor.unmarshalToType(result,classType);
+    }
+
     public String queryJSON(String query) throws IOException, EdgeDBInternalErrException, EdgeDBCommandException {
         log.debug("Started executing QueryOneJSON {}", query);
         GranularFlowPipe granularFlowPipe = new GranularFlowPipe(socketStream);
         granularFlowPipe.setup(query, Cardinality.MANY, IOFormat.JSON);
         String result = granularFlowPipe.execute();
         return result;
+    }
+
+    public <T> List<T> queryJSON(String query, Class<T> classType) throws IOException, EdgeDBInternalErrException, EdgeDBCommandException {
+        log.debug("Started executing QueryOneJSON {}", query);
+        GranularFlowPipe granularFlowPipe = new GranularFlowPipe(socketStream);
+        granularFlowPipe.setup(query, Cardinality.MANY, IOFormat.JSON);
+        String result = granularFlowPipe.execute();
+        return JsonProcessor.unmarshalToList(result,classType);
     }
 
 }
