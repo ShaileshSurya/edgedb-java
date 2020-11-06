@@ -1,5 +1,6 @@
 package edgedb.internal.protocol.client;
 
+import edgedb.client.BaseConnectionV2;
 import edgedb.client.Connection;
 import edgedb.internal.protocol.server.ProtocolExtension;
 import lombok.Data;
@@ -35,6 +36,22 @@ public class ClientHandshake extends BaseClientProtocol {
         protocolExtensionLength = (short) 0;
         messageLength = calculateMessageLength();
     }
+
+
+    public ClientHandshake(BaseConnectionV2 connection) {
+
+        // TODO: CHECK THIS LATER. ARE THESE USER PROVIDED
+        majorVersion = (short) MAJOR_VERSION;
+        minorVersion = (short) MINOR_VERSION;
+        connectionParamLength = (short) 2;
+        connectionParams = new ConnectionParams[]{
+                new ConnectionParams("user", connection.getUser()),
+                new ConnectionParams("database", connection.getDatabase())
+        };
+        protocolExtensionLength = (short) 0;
+        messageLength = calculateMessageLength();
+    }
+
 
     public int calculateMessageLength() {
         log.debug("Starting to calculate length of message");

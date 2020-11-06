@@ -1,14 +1,19 @@
 package edgedb.client;
 
 
-public class BlockingIOConnection extends BaseConnection {
+import java.io.*;
 
+public class BlockingIOConnection extends BaseConnectionV2 {
+
+    DataOutputStream dataOutputStream;
+    DataInputStream dataInputStream;
+    
     public BlockingIOConnection(String dsn){
         super(dsn);
     }
 
     @Override
-    public void connect(String dsn) {
+    public void connect() throws IOException {
 
     }
 

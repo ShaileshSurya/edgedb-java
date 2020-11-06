@@ -2,6 +2,7 @@ package edgedb.client;
 
 import edgedb.exceptions.*;
 import edgedb.internal.pipes.connect.ConnectionPipe;
+import edgedb.internal.pipes.connect.ConnectionPipeV2;
 import edgedb.internal.pipes.executescript.ExecuteScriptPipe;
 import edgedb.internal.pipes.granularflow.GranularFlowPipe;
 import edgedb.internal.pipes.terminate.TerminatePipe;
@@ -12,6 +13,7 @@ import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
+import java.nio.channels.SocketChannel;
 
 @Data
 @Slf4j
@@ -19,10 +21,20 @@ import java.io.IOException;
 public class EdgeDBClient {
     Connection connection;
     private SocketStream socketStream;
+    private SocketChannel socketChannel;
+
+    NonBlockingIOConnection nonBlockingIOConnection;
 
     public EdgeDBClient withDSN(String dsn) {
         log.debug("Trying to connect with client {}", dsn);
         connection = new Connection(dsn);
+        log.debug("Connection {}", connection);
+        return this;
+    }
+
+    public EdgeDBClient withDSNv2(String dsn) {
+        log.debug("Trying to connect with client {}", dsn);
+        nonBlockingIOConnection = new NonBlockingIOConnection(dsn);
         log.debug("Connection {}", connection);
         return this;
     }
@@ -32,6 +44,14 @@ public class EdgeDBClient {
         log.debug("Connection to EdgeDB started with connection {}", connection);
         ConnectionPipe connectionPipe = new ConnectionPipe(connection);
         socketStream = connectionPipe.open();
+        log.debug("Connection to EdgeDB was successful");
+        return this;
+    }
+
+    public EdgeDBClient connectBlocking() throws Throwable {
+        log.debug("Connection to EdgeDB started with connection {}", connection);
+        ConnectionPipeV2 connectionPipeV2 = new ConnectionPipeV2(nonBlockingIOConnection);
+        connectionPipeV2.open();
         log.debug("Connection to EdgeDB was successful");
         return this;
     }
