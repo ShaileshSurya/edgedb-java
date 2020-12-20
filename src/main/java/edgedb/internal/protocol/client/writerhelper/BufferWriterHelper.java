@@ -1,43 +1,44 @@
 package edgedb.internal.protocol.client.writerhelper;
 
-import lombok.AllArgsConstructor;
-
-import java.io.DataOutputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 
-@AllArgsConstructor
-public class WriteHelper implements WriteHelp {
-    DataOutputStream dataOutputStream;
+public class BufferWriterHelper implements IWriteHelper {
+    ByteBuffer writeBuffer;
 
+    public BufferWriterHelper(ByteBuffer writeBuffer){
+        writeBuffer.clear();
+        this.writeBuffer = writeBuffer;
+    }
 
     @Override
     public void writeUint8(int value) throws IOException {
-        dataOutputStream.writeByte(value);
+        writeBuffer.put((byte) value);
     }
 
     @Override
     public void writeUint32(int value) throws IOException {
-        dataOutputStream.writeInt(value);
+        writeBuffer.putInt(value);
     }
 
     @Override
     public void writeUint16(int value) throws IOException {
-        dataOutputStream.writeShort(value);
+        writeBuffer.putShort((short) value);
     }
 
     @Override
     public void writeString(String str) throws IOException {
         if (str != null) {
-            dataOutputStream.writeInt(str.getBytes().length);
-            dataOutputStream.write(str.getBytes(), 0, str.getBytes().length);
+            writeBuffer.putInt(str.length());
+            writeBuffer.put(str.getBytes());
         }
     }
 
     @Override
     public void writeBytes(byte[] value) throws IOException {
         if (value != null) {
-            dataOutputStream.writeInt(value.length);
-            dataOutputStream.write(value, 0, value.length);
+            writeBuffer.putInt(value.length);
+            writeBuffer.put(value);
         }
     }
 }

@@ -26,7 +26,6 @@ public class NonBlockingIOConnection extends BaseConnectionV2 {
 
         clientChannel = SocketChannel.open();
         clientChannel.configureBlocking(false);
-        clientChannel.register()
 
         if (!clientChannel.connect(new InetSocketAddress(this.getHost(), this.getPort()))) {
             while (!clientChannel.finishConnect());

@@ -1,7 +1,7 @@
 package edgedb.internal.protocol.client.writer;
 
 import edgedb.internal.protocol.client.ExecuteScript;
-import edgedb.internal.protocol.client.writerhelper.WriteHelper;
+import edgedb.internal.protocol.client.writerhelper.DataOutputStreamWriterHelperI;
 import edgedb.internal.protocol.common.HeaderWriter;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -20,7 +20,7 @@ public class ExecuteScriptWriter extends BaseWriter {
 
     @Override
     public void write() throws IOException {
-        WriteHelper write = new WriteHelper(dataOutputStream);
+        DataOutputStreamWriterHelperI write = new DataOutputStreamWriterHelperI(dataOutputStream);
         log.debug("Writing Execute Script");
         write.writeUint8(executeScript.getMType());
         write.writeUint32(executeScript.getMessageLength());

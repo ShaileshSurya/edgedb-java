@@ -3,7 +3,7 @@ package edgedb.internal.protocol.client.writer;
 
 import edgedb.internal.protocol.client.ClientHandshake;
 import edgedb.internal.protocol.client.ConnectionParams;
-import edgedb.internal.protocol.client.writerhelper.WriteHelper;
+import edgedb.internal.protocol.client.writerhelper.DataOutputStreamWriterHelperI;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -18,7 +18,7 @@ public class ClientHandshakeWriter extends BaseWriter {
 
     public void write() throws IOException {
         log.debug("ClientHandshakeWriter {}", clientHandshake.toString());
-        WriteHelper write = new WriteHelper(dataOutputStream);
+        DataOutputStreamWriterHelperI write = new DataOutputStreamWriterHelperI(dataOutputStream);
         write.writeUint8(clientHandshake.getMType());
         write.writeUint32(clientHandshake.getMessageLength());
         write.writeUint16(clientHandshake.getMajorVersion());

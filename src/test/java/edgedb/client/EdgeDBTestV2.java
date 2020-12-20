@@ -1,5 +1,7 @@
 package edgedb.client;
 
+import edgedb.connection.*;
+import edgedb.connection.IConnection;
 import edgedb.exceptions.*;
 import org.junit.Test;
 
@@ -7,21 +9,27 @@ import java.io.IOException;
 
 public class EdgeDBTestV2 {
 
+    String user = "edgedb";
+    String database = "tutorial";
+
+    String hostEcho = "localhost";
+    String portEcho = "8083";
+    String hostReal = "10.199.198.56";
+    String portReal = "5656";
+    boolean isEcho = false;
+
+    String port = isEcho ? portEcho : portReal;
+    String host = isEcho ? hostEcho : hostReal;
+    String dsn = "edgedb://" + user + "@" + host + ":" + port + "/" + database;
+
+    @Test
+    public void nonBlockingTest() throws IOException, InterruptedException, EdgeDBIncompatibleDriverException, EdgeDBInternalErrException {
+        EdgeDBClientV2 client = new EdgeDBClientV2(new BlockingConnection());
+        client.getConnection(dsn);
+    }
     @Test
     public void connectTest() {
-        String user = "edgedb";
-        String database = "tutorial";
 
-        String hostEcho = "localhost";
-        String portEcho = "8083";
-        String hostReal = "10.199.198.56";
-        String portReal = "5656";
-
-        boolean isEcho = false;
-        String port = isEcho ? portEcho : portReal;
-        String host = isEcho ? hostEcho : hostReal;
-
-        String dsn = "edgedb://" + user + "@" + host + ":" + port + "/" + database;
         EdgeDBClient db = new EdgeDBClient().withDSNv2(dsn);
         try {
             db.connectBlocking();

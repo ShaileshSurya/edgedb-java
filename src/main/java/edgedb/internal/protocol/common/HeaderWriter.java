@@ -1,7 +1,7 @@
 package edgedb.internal.protocol.common;
 
 import edgedb.internal.protocol.client.writer.BaseWriter;
-import edgedb.internal.protocol.client.writerhelper.WriteHelper;
+import edgedb.internal.protocol.client.writerhelper.DataOutputStreamWriterHelperI;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -16,8 +16,8 @@ public class HeaderWriter extends BaseWriter {
 
     @Override
     public void write() throws IOException {
-        WriteHelper writeHelper = new WriteHelper(dataOutputStream);
-        writeHelper.writeUint16(header.getCode());
+        DataOutputStreamWriterHelperI dataOutputStreamWriterHelper = new DataOutputStreamWriterHelperI(dataOutputStream);
+        dataOutputStreamWriterHelper.writeUint16(header.getCode());
     }
 
     @Override

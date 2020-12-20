@@ -2,41 +2,42 @@ package edgedb.internal.protocol.client.writerhelper;
 
 import lombok.AllArgsConstructor;
 
+import java.io.DataOutputStream;
 import java.io.IOException;
-import java.nio.ByteBuffer;
 
 @AllArgsConstructor
-public class WriteHelperV2 implements WriteHelp{
-    ByteBuffer writeBuffer;
+public class DataOutputStreamWriterHelperI implements IWriteHelper {
+    DataOutputStream dataOutputStream;
+
 
     @Override
     public void writeUint8(int value) throws IOException {
-        writeBuffer.put((byte) value);
+        dataOutputStream.writeByte(value);
     }
 
     @Override
     public void writeUint32(int value) throws IOException {
-        writeBuffer.putInt(value);
+        dataOutputStream.writeInt(value);
     }
 
     @Override
     public void writeUint16(int value) throws IOException {
-        writeBuffer.putShort((short) value);
+        dataOutputStream.writeShort(value);
     }
 
     @Override
     public void writeString(String str) throws IOException {
         if (str != null) {
-            writeBuffer.putInt(str.length());
-            writeBuffer.put(str.getBytes());
+            dataOutputStream.writeInt(str.getBytes().length);
+            dataOutputStream.write(str.getBytes(), 0, str.getBytes().length);
         }
     }
 
     @Override
     public void writeBytes(byte[] value) throws IOException {
         if (value != null) {
-            writeBuffer.putInt(value.length);
-            writeBuffer.put(value);
+            dataOutputStream.writeInt(value.length);
+            dataOutputStream.write(value, 0, value.length);
         }
     }
 }

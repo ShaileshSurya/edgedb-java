@@ -2,7 +2,7 @@ package edgedb.internal.protocol.client.writer;
 
 import edgedb.internal.protocol.client.ClientHandshake;
 import edgedb.internal.protocol.client.ConnectionParams;
-import edgedb.internal.protocol.client.writerhelper.WriteHelperV2;
+import edgedb.internal.protocol.client.writerhelper.BufferWriterHelper;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -20,7 +20,7 @@ public class ClientHandshakeWriterV2 {
     public ByteBuffer buildWriteBuffer() throws IOException {
         ByteBuffer writeBuf = ByteBuffer.allocate(clientHandshake.getMessageLength()+1);
 
-        WriteHelperV2 writeHelper = new WriteHelperV2(writeBuf);
+        BufferWriterHelper writeHelper = new BufferWriterHelper(writeBuf);
 
         log.debug("ClientHandshakeWriter {}", clientHandshake.toString());
         writeHelper.writeUint8(clientHandshake.getMType());
@@ -38,6 +38,7 @@ public class ClientHandshakeWriterV2 {
     }
 
     public void write() throws IOException {
+        log.info("Trying to write to buffer");
         ByteBuffer writeBuf = buildWriteBuffer();
         writeBuf.flip();
         while(writeBuf.hasRemaining()){

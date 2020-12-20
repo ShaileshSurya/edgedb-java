@@ -2,7 +2,7 @@ package edgedb.internal.protocol.client.writerhelper;
 
 import java.io.IOException;
 
-public interface WriteHelp {
+public interface IWriteHelper {
     public void writeUint8(int value) throws IOException;
 
     public void writeUint32(int value) throws IOException;

@@ -1,7 +1,7 @@
 package edgedb.internal.protocol.client.writer;
 
 import edgedb.internal.protocol.client.Terminate;
-import edgedb.internal.protocol.client.writerhelper.WriteHelper;
+import edgedb.internal.protocol.client.writerhelper.DataOutputStreamWriterHelperI;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -17,7 +17,7 @@ public class TerminateWriter extends BaseWriter {
 
     public void write() throws IOException {
         log.debug("Writing terminate Message {}", terminate);
-        WriteHelper helper = new WriteHelper(dataOutputStream);
+        DataOutputStreamWriterHelperI helper = new DataOutputStreamWriterHelperI(dataOutputStream);
 
         helper.writeUint8(terminate.getMType());
         helper.writeUint32(terminate.getMessageLength());

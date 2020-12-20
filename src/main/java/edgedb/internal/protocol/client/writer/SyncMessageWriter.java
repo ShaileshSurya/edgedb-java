@@ -1,7 +1,7 @@
 package edgedb.internal.protocol.client.writer;
 
 import edgedb.internal.protocol.client.SyncMessage;
-import edgedb.internal.protocol.client.writerhelper.WriteHelper;
+import edgedb.internal.protocol.client.writerhelper.DataOutputStreamWriterHelperI;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -17,7 +17,7 @@ public class SyncMessageWriter extends BaseWriter {
 
     public void write() throws IOException {
         log.debug("SyncMessageWriter {}", syncMessage.toString());
-        WriteHelper writerHelper = new WriteHelper(dataOutputStream);
+        DataOutputStreamWriterHelperI writerHelper = new DataOutputStreamWriterHelperI(dataOutputStream);
         writerHelper.writeUint8(syncMessage.getMType());
         writerHelper.writeUint32(syncMessage.getMessageLength());
     }

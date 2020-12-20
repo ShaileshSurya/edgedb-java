@@ -75,7 +75,6 @@ public class GranularFlowPipe extends BasePipe {
         return new String(responseByteArray);
     }
 
-
     public <T extends BaseServerProtocol> DataResponse readExecuteResponse() throws IOException, EdgeDBInternalErrException {
         DataResponse dataResponse = null;
         while (socketStream.getDataInputStream().available() > 0 || dataResponse == null) {

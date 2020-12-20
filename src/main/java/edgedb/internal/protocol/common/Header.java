@@ -1,12 +1,19 @@
 package edgedb.internal.protocol.common;
 
 import edgedb.internal.protocol.client.MessageLengthCalculator;
+import edgedb.internal.protocol.client.writerV2.BufferWriter;
+import edgedb.internal.protocol.client.writerhelper.BufferWriterHelper;
+import edgedb.internal.protocol.client.writerhelper.IWriteHelper;
+import edgedb.internal.protocol.server.BaseServerProtocol;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.IOException;
+import java.nio.ByteBuffer;
+
 @Data
 @Slf4j
-public class Header {
+public class Header extends BaseServerProtocol implements BufferWriter {
     short code;
     byte[] value;
 
@@ -26,5 +33,17 @@ public class Header {
         messageLength += calculator.calculate(value);
 
         return messageLength;
+    }
+
+    @Override
+    public ByteBuffer write(ByteBuffer writeBuf) throws IOException {
+        IWriteHelper helper = new BufferWriterHelper(writeBuf);
+        return write(helper,writeBuf);
+    }
+
+    public ByteBuffer write(IWriteHelper helper,ByteBuffer writeBuf) throws IOException {
+        helper.writeUint16(code);
+        helper.writeBytes(value);
+        return writeBuf;
     }
 }

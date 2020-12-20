@@ -3,15 +3,17 @@ package edgedb.internal.protocol.server.reader;
 import edgedb.exceptions.OverReadException;
 import edgedb.internal.protocol.common.Header;
 import edgedb.internal.protocol.common.HeaderReader;
+import edgedb.internal.protocol.server.BaseServerProtocol;
 import edgedb.internal.protocol.server.CommandComplete;
 import edgedb.internal.protocol.server.readerhelper.ReaderHelper;
 import lombok.Data;
 
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 
 @Data
-public class CommandCompleteReader extends BaseReader {
+public class CommandCompleteReader extends BaseReader implements ProtocolReader {
 
     public CommandCompleteReader(DataInputStream dataInputStream, ReaderHelper readerHelper) {
         super(dataInputStream, readerHelper);
@@ -46,4 +48,11 @@ public class CommandCompleteReader extends BaseReader {
         }
     }
 
+    @Override
+    public <T extends BaseServerProtocol> T Read(ByteBuffer readBuffer) {
+        Read helper = (Read) new ReaderHelper(dataInputStream);
+        CommandComplete commandComplete = new CommandComplete();
+        commandComplete.setMessageLength(commandComplete.getMessageLength());
+        return null;
+    }
 }

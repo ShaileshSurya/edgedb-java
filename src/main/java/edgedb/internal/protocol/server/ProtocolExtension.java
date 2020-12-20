@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 // No Protocol Extensions are currently Defined.
-public class ProtocolExtension {
+public class ProtocolExtension extends BaseServerProtocol{
     String name;
     short headersLength;
 

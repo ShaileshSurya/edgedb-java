@@ -1,7 +1,7 @@
 package edgedb.internal.protocol.client.writer;
 
 import edgedb.internal.protocol.client.Prepare;
-import edgedb.internal.protocol.client.writerhelper.WriteHelper;
+import edgedb.internal.protocol.client.writerhelper.DataOutputStreamWriterHelperI;
 import edgedb.internal.protocol.common.HeaderWriter;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +18,7 @@ public class PrepareWriter extends BaseWriter {
 
     public void write() throws IOException {
         log.debug("PrepareWriter {}", prepare.toString());
-        WriteHelper writerHelper = new WriteHelper(dataOutputStream);
+        DataOutputStreamWriterHelperI writerHelper = new DataOutputStreamWriterHelperI(dataOutputStream);
         writerHelper.writeUint8(prepare.getMType());
         writerHelper.writeUint32(prepare.getMessageLength());
 

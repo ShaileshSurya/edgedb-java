@@ -33,7 +33,6 @@ public class ConnectionPipe extends BasePipe {
             log.debug("Opening up a socket");
             Socket socket = openSocket();
             setSocketStream(socket);
-
             writeAndFlush(new ClientHandshakeWriter(socketStream.getDataOutputStream(), new ClientHandshake(connection)));
             tryConnect();
             log.debug("Connection Successful");
