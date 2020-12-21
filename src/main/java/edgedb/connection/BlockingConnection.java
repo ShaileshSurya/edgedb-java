@@ -6,8 +6,8 @@ import edgedb.exceptions.*;
 import edgedb.internal.buffer.SingletonBuffer;
 import edgedb.internal.pipes.SyncFlow.SyncPipe;
 import edgedb.internal.pipes.SyncFlow.SyncPipeImpl;
-import edgedb.internal.pipes.connect.ConnectionPipeV2;
-import edgedb.internal.pipes.connect.IConnectionPipeV2;
+import edgedb.internal.pipes.connect.ConnectionPipe;
+import edgedb.internal.pipes.connect.IConnectionPipe;
 import edgedb.internal.pipes.granularflow.GranularFlowPipeV2;
 import edgedb.internal.pipes.granularflow.IGranularFlowPipe;
 import edgedb.internal.protocol.*;
@@ -161,13 +161,10 @@ public class BlockingConnection implements IConnection {
 
     }
 
-    public void connect(String user, String database) throws IOException, InterruptedException, EdgeDBIncompatibleDriverException, EdgeDBInternalErrException {
-
-    }
 
     @Override
     public void terminate() throws IOException {
-            IConnectionPipeV2 connectionPipeV2 = new ConnectionPipeV2(
+            IConnectionPipe connectionPipeV2 = new ConnectionPipe(
                     new ChannelProtocolWritableImpl(getChannel()));
 
             connectionPipeV2.sendTerminate(new Terminate());
@@ -191,7 +188,7 @@ public class BlockingConnection implements IConnection {
     public void initiateHandshake(String user, String database) throws InterruptedException, EdgeDBInternalErrException, EdgeDBIncompatibleDriverException, IOException {
         log.info("Initiating Client Handshake");
         ClientHandshake clientHandshakeMessage = new ClientHandshake(user,database);
-        IConnectionPipeV2 connectionPipeV2 = new ConnectionPipeV2(
+        IConnectionPipe connectionPipeV2 = new ConnectionPipe(
                 new ChannelProtocolWritableImpl(getChannel()));
         connectionPipeV2.sendClientHandshake(clientHandshakeMessage);
 

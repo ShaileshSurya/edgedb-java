@@ -12,7 +12,7 @@ import java.io.IOException;
 
 @Slf4j
 @AllArgsConstructor
-public class ConnectionPipeV2 implements IConnectionPipeV2 {
+public class ConnectionPipe implements IConnectionPipe {
 
     ProtocolWritable protocolWritable;
     @Override

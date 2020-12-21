@@ -4,8 +4,6 @@ import edgedb.connection.IConnection;
 import edgedb.connectionparams.ConnectionParams;
 import edgedb.exceptions.EdgeDBIncompatibleDriverException;
 import edgedb.exceptions.EdgeDBInternalErrException;
-import edgedb.internal.pipes.connect.ConnectionPipeV3;
-import edgedb.internal.pipes.connect.IConnectionPipe;
 
 import lombok.AllArgsConstructor;
 
@@ -30,7 +28,6 @@ public class EdgeDBClientV2 implements Client{
         connection.handleHandshake();
         return connection;
     }
-
 
     @Override
     public void terminateConnection() throws IOException {
