@@ -33,10 +33,8 @@ public class ConnectionPipeV3 implements IConnectionPipe {
     @Override
     public void connect(String user, String database) throws IOException, InterruptedException, EdgeDBIncompatibleDriverException, EdgeDBInternalErrException {
             ClientHandshake clientHandshakeMessage = new ClientHandshake(user,database);
-
             protocolWritable.write(clientHandshakeMessage);
             tryConnect();
-
             log.info("Connection Successful, Ready for command.");
     }
 
@@ -48,7 +46,7 @@ public class ConnectionPipeV3 implements IConnectionPipe {
             protocolWritable.write(terminate);
 
         } catch (Exception e){
-            log.debug("Failed to terminate to EdgeDB Client Connection {}", e);
+            log.debug("Failed to sendTerminate to EdgeDB Client Connection {}", e);
         }
 
     }

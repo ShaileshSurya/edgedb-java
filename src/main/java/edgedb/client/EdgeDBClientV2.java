@@ -25,17 +25,15 @@ public class EdgeDBClientV2 implements Client{
     @Override
     public IConnection getConnection(String dsn) throws IOException, InterruptedException, EdgeDBIncompatibleDriverException, EdgeDBInternalErrException {
         connectionParams = new ConnectionParams(dsn);
-        connection = connection.connect(connectionParams);
-        IConnectionPipe pipe = new ConnectionPipeV3(connection.getChannel());
-        pipe.connect(connectionParams.getUser(),connectionParams.getDatabase());
+        connection = connection.createClientSocket(connectionParams);
+        connection.initiateHandshake(connectionParams.getUser(),connectionParams.getDatabase());
+        connection.handleHandshake();
         return connection;
     }
 
 
     @Override
     public void terminateConnection() throws IOException {
-        IConnectionPipe pipe= new ConnectionPipeV3(connection.getChannel());
-        pipe.terminate();
         connection.terminate();
     }
 

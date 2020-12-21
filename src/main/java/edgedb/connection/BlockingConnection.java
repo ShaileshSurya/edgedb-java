@@ -1,10 +1,13 @@
 package edgedb.connection;
 
 import edgedb.client.*;
+import edgedb.connectionparams.ConnectionParams;
 import edgedb.exceptions.*;
 import edgedb.internal.buffer.SingletonBuffer;
 import edgedb.internal.pipes.SyncFlow.SyncPipe;
 import edgedb.internal.pipes.SyncFlow.SyncPipeImpl;
+import edgedb.internal.pipes.connect.ConnectionPipeV2;
+import edgedb.internal.pipes.connect.IConnectionPipeV2;
 import edgedb.internal.pipes.granularflow.GranularFlowPipeV2;
 import edgedb.internal.pipes.granularflow.IGranularFlowPipe;
 import edgedb.internal.protocol.*;
@@ -16,23 +19,20 @@ import edgedb.internal.protocol.server.readerv2.*;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
+import java.nio.channels.SocketChannel;
 
+import static edgedb.exceptions.ErrorMessage.DRIVER_INCOMPATIBLE_ERROR;
 import static edgedb.exceptions.ErrorMessage.FAILED_TO_DECODE_SERVER_TRANSACTION_STATE;
 import static edgedb.internal.protocol.constants.TransactionState.*;
 
 @Slf4j
-public class BlockingConnection extends BaseConnection {
+public class BlockingConnection implements IConnection {
 
-    @Override
-    protected boolean isBlocking() {
-        return true;
-    }
+    SocketChannel clientChannel;
 
-    @Override
-    protected IConnection getConnection() {
-        return this;
-    }
+    byte[] serverKey;
 
     @Override
     public ResultSet query(String query) throws EdgeDBQueryException, EdgeDBCommandException, IOException, EdgeDBInternalErrException {
@@ -57,7 +57,7 @@ public class BlockingConnection extends BaseConnection {
 
     protected  <T extends ServerProtocolBehaviour> PrepareComplete readPrepareComplete(IGranularFlowPipe granularFlowPipe, Prepare prepareMessage) throws IOException, EdgeDBInternalErrException, EdgeDBCommandException {
         log.debug("Reading prepare complete");
-        BufferReader bufferReader = new BufferReaderImpl(getChannel());
+        BufferReader bufferReader = new BufferReaderImpl(clientChannel);
         ByteBuffer readBuffer = SingletonBuffer.getInstance().getBuffer();
 
         readBuffer = bufferReader.read(readBuffer);
@@ -100,11 +100,10 @@ public class BlockingConnection extends BaseConnection {
                         syncPipe.sendSyncMessage();
                         continue;
                     case (int) IN_TRANSACTION:
+                        log.info("In Transaction");
                         throw new UnsupportedOperationException();
                     case (int) NOT_IN_TRANSACTION:
                         log.info("Not In Transaction");
-//                        granularFlowPipe.sendPrepareMessage(prepareMessage);
-//                        return readPrepareComplete(granularFlowPipe,prepareMessage);
                         break;
                     default:
                         throw new EdgeDBInternalErrException(FAILED_TO_DECODE_SERVER_TRANSACTION_STATE);
@@ -128,7 +127,6 @@ public class BlockingConnection extends BaseConnection {
         granularFlowPipe.sendPrepareMessage(prepareMessage);
         PrepareComplete prepareComplete = readPrepareComplete(granularFlowPipe,prepareMessage);
         log.info("PrepareComplete received {}",prepareComplete);
-
 //        try {
 //            TypeDescriptor typeDescriptor = new TypeDecoderFactoryImpl().getTypeDescriptor(prepareComplete.getResultDataDescriptorID());
 //        }catch (ScalarTypeNotFoundException e){
@@ -161,5 +159,92 @@ public class BlockingConnection extends BaseConnection {
             }
         }
 
+    }
+
+    public void connect(String user, String database) throws IOException, InterruptedException, EdgeDBIncompatibleDriverException, EdgeDBInternalErrException {
+
+    }
+
+    @Override
+    public void terminate() throws IOException {
+            IConnectionPipeV2 connectionPipeV2 = new ConnectionPipeV2(
+                    new ChannelProtocolWritableImpl(getChannel()));
+
+            connectionPipeV2.sendTerminate(new Terminate());
+    }
+
+    public IConnection createClientSocket(ConnectionParams connectionParams) throws IOException {
+
+        log.info("Trying to create Client Socket");
+        clientChannel = SocketChannel.open();
+        clientChannel.configureBlocking(true);
+
+        if (!clientChannel.connect(new InetSocketAddress(connectionParams.getHost(), connectionParams.getPort()))) {
+            log.info("Trying to connect ...");
+            while (!clientChannel.finishConnect());
+
+            log.info("Connection Successful....");
+        }
+        return this;
+    }
+
+    public void initiateHandshake(String user, String database) throws InterruptedException, EdgeDBInternalErrException, EdgeDBIncompatibleDriverException, IOException {
+        log.info("Initiating Client Handshake");
+        ClientHandshake clientHandshakeMessage = new ClientHandshake(user,database);
+        IConnectionPipeV2 connectionPipeV2 = new ConnectionPipeV2(
+                new ChannelProtocolWritableImpl(getChannel()));
+        connectionPipeV2.sendClientHandshake(clientHandshakeMessage);
+
+    }
+
+    public void handleHandshake() throws InterruptedException, EdgeDBInternalErrException, EdgeDBIncompatibleDriverException, IOException {
+        tryHandleHandshake();
+        log.info("Connection Successful, Ready for command.");
+    }
+    private <T extends ServerProtocolBehaviour> void tryHandleHandshake() throws IOException, InterruptedException, EdgeDBIncompatibleDriverException, EdgeDBInternalErrException {
+        log.debug("Trying to read response for client handshake");
+
+        ByteBuffer readBuffer = SingletonBuffer.getInstance().getBuffer();
+        BufferReader bufferReader = new BufferReaderImpl(getChannel());
+        readBuffer = bufferReader.read(readBuffer);
+        while (readBuffer.hasRemaining()) {
+            byte mType = readBuffer.get();
+            ProtocolReader reader = new ChannelProtocolReaderFactoryImpl(readBuffer)
+                    .getProtocolReader((char) mType, readBuffer);
+
+            T response = reader.read(readBuffer);
+            log.info(" Response Found was {}",response.toString());
+            if (response instanceof ServerHandshakeBehaviour) {
+                ServerHandshakeBehaviour serverHandshake = (ServerHandshakeBehaviour) response;
+                log.debug("Response is an Instance Of ServerHandshake {}", serverHandshake);
+                throw new EdgeDBIncompatibleDriverException(DRIVER_INCOMPATIBLE_ERROR,
+                        serverHandshake.getMajorVersion(),
+                        serverHandshake.getMinorVersion());
+            }
+
+            if (response instanceof ReadyForCommand) {
+                ReadyForCommand readyForCommand = (ReadyForCommand) response;
+                log.debug("Response is an Instance Of ReadyForCommand {}", readyForCommand);
+
+                switch (readyForCommand.getTransactionState()) {
+                    case (int) IN_FAILED_TRANSACTION:
+                        SyncPipe syncPipe = new SyncPipeImpl(
+                                new ChannelProtocolWritableImpl(getChannel()));
+                        syncPipe.sendSyncMessage();
+                        break;
+                    case (int) IN_TRANSACTION:
+                        break;
+                    case (int) NOT_IN_TRANSACTION:
+                        return;
+                    default:
+                        throw new EdgeDBInternalErrException(FAILED_TO_DECODE_SERVER_TRANSACTION_STATE);
+                }
+            }
+        }
+    }
+
+    @Override
+    public SocketChannel getChannel() {
+        return this.clientChannel;
     }
 }
