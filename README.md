@@ -6,10 +6,13 @@ This project is far from production ready. We need your support, feel free to co
 
 ## API Support
 ##### BlockingIO Connection 
-1. QueryJSON(String command)
-2. QueryOneJSON(String command)
-3. Execute(String command)
-
+```java
+public String queryOneJSON(String query)
+public <T> T queryOneJSON(String query,Class<T> classType)
+public String queryJSON(String query)
+public <T> List<T> queryJSON(String query, Class<T> classType)
+Execute(String command)
+```
 ## Basic Recipes
 ```java
 
