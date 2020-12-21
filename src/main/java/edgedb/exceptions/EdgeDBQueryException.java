@@ -1,4 +1,4 @@
 package edgedb.exceptions;
 
-public class EdgeDBQueryException {
+public class EdgeDBQueryException extends Throwable {
 }
