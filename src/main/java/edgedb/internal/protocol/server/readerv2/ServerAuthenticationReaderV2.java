@@ -2,13 +2,10 @@ package edgedb.internal.protocol.server.readerv2;
 
 import edgedb.exceptions.EdgeDBInternalErrException;
 import edgedb.exceptions.OverReadException;
-import edgedb.internal.protocol.server.BaseServerProtocol;
-import edgedb.internal.protocol.server.ServerAuthentication;
+import edgedb.internal.protocol.ServerAuthenticationBehaviour;
 import edgedb.internal.protocol.server.readerhelper.IReaderHelper;
-import edgedb.internal.protocol.server.readerhelper.ReaderHelper;
 import lombok.AllArgsConstructor;
 
-import java.io.DataInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
@@ -19,7 +16,7 @@ import static edgedb.internal.protocol.constants.AuthenticationStatus.*;
 public class ServerAuthenticationReaderV2 implements ProtocolReader {
     IReaderHelper readerHelper;
 
-    private ServerAuthentication readAuthenticationSASL(ServerAuthentication serverAuthentication) throws IOException, OverReadException {
+    private ServerAuthenticationBehaviour readAuthenticationSASL(ServerAuthenticationBehaviour serverAuthentication) throws IOException, OverReadException {
         int methodsLength = readerHelper.readUint32();
         serverAuthentication.setMethodsLength(methodsLength);
         String[] authMethods = new String[methodsLength];
@@ -30,8 +27,8 @@ public class ServerAuthenticationReaderV2 implements ProtocolReader {
     }
 
     @Override
-    public ServerAuthentication read(ByteBuffer readBuffer) throws IOException {
-        ServerAuthentication serverAuthentication = new ServerAuthentication();
+    public ServerAuthenticationBehaviour read(ByteBuffer readBuffer) throws IOException {
+        ServerAuthenticationBehaviour serverAuthentication = new ServerAuthenticationBehaviour();
 
         try {
             serverAuthentication.setMessageLength(readerHelper.readUint32());

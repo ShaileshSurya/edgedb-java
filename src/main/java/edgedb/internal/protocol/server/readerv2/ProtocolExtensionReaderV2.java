@@ -3,12 +3,10 @@ package edgedb.internal.protocol.server.readerv2;
 import edgedb.exceptions.OverReadException;
 import edgedb.internal.protocol.common.Header;
 import edgedb.internal.protocol.common.HeaderReader;
-import edgedb.internal.protocol.server.ProtocolExtension;
+import edgedb.internal.protocol.ProtocolBehaviourExtension;
 import edgedb.internal.protocol.server.readerhelper.IReaderHelper;
-import edgedb.internal.protocol.server.readerhelper.ReaderHelper;
 import lombok.AllArgsConstructor;
 
-import java.io.DataInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
@@ -17,8 +15,8 @@ public class ProtocolExtensionReaderV2 implements ProtocolReader {
 
     private IReaderHelper readerHelper;
 
-    public ProtocolExtension read(ByteBuffer buffer) throws IOException {
-        ProtocolExtension protocolExtension = new ProtocolExtension();
+    public ProtocolBehaviourExtension read(ByteBuffer buffer) throws IOException {
+        ProtocolBehaviourExtension protocolExtension = new ProtocolBehaviourExtension();
 
         try {
             protocolExtension.setName(readerHelper.readString());

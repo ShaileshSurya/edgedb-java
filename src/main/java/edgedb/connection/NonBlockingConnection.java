@@ -2,8 +2,6 @@ package edgedb.connection;
 
 import edgedb.client.ResultSet;
 import edgedb.exceptions.*;
-import edgedb.internal.protocol.server.BaseServerProtocol;
-import edgedb.internal.protocol.server.PrepareComplete;
 
 import java.io.IOException;
 

@@ -2,30 +2,27 @@ package edgedb.connection;
 
 import edgedb.client.*;
 import edgedb.exceptions.*;
+import edgedb.internal.buffer.SingletonBuffer;
 import edgedb.internal.pipes.SyncFlow.SyncPipe;
 import edgedb.internal.pipes.SyncFlow.SyncPipeImpl;
 import edgedb.internal.pipes.granularflow.GranularFlowPipeV2;
 import edgedb.internal.pipes.granularflow.IGranularFlowPipe;
-import edgedb.internal.protocol.client.*;
-import edgedb.internal.protocol.client.writerV2.ChannelProtocolWriterImpl;
+import edgedb.internal.protocol.*;
+import edgedb.internal.protocol.client.writerV2.ChannelProtocolWritableImpl;
 import edgedb.internal.protocol.constants.Cardinality;
 import edgedb.internal.protocol.constants.IOFormat;
-import edgedb.internal.protocol.server.*;
+import edgedb.internal.protocol.server.readerfactory.ChannelProtocolReaderFactoryImpl;
 import edgedb.internal.protocol.server.readerv2.*;
-import edgedb.internal.protocol.typedescriptor.TypeDescriptor;
-import edgedb.internal.protocol.typedescriptor.decoder.TypeDecoderFactoryImpl;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import static edgedb.exceptions.ErrorMessage.FAILED_TO_DECODE_SERVER_TRANSACTION_STATE;
-import static edgedb.internal.protocol.constants.CommonConstants.BUFFER_SIZE;
 import static edgedb.internal.protocol.constants.TransactionState.*;
 
 @Slf4j
 public class BlockingConnection extends BaseConnection {
-    ByteBuffer buffer;
 
     @Override
     protected boolean isBlocking() {
@@ -58,7 +55,7 @@ public class BlockingConnection extends BaseConnection {
     }
 
 
-    protected  <T extends BaseServerProtocol> PrepareComplete readPrepareComplete(IGranularFlowPipe granularFlowPipe, Prepare prepareMessage) throws IOException, EdgeDBInternalErrException, EdgeDBCommandException {
+    protected  <T extends ServerProtocolBehaviour> PrepareComplete readPrepareComplete(IGranularFlowPipe granularFlowPipe, Prepare prepareMessage) throws IOException, EdgeDBInternalErrException, EdgeDBCommandException {
         log.debug("Reading prepare complete");
         BufferReader bufferReader = new BufferReaderImpl(getChannel());
         ByteBuffer readBuffer = SingletonBuffer.getInstance().getBuffer();
@@ -83,9 +80,9 @@ public class BlockingConnection extends BaseConnection {
                 throw new EdgeDBCommandException(err);
             }
 
-            if (response instanceof ServerKeyData) {
-                log.debug("Response is an Instance Of Error {}", (ServerKeyData) response);
-                ServerKeyData serverKeyData = (ServerKeyData) response;
+            if (response instanceof ServerKeyDataBehaviour) {
+                log.debug("Response is an Instance Of Error {}", (ServerKeyDataBehaviour) response);
+                ServerKeyDataBehaviour serverKeyData = (ServerKeyDataBehaviour) response;
                 this.serverKey = serverKeyData.getData();
                 continue;
             }
@@ -99,7 +96,7 @@ public class BlockingConnection extends BaseConnection {
                         log.info("In Failed Transaction");
                         //TODO: Coding to concrete implementation here. Watch out.
                         SyncPipe syncPipe = new SyncPipeImpl(
-                                new ChannelProtocolWriterImpl(getChannel()));
+                                new ChannelProtocolWritableImpl(getChannel()));
                         syncPipe.sendSyncMessage();
                         continue;
                     case (int) IN_TRANSACTION:
@@ -125,7 +122,7 @@ public class BlockingConnection extends BaseConnection {
 
     protected ResultSet executeGranularFlow(char IOFormat, char cardinality, String command) throws EdgeDBQueryException, EdgeDBCommandException, IOException, EdgeDBInternalErrException {
         IGranularFlowPipe granularFlowPipe = new GranularFlowPipeV2(
-                new ChannelProtocolWriterImpl(getChannel()));
+                new ChannelProtocolWritableImpl(getChannel()));
 
         Prepare prepareMessage = new Prepare(IOFormat, cardinality, command);
         granularFlowPipe.sendPrepareMessage(prepareMessage);
@@ -141,7 +138,7 @@ public class BlockingConnection extends BaseConnection {
         return readDataResponse();
     }
 
-    protected  <T extends BaseServerProtocol> ResultSet readDataResponse() throws IOException, EdgeDBInternalErrException {
+    protected  <T extends ServerProtocolBehaviour> ResultSet readDataResponse() throws IOException, EdgeDBInternalErrException {
         log.debug("Reading DataResponse");
         DataResponse dataResponse = null;
         BufferReader bufferReader = new BufferReaderImpl(getChannel());

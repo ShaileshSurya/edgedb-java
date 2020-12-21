@@ -1,15 +1,11 @@
 package edgedb.internal.protocol.server.readerv2;
 
 import edgedb.exceptions.OverReadException;
-import edgedb.internal.protocol.server.BaseServerProtocol;
-import edgedb.internal.protocol.server.ServerKeyData;
+import edgedb.internal.protocol.ServerKeyDataBehaviour;
 import edgedb.internal.protocol.server.readerhelper.IReaderHelper;
-import edgedb.internal.protocol.server.readerhelper.ReaderHelper;
 import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.DataInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
@@ -19,8 +15,8 @@ public class ServerKeyDataReaderV2 implements ProtocolReader {
 
     IReaderHelper readerHelper;
 
-    public ServerKeyData read(ByteBuffer buffer) throws IOException {
-        ServerKeyData serverKeyData = new ServerKeyData();
+    public ServerKeyDataBehaviour read(ByteBuffer buffer) throws IOException {
+        ServerKeyDataBehaviour serverKeyData = new ServerKeyDataBehaviour();
 
         try {
             int messageLength = readerHelper.readUint32();

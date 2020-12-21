@@ -1,7 +1,7 @@
 package edgedb.internal.pipes.granularflow;
 
-import edgedb.internal.protocol.client.Execute;
-import edgedb.internal.protocol.client.Prepare;
+import edgedb.internal.protocol.Execute;
+import edgedb.internal.protocol.Prepare;
 
 import java.io.IOException;
 

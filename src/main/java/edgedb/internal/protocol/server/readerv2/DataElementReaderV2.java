@@ -1,14 +1,11 @@
 package edgedb.internal.protocol.server.readerv2;
 
 import edgedb.exceptions.OverReadException;
-import edgedb.internal.protocol.server.BaseServerProtocol;
-import edgedb.internal.protocol.server.DataElement;
+import edgedb.internal.protocol.DataElement;
 import edgedb.internal.protocol.server.readerhelper.IReaderHelper;
-import edgedb.internal.protocol.server.readerhelper.ReaderHelper;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.DataInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 

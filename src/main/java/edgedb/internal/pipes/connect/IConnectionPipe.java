@@ -1,6 +1,5 @@
 package edgedb.internal.pipes.connect;
 
-import edgedb.connection.IChannel;
 import edgedb.exceptions.EdgeDBIncompatibleDriverException;
 import edgedb.exceptions.EdgeDBInternalErrException;
 

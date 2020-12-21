@@ -6,7 +6,7 @@ import edgedb.exceptions.EdgeDBIncompatibleDriverException;
 import edgedb.exceptions.EdgeDBInternalErrException;
 import edgedb.internal.pipes.connect.ConnectionPipeV3;
 import edgedb.internal.pipes.connect.IConnectionPipe;
-import edgedb.internal.protocol.client.writerV2.ChannelProtocolWriterImpl;
+
 import lombok.AllArgsConstructor;
 
 import java.io.IOException;

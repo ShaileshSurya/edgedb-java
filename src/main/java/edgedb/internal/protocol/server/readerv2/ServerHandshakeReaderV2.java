@@ -1,7 +1,8 @@
 package edgedb.internal.protocol.server.readerv2;
 
 import edgedb.exceptions.OverReadException;
-import edgedb.internal.protocol.server.*;
+import edgedb.internal.protocol.ProtocolBehaviourExtension;
+import edgedb.internal.protocol.ServerHandshakeBehaviour;
 import edgedb.internal.protocol.server.readerhelper.IReaderHelper;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -15,9 +16,9 @@ public class ServerHandshakeReaderV2 implements ProtocolReader {
 
     IReaderHelper readerHelper;
 
-    public ServerHandshake read(ByteBuffer buffer) throws IOException {
+    public ServerHandshakeBehaviour read(ByteBuffer buffer) throws IOException {
         log.debug("Trying to read Server Handshake");
-        ServerHandshake serverHandshake = new ServerHandshake();
+        ServerHandshakeBehaviour serverHandshake = new ServerHandshakeBehaviour();
         try {
             int messageLength = readerHelper.readUint32();
             serverHandshake.setMessageLength(messageLength);
@@ -29,7 +30,7 @@ public class ServerHandshakeReaderV2 implements ProtocolReader {
             short protocolExtensionLength = readerHelper.readUint16();
             log.debug("Read protocolExtensionLength {}", protocolExtensionLength);
             serverHandshake.setProtocolExtensionLength(protocolExtensionLength);
-            ProtocolExtension[] protocolExtensions = new ProtocolExtension[protocolExtensionLength];
+            ProtocolBehaviourExtension[] protocolExtensions = new ProtocolBehaviourExtension[protocolExtensionLength];
             ProtocolReader peReader = new ProtocolExtensionReaderV2(readerHelper);
             for (int i = 0; i < protocolExtensionLength; i++) {
                 protocolExtensions[i] = peReader.read(buffer);

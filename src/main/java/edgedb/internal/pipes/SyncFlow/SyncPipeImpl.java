@@ -1,19 +1,15 @@
 package edgedb.internal.pipes.SyncFlow;
 
-import edgedb.internal.protocol.client.SyncMessage;
-import edgedb.internal.protocol.client.writerV2.ProtocolWriter;
-import edgedb.internal.protocol.server.readerv2.*;
+import edgedb.internal.protocol.SyncMessage;
+import edgedb.internal.protocol.client.writerV2.ProtocolWritable;
 import lombok.AllArgsConstructor;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
-
-import static edgedb.internal.protocol.constants.CommonConstants.BUFFER_SIZE;
 
 @AllArgsConstructor
 public class SyncPipeImpl implements SyncPipe {
 
-    ProtocolWriter writer;
+    ProtocolWritable writer;
 
     @Override
     public void sendSyncMessage() throws IOException {
