@@ -8,4 +8,5 @@ public class AuthenticationSASL implements ServerProtocolBehaviour {
     int messageLength;
     int authStatus;
     int numMethods;
+    String[] methods;
 }

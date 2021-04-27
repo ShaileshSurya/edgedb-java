@@ -3,7 +3,6 @@ package edgedb.internal.protocol;
 import edgedb.internal.protocol.client.writerV2.BufferWritable;
 import edgedb.internal.protocol.client.writerhelper.BufferWriterHelper;
 import edgedb.internal.protocol.client.writerhelper.IWriteHelper;
-import edgedb.internal.protocol.common.Header;
 import edgedb.internal.protocol.utility.MessageLengthCalculator;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -13,25 +12,27 @@ import java.nio.ByteBuffer;
 
 @Data
 @Slf4j
-public class ExecuteScript implements BufferWritable, ClientProtocolBehaviour {
-    byte mType = (int) 'Q';
+// This denotes AuthenticationSASLResponse in edgedb documentation
+public class AuthenticationSASLClientFinalResponse implements BufferWritable, ClientProtocolBehaviour{
+
+    byte mType = 'r';
     int messageLength;
-    short headersLength;
-    Header[] headers;
-    String script;
+    byte[] saslData;
+
+    public AuthenticationSASLClientFinalResponse(byte[] saslData){
+        this.saslData = saslData;
+        messageLength = calculateMessageLength();
+    }
 
     @Override
     public int calculateMessageLength() {
         log.debug("Starting to calculate length of message");
         int length = 0;
         MessageLengthCalculator calculator = new MessageLengthCalculator();
-        length += calculator.calculate(messageLength);
-        length += calculator.calculate(headersLength);
 
-        for (int i = 0; i < headersLength; i++) {
-            length += headers[i].calculateMessageLength();
-        }
-        length += calculator.calculate(script);
+        length += calculator.calculate(messageLength);
+        length += calculator.calculate(saslData);
+
         return length;
     }
 
@@ -46,12 +47,7 @@ public class ExecuteScript implements BufferWritable, ClientProtocolBehaviour {
     public ByteBuffer write(IWriteHelper helper, ByteBuffer destination) throws IOException {
         helper.writeUint8(mType);
         helper.writeUint32(messageLength);
-        helper.writeUint16(headersLength);
-
-        for(int i=0; i<(int)headersLength; i++){
-            headers[i].write(helper,destination);
-        }
-        helper.writeString(script);
+        helper.writeBytes(saslData);
         return destination;
     }
 }

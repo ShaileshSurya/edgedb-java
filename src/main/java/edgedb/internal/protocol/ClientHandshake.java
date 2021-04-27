@@ -32,7 +32,7 @@ public class ClientHandshake implements BufferWritable, ClientProtocolBehaviour 
         connectionParamLength = (short) 2;
         connectionParams = new ConnectionParams[]{
                 new ConnectionParams("user", user),
-                new ConnectionParams("database", database)
+                new ConnectionParams("database", "edgedb")
         };
         protocolExtensionLength = (short) 0;
         messageLength = calculateMessageLength();
@@ -81,6 +81,6 @@ public class ClientHandshake implements BufferWritable, ClientProtocolBehaviour 
 
     @Override
     public ByteBuffer write(IWriteHelper helper, ByteBuffer destination) throws IOException {
-        return null;
+        throw new UnsupportedOperationException();
     }
 }

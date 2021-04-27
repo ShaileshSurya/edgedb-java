@@ -12,7 +12,7 @@ import java.io.IOException;
 @Slf4j
 public class EdgeDBClientV2Test {
 
-    String dsnNew = "edgedb://edgedb@10.199.198.56:5656/tutorial";
+    String dsnNew = "edgedb://edgedb@localhost:10708/edgedb";
     @Test
     public void TestGetConnection() {
         EdgeDBClientV2 clientV2 = new EdgeDBClientV2(new BlockingConnection());
