@@ -13,7 +13,7 @@ import java.nio.ByteBuffer;
 
 @Data
 @Slf4j
-public class Header implements BufferWritable, ServerProtocolBehaviour {
+public class Header implements BufferWritable, ServerProtocolBehaviour{
     short code;
     byte[] value;
 

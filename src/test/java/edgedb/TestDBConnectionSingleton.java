@@ -5,7 +5,6 @@ import edgedb.client.EdgeDBClientV2;
 import edgedb.connection.IConnection;
 import edgedb.exceptions.EdgeDBIncompatibleDriverException;
 import edgedb.exceptions.EdgeDBInternalErrException;
-import edgedb.internal.buffer.SingletonBuffer;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;

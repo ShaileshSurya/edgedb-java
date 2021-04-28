@@ -1,5 +1,5 @@
 package edgedb.exceptions;
 
-public class OverReadException extends BaseException {
+public class OverReadException extends RuntimeException {
     String message = "Over reading DataInputStream";
 }

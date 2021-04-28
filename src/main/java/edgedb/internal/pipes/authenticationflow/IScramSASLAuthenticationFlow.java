@@ -1,7 +1,6 @@
 package edgedb.internal.pipes.authenticationflow;
 
 import edgedb.exceptions.EdgeDBInternalErrException;
-import edgedb.internal.pipes.authenticationflow.scram.common.ScramException;
 import edgedb.internal.protocol.ServerAuthenticationBehaviour;
 
 import java.io.IOException;
