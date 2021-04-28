@@ -1,8 +1,7 @@
 package edgedb.internal.protocol.server.readerv2;
 
 import edgedb.exceptions.OverReadException;
-import edgedb.internal.protocol.common.Header;
-import edgedb.internal.protocol.common.HeaderReader;
+import edgedb.internal.protocol.Header;
 import edgedb.internal.protocol.ProtocolBehaviourExtension;
 import edgedb.internal.protocol.server.readerhelper.IReaderHelper;
 import lombok.AllArgsConstructor;
@@ -27,7 +26,7 @@ public class ProtocolExtensionReaderV2 implements ProtocolReader {
             Header[] headers = new Header[headersLength];
             HeaderReader headerReader = new HeaderReader(readerHelper);
             for (int i = 0; i < headersLength; i++) {
-                headers[i] = headerReader.read();
+                headers[i] = headerReader.read(buffer);
             }
 
             return protocolExtension;

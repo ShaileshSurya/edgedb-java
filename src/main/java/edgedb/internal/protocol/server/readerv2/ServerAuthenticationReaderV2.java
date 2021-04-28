@@ -23,6 +23,7 @@ public class ServerAuthenticationReaderV2 implements ProtocolReader {
         for (int i = 0; i < methodsLength; i++) {
             authMethods[i] = readerHelper.readString();
         }
+        serverAuthentication.setMethods(authMethods);
         return serverAuthentication;
     }
 
@@ -40,7 +41,7 @@ public class ServerAuthenticationReaderV2 implements ProtocolReader {
                 case AUTHENTICATION_OK:
                     return serverAuthentication;
 
-                case AUTHENTICATION_SASL:
+                case AUTHENTICATION_REQUIRED_SASL:
                     return readAuthenticationSASL(serverAuthentication);
 
                 case AUTHENTICATION_SASL_CONTINUE:

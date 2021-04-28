@@ -19,7 +19,9 @@ public class AuthenticationOKReaderV2 implements ProtocolReader {
     }
 
     @Override
-    public AuthenticationOK read(ByteBuffer readBuffer) throws IOException {log.debug("Trying to read Authentication OK.");
+    public AuthenticationOK read(ByteBuffer readBuffer) throws IOException {
+
+        log.debug("Trying to read Authentication OK.");
         AuthenticationOK authenticationOK = new AuthenticationOK();
         try {
             authenticationOK.setMessageLength(readerHelper.readUint32());

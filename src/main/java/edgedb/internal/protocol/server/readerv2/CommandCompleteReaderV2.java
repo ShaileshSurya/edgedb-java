@@ -1,8 +1,7 @@
 package edgedb.internal.protocol.server.readerv2;
 
 import edgedb.exceptions.OverReadException;
-import edgedb.internal.protocol.common.Header;
-import edgedb.internal.protocol.common.HeaderReader;
+import edgedb.internal.protocol.Header;
 import edgedb.internal.protocol.CommandComplete;
 import edgedb.internal.protocol.server.readerhelper.IReaderHelper;
 import lombok.AllArgsConstructor;

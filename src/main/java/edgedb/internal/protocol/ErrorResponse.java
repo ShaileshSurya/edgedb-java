@@ -1,6 +1,5 @@
 package edgedb.internal.protocol;
 
-import edgedb.internal.protocol.common.Header;
 import lombok.Data;
 
 import java.util.Arrays;

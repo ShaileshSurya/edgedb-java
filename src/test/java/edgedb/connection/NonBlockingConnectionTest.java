@@ -22,13 +22,13 @@ public class NonBlockingConnectionTest {
 
     public String dsnNew = "edgedb://edgedb@10.199.198.56:5656/tutorial";
 
-    @Test
-    public void testConnect() {
-        try {
-          new NonBlockingConnection().connect(new ConnectionParams(dsn)).terminate();
-
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-    }
+//    @Test
+//    public void testConnect() {
+//        try {
+//          new NonBlockingConnection().connect(new ConnectionParams(dsn)).terminate();
+//
+//        }catch (Exception e){
+//            e.printStackTrace();
+//        }
+//    }
 }

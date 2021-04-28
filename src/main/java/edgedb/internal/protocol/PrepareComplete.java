@@ -1,6 +1,5 @@
 package edgedb.internal.protocol;
 
-import edgedb.internal.protocol.common.Header;
 import edgedb.internal.protocol.typedescriptor.BaseScalarType;
 import lombok.Data;
 

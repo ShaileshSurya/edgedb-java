@@ -9,7 +9,7 @@ public class SingletonBuffer {
     private volatile static SingletonBuffer uniqueBuffer;
     private ByteBuffer buffer;
 
-    private SingletonBuffer() {
+    public SingletonBuffer() {
         buffer = ByteBuffer.allocate(BUFFER_SIZE);
     }
 

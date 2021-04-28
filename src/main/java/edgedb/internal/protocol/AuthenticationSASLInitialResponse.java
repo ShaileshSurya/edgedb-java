@@ -10,38 +10,31 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
+
 @Data
 @Slf4j
-public class Execute implements BufferWritable, ClientProtocolBehaviour {
-    byte mType = (int) 'E';
+public class AuthenticationSASLInitialResponse implements BufferWritable, ClientProtocolBehaviour {
+    byte mType = 'p';
     int messageLength;
-    short headersLength;
-    Header[] headers;
-    byte[] statementName;
-    byte[] arguments;
+    String method;
+    byte[] saslData;
 
-    public Execute() {
-        this.headersLength = (short) 0;
-        this.statementName = "".getBytes();
-        this.arguments = "".getBytes();
-        // Remove this hardcoded value.
-        this.messageLength = 18;
+    public AuthenticationSASLInitialResponse(String method, byte[] saslData){
+        this.method = method;
+        this.saslData = saslData;
+        messageLength = calculateMessageLength();
     }
 
     @Override
     public int calculateMessageLength() {
+        log.debug("Starting to calculate length of message");
         int length = 0;
-
         MessageLengthCalculator calculator = new MessageLengthCalculator();
+
         length += calculator.calculate(messageLength);
-        length += calculator.calculate(headersLength);
+        length += calculator.calculate(method);
+        length += calculator.calculate(saslData);
 
-        for (int i = 0; i < (int) headersLength; i++) {
-            length += headers[i].calculateMessageLength();
-        }
-
-        length += calculator.calculate(statementName);
-        length += calculator.calculate(arguments);
         return length;
     }
 
@@ -56,18 +49,8 @@ public class Execute implements BufferWritable, ClientProtocolBehaviour {
     public ByteBuffer write(IWriteHelper helper, ByteBuffer destination) throws IOException {
         helper.writeUint8(mType);
         helper.writeUint32(messageLength);
-
-        helper.writeUint16(headersLength);
-
-        for(int i=0; i<(int)headersLength; i++){
-            headers[i].write(helper,destination);
-        }
-
-        helper.writeBytes("".getBytes());
-
-        //TODO: this needs to be fixed
-        helper.writeUint32(4);
-        helper.writeUint32(0);
+        helper.writeString(method);
+        helper.writeBytes(saslData);
         return destination;
     }
 }

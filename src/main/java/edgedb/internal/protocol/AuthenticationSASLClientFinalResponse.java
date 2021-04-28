@@ -12,36 +12,27 @@ import java.nio.ByteBuffer;
 
 @Data
 @Slf4j
-public class Execute implements BufferWritable, ClientProtocolBehaviour {
-    byte mType = (int) 'E';
-    int messageLength;
-    short headersLength;
-    Header[] headers;
-    byte[] statementName;
-    byte[] arguments;
+// This denotes AuthenticationSASLResponse in edgedb documentation
+public class AuthenticationSASLClientFinalResponse implements BufferWritable, ClientProtocolBehaviour{
 
-    public Execute() {
-        this.headersLength = (short) 0;
-        this.statementName = "".getBytes();
-        this.arguments = "".getBytes();
-        // Remove this hardcoded value.
-        this.messageLength = 18;
+    byte mType = 'r';
+    int messageLength;
+    byte[] saslData;
+
+    public AuthenticationSASLClientFinalResponse(byte[] saslData){
+        this.saslData = saslData;
+        messageLength = calculateMessageLength();
     }
 
     @Override
     public int calculateMessageLength() {
+        log.debug("Starting to calculate length of message");
         int length = 0;
-
         MessageLengthCalculator calculator = new MessageLengthCalculator();
+
         length += calculator.calculate(messageLength);
-        length += calculator.calculate(headersLength);
+        length += calculator.calculate(saslData);
 
-        for (int i = 0; i < (int) headersLength; i++) {
-            length += headers[i].calculateMessageLength();
-        }
-
-        length += calculator.calculate(statementName);
-        length += calculator.calculate(arguments);
         return length;
     }
 
@@ -56,18 +47,7 @@ public class Execute implements BufferWritable, ClientProtocolBehaviour {
     public ByteBuffer write(IWriteHelper helper, ByteBuffer destination) throws IOException {
         helper.writeUint8(mType);
         helper.writeUint32(messageLength);
-
-        helper.writeUint16(headersLength);
-
-        for(int i=0; i<(int)headersLength; i++){
-            headers[i].write(helper,destination);
-        }
-
-        helper.writeBytes("".getBytes());
-
-        //TODO: this needs to be fixed
-        helper.writeUint32(4);
-        helper.writeUint32(0);
+        helper.writeBytes(saslData);
         return destination;
     }
 }
