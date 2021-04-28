@@ -1,4 +1,4 @@
-package edgedb.internal.protocol.common;
+package edgedb.internal.protocol;
 
 import edgedb.internal.protocol.client.writerV2.BufferWritable;
 import edgedb.internal.protocol.client.writerhelper.BufferWriterHelper;

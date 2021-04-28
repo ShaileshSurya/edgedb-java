@@ -3,7 +3,6 @@ package edgedb.internal.protocol;
 import edgedb.internal.protocol.client.writerV2.BufferWritable;
 import edgedb.internal.protocol.client.writerhelper.BufferWriterHelper;
 import edgedb.internal.protocol.client.writerhelper.IWriteHelper;
-import edgedb.internal.protocol.common.Header;
 import edgedb.internal.protocol.utility.MessageLengthCalculator;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;

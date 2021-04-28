@@ -1,8 +1,7 @@
 package edgedb.internal.protocol.server.readerv2;
 
 import edgedb.exceptions.OverReadException;
-import edgedb.internal.protocol.common.Header;
-import edgedb.internal.protocol.common.HeaderReader;
+import edgedb.internal.protocol.Header;
 import edgedb.internal.protocol.PrepareComplete;
 import edgedb.internal.protocol.server.readerhelper.IReaderHelper;
 import edgedb.internal.protocol.typedescriptor.decoder.KnownTypeDecoder;
@@ -38,11 +37,9 @@ public class PrepareCompleteReaderV2 implements ProtocolReader {
             byte[] argumentDataDescriptorID = readerHelper.readUUID();
             KnownTypeDecoder decoder = new KnownTypeDecoder();
             prepareComplete.setArgumentDataDescriptorID(argumentDataDescriptorID);
-            //prepareComplete.setResultDataDescriptor(decoder.decode(argumentDataDescriptorID));
 
             byte[] resultDataDescriptorID = readerHelper.readUUID();
             prepareComplete.setResultDataDescriptorID(resultDataDescriptorID);
-            //prepareComplete.setResultDataDescriptor(decoder.decode(resultDataDescriptorID));
 
             return prepareComplete;
         } catch (OverReadException e) {
