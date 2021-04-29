@@ -246,8 +246,6 @@ public class BlockingConnection implements IConnection {
                     return;
                 } else if (serverAuthenticationBehaviour.isAuthenticationRequiredSASLMessage()) {
                     authenticateSASL(serverAuthenticationBehaviour);
-                } else if (serverAuthenticationBehaviour.isAuthenticationSASLContinueMessage() || serverAuthenticationBehaviour.isAuthenticationSASLFinal()) {
-                    throw new EdgeDBInternalErrException(UNEXPECTED_AUTHENTICATION_MESSAGE_RESPONSE);
                 }
             } else {
                 throw new EdgeDBInternalErrException(FAILED_TO_DECODE_SERVER_RESPONSE);
@@ -266,7 +264,6 @@ public class BlockingConnection implements IConnection {
         BufferReader bufferReader = new BufferReaderImpl(getChannel());
         readBuffer = bufferReader.read(readBuffer);
 
-        boolean isClientFinalSent = false;
 
         while (readBuffer.hasRemaining()) {
             byte mType = readBuffer.get();
@@ -280,13 +277,9 @@ public class BlockingConnection implements IConnection {
 
                 ServerAuthenticationBehaviour serverAuthenticationBehaviour = (ServerAuthenticationBehaviour) response;
 
-                if (serverAuthenticationBehaviour.isAuthenticationOkMessage()) {
-                    return;
-                } else if (serverAuthenticationBehaviour.isAuthenticationSASLContinueMessage()) {
+                if (serverAuthenticationBehaviour.isAuthenticationSASLContinueMessage()) {
                     authenticationFlow.sendAuthenticationSASLClientFinalMessage(serverAuthenticationBehaviour,connectionParams.getPassword());
-                    isClientFinalSent = true;
-                } else if (serverAuthenticationBehaviour.isAuthenticationSASLContinueMessage()){
-
+                    continue;
                 }
                 else {
                     throw new EdgeDBInternalErrException(UNEXPECTED_AUTHENTICATION_MESSAGE_RESPONSE);
@@ -298,10 +291,10 @@ public class BlockingConnection implements IConnection {
 
         }
 
-        if(!isClientFinalSent){
-            throw new EdgeDBInternalErrException(AUTHENTICATION_FAILED);
-        }
+        readClientFinalMessage(readBuffer, bufferReader);
+    }
 
+    private <T extends ServerProtocolBehaviour> void readClientFinalMessage(ByteBuffer readBuffer, BufferReader bufferReader) throws IOException, EdgeDBInternalErrException {
         readBuffer = bufferReader.read(readBuffer);
         while (readBuffer.hasRemaining()) {
             byte mType = readBuffer.get();
@@ -312,7 +305,14 @@ public class BlockingConnection implements IConnection {
 
             log.info("Response Found was {}", response.toString());
             if (response instanceof ServerAuthenticationBehaviour) {
+                ServerAuthenticationBehaviour serverAuthenticationBehaviour = (ServerAuthenticationBehaviour) response;
 
+                if (serverAuthenticationBehaviour.isAuthenticationSASLFinal()){
+                    // Expect AuthenticationOk message
+                    continue;
+                }else if(serverAuthenticationBehaviour.isAuthenticationOkMessage()){
+                    break;
+                }
             } else if (response instanceof ErrorResponse){
                 ErrorResponse errorResponse = (ErrorResponse) response;
                 throw IExceptionFromErrorResponseBuilderImpl.getExceptionFromError(errorResponse);
