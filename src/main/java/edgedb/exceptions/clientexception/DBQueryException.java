@@ -2,9 +2,9 @@ package edgedb.exceptions.clientexception;
 
 import edgedb.exceptions.BaseException;
 
-public class EdgeDBQueryException extends BaseException {
+public class DBQueryException extends BaseException {
 
-    public EdgeDBQueryException(String errorCode){
+    public DBQueryException(String errorCode){
         super(errorCode);
     }
 }

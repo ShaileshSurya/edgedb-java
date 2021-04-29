@@ -110,15 +110,13 @@ public class ScramClientFunctionalityImpl implements ScramClientFunctionality {
             throw new IllegalStateException("You can call this method once only after " +
                     "calling prepareFirstMessage()");
         }
-        log.info("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~1~~~~~~~~~~~~~~~~~pass{}~~~serverFirst{}~", password, serverFirstMessage);
+
         Matcher m = SERVER_FIRST_MESSAGE.matcher(serverFirstMessage);
         if (!m.matches()) {
             mState = State.ENDED;
             return null;
         }
 
-
-        log.info("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~2~~~~~~~~~~~~~~~~~~~~~");
         String nonce = m.group(1);
 
         if (!nonce.startsWith(mClientNonce)) {
@@ -126,8 +124,6 @@ public class ScramClientFunctionalityImpl implements ScramClientFunctionality {
             return null;
         }
 
-
-        log.info("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~3~~~~~~~~~~~~~~~~~~~~~");
         String salt = m.group(2);
         String iterationCountString = m.group(3);
         int iterations = Integer.parseInt(iterationCountString);
@@ -135,9 +131,6 @@ public class ScramClientFunctionalityImpl implements ScramClientFunctionality {
             mState = State.ENDED;
             return null;
         }
-
-
-        log.info("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~4~~~~~~~~~~~~~~~~~~~~~");
 
         try {
             mSaltedPassword = ScramUtils.generateSaltedPassword(password,

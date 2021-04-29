@@ -1,4 +1,9 @@
 package edgedb.exceptions.clientexception;
 
-public class InvalidArgumentException {
+import edgedb.exceptions.BaseException;
+
+public class InvalidArgumentException extends BaseException {
+    public InvalidArgumentException(String errorCode){
+        super(errorCode);
+    }
 }

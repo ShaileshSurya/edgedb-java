@@ -1,4 +1,9 @@
 package edgedb.exceptions.clientexception;
 
-public class UnknownArgumentException {
+import edgedb.exceptions.BaseException;
+
+public class UnknownArgumentException extends BaseException {
+    public UnknownArgumentException(String errorCode){
+        super(errorCode);
+    }
 }

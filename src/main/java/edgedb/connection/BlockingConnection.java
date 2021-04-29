@@ -309,12 +309,13 @@ public class BlockingConnection implements IConnection {
                     .getProtocolReader((char) mType, readBuffer);
 
             T response = reader.read(readBuffer);
-            log.info("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Response Recorded~~~~~~~~~~~");
+
             log.info("Response Found was {}", response.toString());
             if (response instanceof ServerAuthenticationBehaviour) {
 
-            } else {
-                throw new EdgeDBInternalErrException(FAILED_TO_DECODE_SERVER_RESPONSE);
+            } else if (response instanceof ErrorResponse){
+                ErrorResponse errorResponse = (ErrorResponse) response;
+                throw IExceptionFromErrorResponseBuilderImpl.getExceptionFromError(errorResponse);
             }
 
         }
