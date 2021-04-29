@@ -30,7 +30,7 @@ public class TestSetup {
 
             ResultSet result = connection.queryJSON("SELECT Movie { id, title, year }");
             log.info("Result ~~~~~{}",result);
-        } catch (Exception | EdgeDBQueryException ex) {
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
     }
