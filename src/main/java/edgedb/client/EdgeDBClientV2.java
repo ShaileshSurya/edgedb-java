@@ -9,6 +9,9 @@ import lombok.AllArgsConstructor;
 
 import java.io.IOException;
 
+import static edgedb.client.ClientConstants.MAJOR_VERSION;
+import static edgedb.client.ClientConstants.MINOR_VERSION;
+
 @AllArgsConstructor
 public class EdgeDBClientV2 implements Client{
 
@@ -20,9 +23,18 @@ public class EdgeDBClientV2 implements Client{
     }
 
 
+//    @Override
+//    public IConnection getConnection(String dsn) throws IOException, InterruptedException, EdgeDBIncompatibleDriverException, EdgeDBInternalErrException {
+//        connectionParams = new ConnectionParams();
+//    }
+
     @Override
-    public IConnection getConnection(String dsn) throws IOException, InterruptedException, EdgeDBIncompatibleDriverException, EdgeDBInternalErrException {
-        connectionParams = new ConnectionParams(dsn);
+    public void terminateConnection() throws IOException {
+        connection.terminate();
+    }
+
+    @Override
+    public IConnection getConnection(ConnectionParams connectionParams) throws InterruptedException, EdgeDBInternalErrException, EdgeDBIncompatibleDriverException, IOException {
         connection = connection.createClientSocket(connectionParams);
         connection.initiateHandshake(connectionParams.getUser(),connectionParams.getDatabase());
         connection.handleHandshake();
@@ -30,8 +42,13 @@ public class EdgeDBClientV2 implements Client{
     }
 
     @Override
-    public void terminateConnection() throws IOException {
-        connection.terminate();
+    public int getMajorVersion() {
+        return MAJOR_VERSION;
+    }
+
+    @Override
+    public int getMinorVersion() {
+        return MINOR_VERSION;
     }
 
 }

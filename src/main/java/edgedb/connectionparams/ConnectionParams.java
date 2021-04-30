@@ -5,6 +5,7 @@ import lombok.*;
 @Builder
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 public class ConnectionParams {
 
     private String dsn;

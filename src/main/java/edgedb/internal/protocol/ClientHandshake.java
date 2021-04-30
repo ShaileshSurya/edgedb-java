@@ -9,7 +9,8 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import static edgedb.internal.protocol.constants.CommonConstants.*;
+import static edgedb.client.ClientConstants.MAJOR_VERSION;
+import static edgedb.client.ClientConstants.MINOR_VERSION;
 import static edgedb.internal.protocol.constants.MessageType.CLIENT_HANDSHAKE;
 
 @Data
