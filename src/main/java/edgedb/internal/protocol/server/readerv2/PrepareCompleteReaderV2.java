@@ -1,6 +1,5 @@
 package edgedb.internal.protocol.server.readerv2;
 
-import edgedb.exceptions.OverReadException;
 import edgedb.internal.protocol.Header;
 import edgedb.internal.protocol.PrepareComplete;
 import edgedb.internal.protocol.server.readerhelper.IReaderHelper;
@@ -19,36 +18,29 @@ public class PrepareCompleteReaderV2 implements ProtocolReader {
 
     public PrepareComplete read(ByteBuffer buffer) throws IOException {
         PrepareComplete prepareComplete = new PrepareComplete();
-        try {
-            prepareComplete.setMessageLength(readerHelper.readUint32());
 
-            short headersLength = readerHelper.readUint16();
-            prepareComplete.setHeadersLength(headersLength);
+        prepareComplete.setMessageLength(readerHelper.readUint32());
 
-            Header[] headers = new Header[headersLength];
-            ProtocolReader headerReader = new HeaderReader(readerHelper);
-            for (int i = 0; i < headersLength; i++) {
-                headers[i] = headerReader.read(buffer);
-            }
-            prepareComplete.setHeaders(headers);
+        short headersLength = readerHelper.readUint16();
+        prepareComplete.setHeadersLength(headersLength);
 
-            prepareComplete.setCardinality(readerHelper.readUint8());
-
-            byte[] argumentDataDescriptorID = readerHelper.readUUID();
-            KnownTypeDecoder decoder = new KnownTypeDecoder();
-            prepareComplete.setArgumentDataDescriptorID(argumentDataDescriptorID);
-
-            byte[] resultDataDescriptorID = readerHelper.readUUID();
-            prepareComplete.setResultDataDescriptorID(resultDataDescriptorID);
-
-            return prepareComplete;
-        } catch (OverReadException e) {
-            e.printStackTrace();
-            return prepareComplete;
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw e;
+        Header[] headers = new Header[headersLength];
+        ProtocolReader headerReader = new HeaderReader(readerHelper);
+        for (int i = 0; i < headersLength; i++) {
+            headers[i] = headerReader.read(buffer);
         }
+        prepareComplete.setHeaders(headers);
+
+        prepareComplete.setCardinality(readerHelper.readUint8());
+
+        byte[] argumentDataDescriptorID = readerHelper.readUUID();
+        KnownTypeDecoder decoder = new KnownTypeDecoder();
+        prepareComplete.setArgumentDataDescriptorID(argumentDataDescriptorID);
+
+        byte[] resultDataDescriptorID = readerHelper.readUUID();
+        prepareComplete.setResultDataDescriptorID(resultDataDescriptorID);
+
+        return prepareComplete;
     }
 
 

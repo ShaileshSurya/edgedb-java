@@ -19,6 +19,10 @@ public class ExecuteScript implements BufferWritable, ClientProtocolBehaviour {
     Header[] headers;
     String script;
 
+    public ExecuteScript(String script) {
+        this.script = script;
+    }
+
     @Override
     public int calculateMessageLength() {
         log.debug("Starting to calculate length of message");
@@ -38,7 +42,7 @@ public class ExecuteScript implements BufferWritable, ClientProtocolBehaviour {
     public ByteBuffer write(ByteBuffer destination) throws IOException {
         log.info("Client Handshake Buffer Writer");
         IWriteHelper helper = new BufferWriterHelper(destination);
-        return write(helper,destination);
+        return write(helper, destination);
     }
 
     @Override
@@ -47,8 +51,8 @@ public class ExecuteScript implements BufferWritable, ClientProtocolBehaviour {
         helper.writeUint32(messageLength);
         helper.writeUint16(headersLength);
 
-        for(int i=0; i<(int)headersLength; i++){
-            headers[i].write(helper,destination);
+        for (int i = 0; i < (int) headersLength; i++) {
+            headers[i].write(helper, destination);
         }
         helper.writeString(script);
         return destination;

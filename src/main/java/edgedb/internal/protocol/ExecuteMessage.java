@@ -12,7 +12,7 @@ import java.nio.ByteBuffer;
 
 @Data
 @Slf4j
-public class Execute implements BufferWritable, ClientProtocolBehaviour {
+public class ExecuteMessage implements BufferWritable, ClientProtocolBehaviour {
     byte mType = (int) 'E';
     int messageLength;
     short headersLength;
@@ -20,7 +20,7 @@ public class Execute implements BufferWritable, ClientProtocolBehaviour {
     byte[] statementName;
     byte[] arguments;
 
-    public Execute() {
+    public ExecuteMessage() {
         this.headersLength = (short) 0;
         this.statementName = "".getBytes();
         this.arguments = "".getBytes();

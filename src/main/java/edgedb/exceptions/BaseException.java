@@ -12,11 +12,5 @@ public abstract class BaseException extends RuntimeException {
     public BaseException(String errorCode){
         this.errorCode = errorCode;
     }
-//    byte severity;
-//    int errorCode;
-//    String message;
-    // TODO: We want to throw the stack trace as well.
-    // TODO: How do we do that?
-
 }
 

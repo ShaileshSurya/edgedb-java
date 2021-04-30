@@ -66,7 +66,7 @@ public class NonBlockingConnection implements IConnection {
     }
 
     @Override
-    public ResultSet execute(String query) throws EdgeDBQueryException, EdgeDBCommandException, IOException, EdgeDBInternalErrException {
+    public void execute(String query) {
         throw new UnsupportedOperationException();
     }
 

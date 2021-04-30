@@ -59,7 +59,6 @@ public class AutheticationFlowScramSASL implements IScramSASLAuthenticationFlow 
             String clientFinalMessage = scramClientFunctionality.prepareFinalMessage(password, serverFirstMessage);
 
             AuthenticationSASLClientFinalResponse finalResponse = new AuthenticationSASLClientFinalResponse(clientFinalMessage.getBytes());
-            //AuthenticationSASLInitialResponse initialResponse = new Authentication(SCRAM_SHA_256, clientFirstMessage.getBytes("UTF-8"));
             log.info("Trying to write SASLFinalResponseMessage {}", finalResponse);
             protocolWritable.write(finalResponse);
         }catch (ScramException e){

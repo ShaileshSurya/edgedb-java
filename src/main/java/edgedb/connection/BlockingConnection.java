@@ -1,8 +1,10 @@
 package edgedb.connection;
 
-import edgedb.client.*;
+import edgedb.client.ResultSet;
+import edgedb.client.ResultSetImpl;
 import edgedb.connectionparams.ConnectionParams;
 import edgedb.exceptions.*;
+import edgedb.exceptions.clientexception.ClientException;
 import edgedb.internal.buffer.SingletonBuffer;
 import edgedb.internal.pipes.SyncFlow.SyncPipe;
 import edgedb.internal.pipes.SyncFlow.SyncPipeImpl;
@@ -12,6 +14,8 @@ import edgedb.internal.pipes.connect.ConnectionPipe;
 import edgedb.internal.pipes.connect.IConnectionPipe;
 import edgedb.internal.pipes.granularflow.GranularFlowPipeV2;
 import edgedb.internal.pipes.granularflow.IGranularFlowPipe;
+import edgedb.internal.pipes.scriptFlow.IScriptFlow;
+import edgedb.internal.pipes.scriptFlow.ScriptFlow;
 import edgedb.internal.protocol.*;
 import edgedb.internal.protocol.client.writerV2.ChannelProtocolWritableImpl;
 import edgedb.internal.protocol.constants.Cardinality;
@@ -48,8 +52,12 @@ public class BlockingConnection implements IConnection {
     }
 
     @Override
-    public ResultSet execute(String query) throws EdgeDBQueryException, EdgeDBCommandException, IOException, EdgeDBInternalErrException {
-        return executeGranularFlow(IOFormat.BINARY, Cardinality.MANY, query);
+    public void execute(String query) {
+        try {
+            executeScript(query);
+        }catch (IOException e){
+
+        }
     }
 
     @Override
@@ -57,6 +65,31 @@ public class BlockingConnection implements IConnection {
         return executeGranularFlow(IOFormat.JSON, Cardinality.MANY, query);
     }
 
+    private <T extends ServerProtocolBehaviour> void executeScript(String query) throws IOException{
+
+        ExecuteScript executeScript = new ExecuteScript(query);
+        IScriptFlow scriptFlow = new ScriptFlow(new ChannelProtocolWritableImpl(getChannel()));
+
+        scriptFlow.executeScriptMessage(executeScript);
+
+        BufferReader bufferReader = new BufferReaderImpl(clientChannel);
+        ByteBuffer readBuffer = SingletonBuffer.getInstance().getBuffer();
+
+        readBuffer = bufferReader.read(readBuffer);
+
+        while (readBuffer.remaining() != -1) {
+            byte mType = readBuffer.get();
+            ProtocolReader reader = new ChannelProtocolReaderFactoryImpl(readBuffer)
+                    .getProtocolReader((char) mType, readBuffer);
+
+            T response = reader.read(readBuffer);
+            if (response instanceof CommandComplete) {
+                return;
+            } else if (response instanceof ErrorResponse) {
+                throw IExceptionFromErrorResponseBuilderImpl.getExceptionFromError((ErrorResponse) response);
+            }
+        }
+    }
 
     protected <T extends ServerProtocolBehaviour> PrepareComplete readPrepareComplete(IGranularFlowPipe granularFlowPipe, Prepare prepareMessage) throws IOException, EdgeDBInternalErrException, EdgeDBCommandException {
         log.debug("Reading prepare complete");
@@ -78,7 +111,7 @@ public class BlockingConnection implements IConnection {
             }
 
             if (response instanceof ErrorResponse) {
-                throw IExceptionFromErrorResponseBuilderImpl.getExceptionFromError((ErrorResponse)response);
+                throw IExceptionFromErrorResponseBuilderImpl.getExceptionFromError((ErrorResponse) response);
             }
 
             if (response instanceof ServerKeyDataBehaviour) {
@@ -133,7 +166,7 @@ public class BlockingConnection implements IConnection {
 //        }catch (ScalarTypeNotFoundException e){
 //
 //        }
-        granularFlowPipe.sendExecuteMessage(new Execute());
+        granularFlowPipe.sendExecuteMessage(new ExecuteMessage());
         return readDataResponse();
     }
 
@@ -174,15 +207,19 @@ public class BlockingConnection implements IConnection {
 
     public IConnection createClientSocket(ConnectionParams params) throws IOException {
 
-        log.info("Trying to create Client Socket");
+        log.info("Trying to create Client Socket {}", params);
         this.connectionParams = params;
         clientChannel = SocketChannel.open();
         clientChannel.configureBlocking(true);
         if (!clientChannel.connect(new InetSocketAddress(connectionParams.getHost(), connectionParams.getPort()))) {
+
+            log.info("~~~~~~~~~~~~~~~~~~~~~~~~~~PPPPPPPPPPPPPPPPP~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
             log.info("Trying to connect ...");
             while (!clientChannel.finishConnect()) ;
 
             log.info("Connection Successful....");
+        }else {
+            log.info("~~~~~~~~~~~~~~~~~~~~~ssssssssssssssssssssssss~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
         }
         return this;
     }
@@ -246,6 +283,7 @@ public class BlockingConnection implements IConnection {
                     return;
                 } else if (serverAuthenticationBehaviour.isAuthenticationRequiredSASLMessage()) {
                     authenticateSASL(serverAuthenticationBehaviour);
+                    return;
                 }
             } else {
                 throw new EdgeDBInternalErrException(FAILED_TO_DECODE_SERVER_RESPONSE);
@@ -278,10 +316,9 @@ public class BlockingConnection implements IConnection {
                 ServerAuthenticationBehaviour serverAuthenticationBehaviour = (ServerAuthenticationBehaviour) response;
 
                 if (serverAuthenticationBehaviour.isAuthenticationSASLContinueMessage()) {
-                    authenticationFlow.sendAuthenticationSASLClientFinalMessage(serverAuthenticationBehaviour,connectionParams.getPassword());
+                    authenticationFlow.sendAuthenticationSASLClientFinalMessage(serverAuthenticationBehaviour, connectionParams.getPassword());
                     continue;
-                }
-                else {
+                } else {
                     throw new EdgeDBInternalErrException(UNEXPECTED_AUTHENTICATION_MESSAGE_RESPONSE);
                 }
 
@@ -307,13 +344,13 @@ public class BlockingConnection implements IConnection {
             if (response instanceof ServerAuthenticationBehaviour) {
                 ServerAuthenticationBehaviour serverAuthenticationBehaviour = (ServerAuthenticationBehaviour) response;
 
-                if (serverAuthenticationBehaviour.isAuthenticationSASLFinal()){
+                if (serverAuthenticationBehaviour.isAuthenticationSASLFinal()) {
                     // Expect AuthenticationOk message
                     continue;
-                }else if(serverAuthenticationBehaviour.isAuthenticationOkMessage()){
+                } else if (serverAuthenticationBehaviour.isAuthenticationOkMessage()) {
                     break;
                 }
-            } else if (response instanceof ErrorResponse){
+            } else if (response instanceof ErrorResponse) {
                 ErrorResponse errorResponse = (ErrorResponse) response;
                 throw IExceptionFromErrorResponseBuilderImpl.getExceptionFromError(errorResponse);
             }

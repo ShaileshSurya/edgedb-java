@@ -2,9 +2,14 @@ package edgedb.connectionparams;
 
 import lombok.*;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URLDecoder;
+
 @Builder
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 public class ConnectionParams {
 
     private String dsn;
