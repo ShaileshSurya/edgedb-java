@@ -23,18 +23,22 @@ public class EdgeDBClientV2 implements Client{
     }
 
 
-    @Override
-    public IConnection getConnection(String dsn) throws IOException, InterruptedException, EdgeDBIncompatibleDriverException, EdgeDBInternalErrException {
-        connectionParams = new ConnectionParams(dsn);
-        connection = connection.createClientSocket(connectionParams);
-        connection.initiateHandshake(connectionParams.getUser(),connectionParams.getDatabase());
-        connection.handleHandshake();
-        return connection;
-    }
+//    @Override
+//    public IConnection getConnection(String dsn) throws IOException, InterruptedException, EdgeDBIncompatibleDriverException, EdgeDBInternalErrException {
+//        connectionParams = new ConnectionParams();
+//    }
 
     @Override
     public void terminateConnection() throws IOException {
         connection.terminate();
+    }
+
+    @Override
+    public IConnection getConnection(ConnectionParams connectionParams) throws InterruptedException, EdgeDBInternalErrException, EdgeDBIncompatibleDriverException, IOException {
+        connection = connection.createClientSocket(connectionParams);
+        connection.initiateHandshake(connectionParams.getUser(),connectionParams.getDatabase());
+        connection.handleHandshake();
+        return connection;
     }
 
     @Override
