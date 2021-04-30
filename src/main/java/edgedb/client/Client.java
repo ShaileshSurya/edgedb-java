@@ -9,4 +9,6 @@ import java.io.IOException;
 public interface Client {
     public IConnection getConnection(String dsn) throws IOException, InterruptedException, EdgeDBIncompatibleDriverException, EdgeDBInternalErrException;
     public void terminateConnection() throws IOException;
+    int getMajorVersion();
+    int getMinorVersion();
 }

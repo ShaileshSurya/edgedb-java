@@ -9,6 +9,9 @@ import lombok.AllArgsConstructor;
 
 import java.io.IOException;
 
+import static edgedb.client.ClientConstants.MAJOR_VERSION;
+import static edgedb.client.ClientConstants.MINOR_VERSION;
+
 @AllArgsConstructor
 public class EdgeDBClientV2 implements Client{
 
@@ -32,6 +35,16 @@ public class EdgeDBClientV2 implements Client{
     @Override
     public void terminateConnection() throws IOException {
         connection.terminate();
+    }
+
+    @Override
+    public int getMajorVersion() {
+        return MAJOR_VERSION;
+    }
+
+    @Override
+    public int getMinorVersion() {
+        return MINOR_VERSION;
     }
 
 }
