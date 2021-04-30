@@ -1,66 +1,87 @@
 package edgedb;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import edgedb.client.EdgeDBClientV2;
-import edgedb.client.ResultSet;
 import edgedb.connection.BlockingConnection;
 import edgedb.connection.IConnection;
-import edgedb.exceptions.*;
+import edgedb.connectionparams.ConnectionParams;
+import edgedb.exceptions.EdgeDBIncompatibleDriverException;
+import edgedb.exceptions.EdgeDBInternalErrException;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
-public class TestSetup {
+public final class TestSetup {
 
-    private static String port = "10708";
     private static String instanceName;
-
-    // <driver>://<username>:<password>@<host>:<port>/<database>
-    String dsnNew = "edgedb://edgedb@localhost:10708/edgedb";
-
-    private static boolean isDockerInstallation;
+    private static Credentials credentials;
+    private static final String LOCALHOST = "localhost";
 
     public static void main(String[] args) {
         try {
-            //deployNewDatabase();
-            //changeAuthMethodToTrust();
-            IConnection connection = connectToTestDB();
-
-            ResultSet result = connection.queryJSON("SELECT Movie { id, title, year }");
-            log.info("Result ~~~~~{}",result);
+            deployNewInstance();
+            sleepForMinute();
+            connectToInstance();
         } catch (Exception ex) {
             ex.printStackTrace();
+        } finally {
+            try {
+                destroyInstance();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
+
+    public static void sleepForMinute() throws InterruptedException {
+        Thread.sleep( 30 * 1000);
+    }
+
+    public static void destroyInstance() throws Exception {
+        List<String> cmdList = new ArrayList<String>();
+        cmdList.add("edgedb");
+        cmdList.add("server");
+        cmdList.add("destroy");
+        cmdList.add(instanceName);
+        TestUtil.executeProcess(cmdList);
+    }
+
+//    public static void runMigration(IConnection connection) {
+//        connection.execute(
+//                ""
+//        );
+//    }
 
     public static void changeAuthMethodToTrust() throws Exception {
         List<String> cmdList = new ArrayList<String>();
         cmdList.add("edgedb");
-        cmdList.add("-I"+instanceName);
+        cmdList.add("-I" + instanceName);
         cmdList.add("--admin");
         cmdList.add("configure");
         cmdList.add("insert");
         cmdList.add("Auth");
         cmdList.add("--method=Trust");
         cmdList.add("--priority=0");
+
         TestUtil.executeProcess(cmdList);
     }
 
-    public static IConnection connectToTestDB() throws InterruptedException, EdgeDBInternalErrException, EdgeDBIncompatibleDriverException, IOException {
+    public static IConnection connectToInstance() throws InterruptedException, EdgeDBInternalErrException, EdgeDBIncompatibleDriverException, IOException {
         EdgeDBClientV2 clientV2 = new EdgeDBClientV2(new BlockingConnection());
 
-        String username = "edgedb";
-        String host = "localhost";
-        // TODO -- fetch this programmatically.
-        int port = 10701;
-        String database = "edgedb";
-        String dsn = String.format("edgedb://%s@%s:%d/%s",username,host,port,database);
+        ConnectionParams connectionParams = ConnectionParams.builder()
+                .user(credentials.getUser())
+                .database(credentials.getDatabase())
+                .host(LOCALHOST)
+                .port(Integer.parseInt(credentials.getPort()))
+                .password(credentials.getPassword())
+                .build();
 
-        log.info("DSN to connect {}",dsn);
-
-        return clientV2.getConnection(dsn);
+        return clientV2.getConnection(connectionParams);
     }
 
     public static boolean checkIfDockerInstallation() {
@@ -68,7 +89,7 @@ public class TestSetup {
         return os.toLowerCase().contains("windows");
     }
 
-    private static void deployNewDatabase() throws Exception {
+    private static void deployNewInstance() throws Exception {
 
         instanceName = "test" + TestUtil.randomString(4);
         List<String> cmdList = new ArrayList<String>();
@@ -76,16 +97,40 @@ public class TestSetup {
         cmdList.add("server");
         cmdList.add("init");
         cmdList.add(instanceName);
-        cmdList.add("--port");
-        cmdList.add(port);
         cmdList.add("--default-user");
         cmdList.add("edgedb");
         cmdList.add("--default-database");
         cmdList.add("edgedb");
 
-        TestUtil.executeProcess(cmdList);
+        List<String> consoleOutput = TestUtil.executeProcess(cmdList);
+
+        credentials = readCredentialsPath(findCredentialsPath(consoleOutput));
+
     }
 
+    private static Credentials readCredentialsPath(String credentialsPath) throws IOException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        return objectMapper.readValue(new File(String.valueOf(credentialsPath)), Credentials.class);
+    }
 
+    private static String findCredentialsPath(List<String> consoleOutput) {
+        String pathValue = "";
+        Optional<String> pathLineOptional = consoleOutput.stream().filter(
+                line -> line.contains("Credentials Path")
+        ).findAny();
+
+        if (pathLineOptional.isPresent()) {
+            String pathLine = pathLineOptional.get();
+
+            Optional<String> pathOptional = Arrays.stream(pathLine.split("\\s+")).filter(
+                    line -> line.contains(instanceName)
+            ).findAny();
+
+            if (pathOptional.isPresent()) {
+                pathValue = pathOptional.get();
+            }
+        }
+        return pathValue.trim();
+    }
 }
 
