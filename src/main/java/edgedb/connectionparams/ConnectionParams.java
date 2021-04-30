@@ -1,11 +1,10 @@
 package edgedb.connectionparams;
 
-import lombok.Builder;
-import lombok.Data;
+import lombok.*;
 
-import java.net.URI;
-
+@Builder
 @Data
+@AllArgsConstructor
 public class ConnectionParams {
 
     private String dsn;
@@ -13,15 +12,14 @@ public class ConnectionParams {
     private int port;
     private String admin;
     private String user;
-    private String password = "edgedb";
-    private String database= "";
+    private String password ;
+    private String database;
     private int timeout;
 
-    public ConnectionParams(String dsn) {
-        URI uri = URI.create(dsn);
-        user = uri.getUserInfo();
-        //database = "tutorial";
-        host = uri.getHost();
-        port = uri.getPort();
-    }
+//    public ConnectionParams(String dsn) {
+//        URI uri = URI.create(dsn);
+//        user = uri.getUserInfo();
+//        host = uri.getHost();
+//        port = uri.getPort();
+//    }
 }
