@@ -1,5 +1,6 @@
 package edgedb.exceptions;
 
+import edgedb.exceptions.constants.Severity;
 import edgedb.internal.protocol.ErrorResponse;
 import edgedb.internal.protocol.Header;
 import lombok.extern.slf4j.Slf4j;
@@ -18,9 +19,6 @@ public final class IExceptionFromErrorResponseBuilderImpl {
 //    short headerAttributeLength;
 //    Header[] header;
 
-    private static final byte ERROR = (byte) 0x78;
-    private static final byte FATAL = (byte) 0xc8;
-    private static final byte PANIC = (byte) 0xff;
     private static final short SERVER_STACKTRACE = (short) 0x0101;
     private static final short HINT= (short) 0x0001;
     private static final short DETAILS= (short) 0x0002;
@@ -29,7 +27,7 @@ public final class IExceptionFromErrorResponseBuilderImpl {
         Map<Integer, BaseException> errorCodesMap = ErrorCodesToExceptionMap.errorCodesMap;
         BaseException exception = errorCodesMap.get(errorResponse.getErrorCode());
         exception.setMessage(errorResponse.getMessage());
-        exception.setSeverity(getExceptionSeverity(errorResponse.getSeverity()));
+        exception.setSeverity(Severity.severityMap.get((short)errorResponse.getSeverity()));
 
         for (Header head:errorResponse.getHeader()) {
             if(head.getCode()== SERVER_STACKTRACE){
@@ -41,17 +39,5 @@ public final class IExceptionFromErrorResponseBuilderImpl {
             }
         }
         return exception;
-    }
-
-    private static String getExceptionSeverity(Byte severity){
-        switch (severity){
-            case ERROR:
-                return "ERROR";
-            case FATAL:
-                return "FATAL";
-            case PANIC:
-                return "PANIC";
-        }
-        return "";
     }
 }

@@ -37,8 +37,7 @@ public class ChannelProtocolReaderFactoryImpl implements ProtocolReaderFactory{
             case (int) COMMAND_COMPLETE:
                 return new CommandCompleteReaderV2(readerHelper);
             case (int) SERVER_HANDSHAKE:
-                log.info("SERVER_HANDSHAKE");
-                break;
+               return new ServerHandshakeReaderV2(readerHelper);
             case (int) ERROR_RESPONSE:
                 return new ErrorResponseReaderV2(readerHelper);
         }

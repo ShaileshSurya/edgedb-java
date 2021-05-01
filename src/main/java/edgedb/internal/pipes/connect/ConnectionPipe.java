@@ -16,7 +16,7 @@ public class ConnectionPipe implements IConnectionPipe {
 
     ProtocolWritable protocolWritable;
     @Override
-    public void sendClientHandshake(ClientHandshake clientHandshake) throws IOException, InterruptedException, EdgeDBIncompatibleDriverException, EdgeDBInternalErrException {
+    public void sendClientHandshake(ClientHandshake clientHandshake) throws IOException {
         log.info("Trying to write ClientHandshake");
         protocolWritable.write(clientHandshake);
     }

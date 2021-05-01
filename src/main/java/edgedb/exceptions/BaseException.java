@@ -1,8 +1,9 @@
 package edgedb.exceptions;
 
-import lombok.Data;
+import lombok.*;
 
 @Data
+@RequiredArgsConstructor
 public abstract class BaseException extends RuntimeException {
     private String errorCode;
     private String severity;
@@ -15,6 +16,10 @@ public abstract class BaseException extends RuntimeException {
         this.errorCode = errorCode;
     }
 
-
+    public BaseException(String errorCode, String message, String severity) {
+        this.errorCode= errorCode;
+        this.message = message;
+        this.severity = severity;
+    }
 }
 

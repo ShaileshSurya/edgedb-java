@@ -34,12 +34,6 @@ public class TestScriptFlow {
             connection = new EdgeDBClientV2(new BlockingConnection()).getConnection(connectionParams);
         } catch (IOException e) {
             e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (EdgeDBIncompatibleDriverException e) {
-            e.printStackTrace();
-        } catch (EdgeDBInternalErrException e) {
-            e.printStackTrace();
         }
     }
 

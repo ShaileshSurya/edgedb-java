@@ -10,6 +10,7 @@ public interface IConnection extends IChannel, Query{
     //public IConnection connect(ConnectionParams connectionParams) throws IOException, EdgeDBInternalErrException;
     public IConnection createClientSocket(ConnectionParams connectionParams) throws IOException;
     public void terminate() throws IOException;
-    public void initiateHandshake(String user, String database) throws EdgeDBInternalErrException, InterruptedException, EdgeDBIncompatibleDriverException, IOException;
-    public void handleHandshake() throws InterruptedException, EdgeDBInternalErrException, EdgeDBIncompatibleDriverException, IOException;
+    public void initiateHandshake(String user, String database) throws IOException;
+    public void handleHandshake() throws IOException;
+
 }

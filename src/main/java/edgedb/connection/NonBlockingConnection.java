@@ -46,12 +46,12 @@ public class NonBlockingConnection implements IConnection {
     }
 
     @Override
-    public void initiateHandshake(String user, String database) throws EdgeDBInternalErrException, InterruptedException, EdgeDBIncompatibleDriverException, IOException {
+    public void initiateHandshake(String user, String database) {
 
     }
 
     @Override
-    public ResultSet query(String query) throws EdgeDBQueryException, EdgeDBCommandException, IOException, EdgeDBInternalErrException {
+    public ResultSet query(String query){
         throw new UnsupportedOperationException();
     }
 

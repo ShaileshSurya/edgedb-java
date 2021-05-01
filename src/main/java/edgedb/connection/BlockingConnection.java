@@ -1,8 +1,11 @@
 package edgedb.connection;
 
-import edgedb.client.*;
+import edgedb.client.ResultSet;
+import edgedb.client.ResultSetImpl;
 import edgedb.connectionparams.ConnectionParams;
 import edgedb.exceptions.*;
+import edgedb.exceptions.clientexception.ClientException;
+import edgedb.exceptions.constants.Severity;
 import edgedb.internal.buffer.SingletonBuffer;
 import edgedb.internal.pipes.SyncFlow.SyncPipe;
 import edgedb.internal.pipes.SyncFlow.SyncPipeImpl;
@@ -27,7 +30,10 @@ import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 
-import static edgedb.exceptions.ErrorMessage.*;
+import static edgedb.client.ClientConstants.MAJOR_VERSION;
+import static edgedb.client.ClientConstants.MINOR_VERSION;
+import static edgedb.exceptions.ErrorMessage.FAILED_TO_DECODE_SERVER_TRANSACTION_STATE;
+import static edgedb.exceptions.constants.ClientErrors.INCOMPATIBLE_DRIVER;
 import static edgedb.internal.protocol.constants.TransactionState.*;
 
 @Slf4j
@@ -50,15 +56,15 @@ public class BlockingConnection implements IConnection {
     }
 
     @Override
-    public void execute(String command){
+    public void execute(String command) {
         try {
             executeScript(command);
-        }catch (IOException e){
+        } catch (IOException e) {
 
         }
     }
 
-    private <T extends ServerProtocolBehaviour> void executeScript(String query) throws IOException{
+    private <T extends ServerProtocolBehaviour> void executeScript(String query) throws IOException {
 
         ExecuteScript executeScript = new ExecuteScript(query);
         IScriptFlow scriptFlow = new ScriptFlow(new ChannelProtocolWritableImpl(getChannel()));
@@ -109,7 +115,7 @@ public class BlockingConnection implements IConnection {
             }
 
             if (response instanceof ErrorResponse) {
-                throw IExceptionFromErrorResponseBuilderImpl.getExceptionFromError((ErrorResponse)response);
+                throw IExceptionFromErrorResponseBuilderImpl.getExceptionFromError((ErrorResponse) response);
             }
 
             if (response instanceof ServerKeyDataBehaviour) {
@@ -218,7 +224,7 @@ public class BlockingConnection implements IConnection {
         return this;
     }
 
-    public void initiateHandshake(String user, String database) throws InterruptedException, EdgeDBInternalErrException, EdgeDBIncompatibleDriverException, IOException {
+    public void initiateHandshake(String user, String database) throws IOException {
         log.info("Initiating Client Handshake");
         ClientHandshake clientHandshakeMessage = new ClientHandshake(user, database);
         IConnectionPipe connectionPipeV2 = new ConnectionPipe(
@@ -226,12 +232,12 @@ public class BlockingConnection implements IConnection {
         connectionPipeV2.sendClientHandshake(clientHandshakeMessage);
     }
 
-    public void handleHandshake() throws InterruptedException, EdgeDBInternalErrException, EdgeDBIncompatibleDriverException, IOException {
+    public void handleHandshake() throws IOException {
         tryHandleHandshake();
         log.info("Connection Successful, Ready for command.");
     }
 
-    private <T extends ServerProtocolBehaviour> void tryHandleHandshake() throws IOException, InterruptedException, EdgeDBIncompatibleDriverException, EdgeDBInternalErrException {
+    private <T extends ServerProtocolBehaviour> void tryHandleHandshake() throws IOException {
         log.debug("Trying to read response for client handshake");
 
         ByteBuffer readBuffer = SingletonBuffer.getInstance().getBuffer();
@@ -249,9 +255,8 @@ public class BlockingConnection implements IConnection {
             if (response instanceof ServerHandshakeBehaviour) {
                 ServerHandshakeBehaviour serverHandshake = (ServerHandshakeBehaviour) response;
                 log.debug("Response is an Instance Of ServerHandshake {}", serverHandshake);
-                throw new EdgeDBIncompatibleDriverException(DRIVER_INCOMPATIBLE_ERROR,
-                        serverHandshake.getMajorVersion(),
-                        serverHandshake.getMinorVersion());
+                String message = String.format("Incompatible driver expected Minor Version %s and Major Version %s,found Minor Version %s and Major Version %s", MAJOR_VERSION, MINOR_VERSION, serverHandshake.getMajorVersion(), serverHandshake.getMinorVersion());
+                throw new ClientException(INCOMPATIBLE_DRIVER, message, Severity.ERROR);
             } else if (response instanceof ReadyForCommand) {
                 ReadyForCommand readyForCommand = (ReadyForCommand) response;
                 log.debug("Response is an Instance Of ReadyForCommand {}", readyForCommand);
@@ -274,19 +279,17 @@ public class BlockingConnection implements IConnection {
                     log.info("Authentication Successful");
                     return;
                 } else if (serverAuthenticationBehaviour.isAuthenticationRequiredSASLMessage()) {
-                    authenticateSASL(serverAuthenticationBehaviour);
+                    authenticateSASL();
                     continue;
                 }
-            } else if(response instanceof ServerKeyDataBehaviour){
+            } else if (response instanceof ServerKeyDataBehaviour) {
                 continue;
-            } else {
-                throw new EdgeDBInternalErrException(FAILED_TO_DECODE_SERVER_RESPONSE);
             }
         }
     }
 
 
-    public <T extends ServerProtocolBehaviour> void authenticateSASL(ServerAuthenticationBehaviour authenticationRequiredSASLMessage) throws IOException, EdgeDBInternalErrException {
+    public <T extends ServerProtocolBehaviour> void authenticateSASL() throws IOException {
 
         IScramSASLAuthenticationFlow authenticationFlow = new AutheticationFlowScramSASL(
                 new ChannelProtocolWritableImpl(getChannel()));
@@ -306,19 +309,14 @@ public class BlockingConnection implements IConnection {
 
             log.info("Response Found was {}", response.toString());
             if (response instanceof ServerAuthenticationBehaviour) {
-
                 ServerAuthenticationBehaviour serverAuthenticationBehaviour = (ServerAuthenticationBehaviour) response;
-
                 if (serverAuthenticationBehaviour.isAuthenticationSASLContinueMessage()) {
-                    authenticationFlow.sendAuthenticationSASLClientFinalMessage(serverAuthenticationBehaviour,connectionParams.getPassword());
+                    authenticationFlow.sendAuthenticationSASLClientFinalMessage(serverAuthenticationBehaviour, connectionParams.getPassword());
                     continue;
                 }
-                else {
-                    throw new EdgeDBInternalErrException(UNEXPECTED_AUTHENTICATION_MESSAGE_RESPONSE);
-                }
-
-            } else {
-                throw new EdgeDBInternalErrException(FAILED_TO_DECODE_SERVER_RESPONSE);
+            } else if (response instanceof ErrorResponse) {
+                ErrorResponse errorResponse = (ErrorResponse) response;
+                throw IExceptionFromErrorResponseBuilderImpl.getExceptionFromError(errorResponse);
             }
 
         }
@@ -326,7 +324,7 @@ public class BlockingConnection implements IConnection {
         readClientFinalMessage(readBuffer, bufferReader);
     }
 
-    private <T extends ServerProtocolBehaviour> void readClientFinalMessage(ByteBuffer readBuffer, BufferReader bufferReader) throws IOException, EdgeDBInternalErrException {
+    private <T extends ServerProtocolBehaviour> void readClientFinalMessage(ByteBuffer readBuffer, BufferReader bufferReader) throws IOException {
         readBuffer = bufferReader.read(readBuffer);
         while (readBuffer.hasRemaining()) {
             byte mType = readBuffer.get();
@@ -339,13 +337,13 @@ public class BlockingConnection implements IConnection {
             if (response instanceof ServerAuthenticationBehaviour) {
                 ServerAuthenticationBehaviour serverAuthenticationBehaviour = (ServerAuthenticationBehaviour) response;
 
-                if (serverAuthenticationBehaviour.isAuthenticationSASLFinal()){
+                if (serverAuthenticationBehaviour.isAuthenticationSASLFinal()) {
                     // Expect AuthenticationOk message
                     continue;
-                }else if(serverAuthenticationBehaviour.isAuthenticationOkMessage()){
+                } else if (serverAuthenticationBehaviour.isAuthenticationOkMessage()) {
                     break;
                 }
-            } else if (response instanceof ErrorResponse){
+            } else if (response instanceof ErrorResponse) {
                 ErrorResponse errorResponse = (ErrorResponse) response;
                 throw IExceptionFromErrorResponseBuilderImpl.getExceptionFromError(errorResponse);
             }

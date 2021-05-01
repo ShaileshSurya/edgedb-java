@@ -1,6 +1,8 @@
 package edgedb.internal.pipes.authenticationflow;
 
 import edgedb.exceptions.EdgeDBInternalErrException;
+import edgedb.exceptions.clientexception.ClientConnectionFailedTemporarilyException;
+import edgedb.exceptions.clientexception.ClientException;
 import edgedb.internal.pipes.authenticationflow.scram.client.ScramClientFunctionality;
 import edgedb.internal.pipes.authenticationflow.scram.client.ScramClientFunctionalityImpl;
 import edgedb.internal.pipes.authenticationflow.scram.common.ScramException;
@@ -37,22 +39,20 @@ public class AutheticationFlowScramSASL implements IScramSASLAuthenticationFlow 
 
 
     @Override
-    public void sendAuthenticationSASLClientFirstMessage(String username) throws IOException, EdgeDBInternalErrException {
+    public void sendAuthenticationSASLClientFirstMessage(String username) throws IOException {
         // Only one method is supported that is "SCRAM-SHA-256"
         try {
             String clientFirstMessage = scramClientFunctionality.prepareFirstMessage(username);
 
             AuthenticationSASLInitialResponse initialResponse = new AuthenticationSASLInitialResponse(SCRAM_SHA_256, clientFirstMessage.getBytes("UTF-8"));
-            log.info("Trying to write SASLInitialResponseMessage {}", initialResponse);
             protocolWritable.write(initialResponse);
         } catch (ScramException e) {
-            log.error("error {}", e);
-            throw new EdgeDBInternalErrException(FAILED_TO_CREATE_CLIENT_FIRST_MESSAGE);
+
         }
     }
 
     @Override
-    public void sendAuthenticationSASLClientFinalMessage(ServerAuthenticationBehaviour serverAuthenticationSASLContinue, String password) throws EdgeDBInternalErrException, IOException {
+    public void sendAuthenticationSASLClientFinalMessage(ServerAuthenticationBehaviour serverAuthenticationSASLContinue, String password) throws IOException {
 
         try {
             String serverFirstMessage = new String(serverAuthenticationSASLContinue.getSaslData());
@@ -63,8 +63,7 @@ public class AutheticationFlowScramSASL implements IScramSASLAuthenticationFlow 
             log.info("Trying to write SASLFinalResponseMessage {}", finalResponse);
             protocolWritable.write(finalResponse);
         }catch (ScramException e){
-            log.error("error {}", e);
-            throw new EdgeDBInternalErrException(FAILED_TO_CREATE_CLIENT_FINAL_MESSAGE);
+           // throw new ClientConnectionFailedTemporarilyException("")
         }
     }
 }

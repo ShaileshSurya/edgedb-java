@@ -2,9 +2,6 @@ package edgedb.client;
 
 import edgedb.connection.IConnection;
 import edgedb.connectionparams.ConnectionParams;
-import edgedb.exceptions.EdgeDBIncompatibleDriverException;
-import edgedb.exceptions.EdgeDBInternalErrException;
-
 import lombok.AllArgsConstructor;
 
 import java.io.IOException;
@@ -13,12 +10,12 @@ import static edgedb.client.ClientConstants.MAJOR_VERSION;
 import static edgedb.client.ClientConstants.MINOR_VERSION;
 
 @AllArgsConstructor
-public class EdgeDBClientV2 implements Client{
+public class EdgeDBClientV2 implements Client {
 
     IConnection connection;
     ConnectionParams connectionParams;
 
-    public EdgeDBClientV2(IConnection connection){
+    public EdgeDBClientV2(IConnection connection) {
         this.connection = connection;
     }
 
@@ -34,9 +31,10 @@ public class EdgeDBClientV2 implements Client{
     }
 
     @Override
-    public IConnection getConnection(ConnectionParams connectionParams) throws InterruptedException, EdgeDBInternalErrException, EdgeDBIncompatibleDriverException, IOException {
+    public IConnection getConnection(ConnectionParams connectionParams) throws IOException {
+
         connection = connection.createClientSocket(connectionParams);
-        connection.initiateHandshake(connectionParams.getUser(),connectionParams.getDatabase());
+        connection.initiateHandshake(connectionParams.getUser(), connectionParams.getDatabase());
         connection.handleHandshake();
         return connection;
     }

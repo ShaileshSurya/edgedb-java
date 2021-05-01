@@ -20,12 +20,6 @@ public class EdgeDBClientV2Test {
             clientV2.getConnection(new ConnectionParams());
         } catch (IOException e) {
             e.printStackTrace();
-        } catch (EdgeDBIncompatibleDriverException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (EdgeDBInternalErrException e) {
-            e.printStackTrace();
         }
     }
 
@@ -36,12 +30,6 @@ public class EdgeDBClientV2Test {
             clientV2.getConnection(new ConnectionParams());
             clientV2.terminateConnection();
         } catch (IOException e) {
-            e.printStackTrace();
-        } catch (EdgeDBIncompatibleDriverException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (EdgeDBInternalErrException e) {
             e.printStackTrace();
         }
     }
@@ -59,13 +47,9 @@ public class EdgeDBClientV2Test {
             e.printStackTrace();
         } catch (EdgeDBCommandException e) {
             e.printStackTrace();
-        } catch (EdgeDBQueryException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (EdgeDBIncompatibleDriverException e) {
+        } catch (EdgeDBQueryException e) {
             e.printStackTrace();
         }
     }
