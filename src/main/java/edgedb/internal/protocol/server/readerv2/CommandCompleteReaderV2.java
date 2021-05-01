@@ -1,8 +1,7 @@
 package edgedb.internal.protocol.server.readerv2;
 
-import edgedb.exceptions.OverReadException;
-import edgedb.internal.protocol.Header;
 import edgedb.internal.protocol.CommandComplete;
+import edgedb.internal.protocol.Header;
 import edgedb.internal.protocol.server.readerhelper.IReaderHelper;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -19,24 +18,20 @@ public class CommandCompleteReaderV2 implements ProtocolReader {
     public CommandComplete read(ByteBuffer readBuffer) throws IOException {
 
         CommandComplete commandComplete = new CommandComplete();
-        try {
-            int messageLength = readerHelper.readUint32();
-            commandComplete.setMessageLength(messageLength);
-            readerHelper.setMessageLength(messageLength);
 
-            short headerLength = readerHelper.readUint16();
-            commandComplete.setHeadersLength(headerLength);
-            Header[] headers = new Header[headerLength];
-            HeaderReader headerReader = new HeaderReader(readerHelper);
-            for (int i = 0; i < headerLength; i++) {
-                headers[i] = headerReader.read(readBuffer);
-            }
-            commandComplete.setStatus(readerHelper.readString());
-            return commandComplete;
-        } catch (OverReadException e) {
-            return commandComplete;
-        } catch (IOException e) {
-            throw e;
+        int messageLength = readerHelper.readUint32();
+        commandComplete.setMessageLength(messageLength);
+        readerHelper.setMessageLength(messageLength);
+
+        short headerLength = readerHelper.readUint16();
+        commandComplete.setHeadersLength(headerLength);
+        Header[] headers = new Header[headerLength];
+        HeaderReader headerReader = new HeaderReader(readerHelper);
+        for (int i = 0; i < headerLength; i++) {
+            headers[i] = headerReader.read(readBuffer);
         }
+        commandComplete.setStatus(readerHelper.readString());
+        return commandComplete;
     }
 }
+

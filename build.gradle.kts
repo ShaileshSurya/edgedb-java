@@ -13,6 +13,11 @@ plugins {
 
 repositories {
     mavenCentral()
+    jcenter()
+}
+
+tasks.withType<Test> {
+    useJUnitPlatform()
 }
 
 dependencies {
@@ -27,4 +32,6 @@ dependencies {
 
     testImplementation("org.mockito:mockito-core:3.5.15")
     testImplementation("junit:junit:4.12")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.6.0")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.6.0")
 }

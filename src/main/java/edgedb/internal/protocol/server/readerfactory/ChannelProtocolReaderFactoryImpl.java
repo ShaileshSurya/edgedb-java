@@ -21,7 +21,7 @@ public class ChannelProtocolReaderFactoryImpl implements ProtocolReaderFactory{
     }
 
     @Override
-    public ProtocolReader getProtocolReader(char mType, ByteBuffer readBuffer) throws EdgeDBInternalErrException {
+    public ProtocolReader getProtocolReader(char mType, ByteBuffer readBuffer) {
         log.info("MType was found to be {}",mType);
         switch (mType) {
             case (int) SERVER_KEY_DATA:
@@ -35,15 +35,12 @@ public class ChannelProtocolReaderFactoryImpl implements ProtocolReaderFactory{
             case (int) DATA_RESPONSE:
                 return new DataResponseReaderV2(readerHelper);
             case (int) COMMAND_COMPLETE:
-                log.info("COMMAND_COMPLETE");
-                break;
+                return new CommandCompleteReaderV2(readerHelper);
             case (int) SERVER_HANDSHAKE:
                 log.info("SERVER_HANDSHAKE");
                 break;
             case (int) ERROR_RESPONSE:
                 return new ErrorResponseReaderV2(readerHelper);
-            default:
-                throw new EdgeDBInternalErrException(FAILED_TO_DECODE_SERVER_RESPONSE);
         }
         return null;
     }

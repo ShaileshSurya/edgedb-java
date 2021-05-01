@@ -30,8 +30,16 @@ public final class TestUtil {
         return console;
     }
 
-    public static String randomString(int len) {
+    public static String randomAlphaNumeric(int len){
         final String AB = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+        return randomString(len, AB);
+    }
+    public static String randomString(int len) {
+        final String AB = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+        return randomString(len, AB);
+    }
+
+    private static String randomString(int len, String AB) {
         SecureRandom rnd = new SecureRandom();
 
         StringBuilder sb = new StringBuilder(len);

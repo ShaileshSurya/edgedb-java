@@ -19,6 +19,11 @@ public class ExecuteScript implements BufferWritable, ClientProtocolBehaviour {
     Header[] headers;
     String script;
 
+    public ExecuteScript(String script){
+        this.script = script;
+        messageLength = calculateMessageLength();
+    }
+
     @Override
     public int calculateMessageLength() {
         log.debug("Starting to calculate length of message");

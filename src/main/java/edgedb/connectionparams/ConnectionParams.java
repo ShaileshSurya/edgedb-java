@@ -9,11 +9,11 @@ import lombok.*;
 public class ConnectionParams {
 
     private String dsn;
-    private String host;
-    private int port;
+    @NonNull private String host;
+    @NonNull  private int port;
     private String admin;
-    private String user;
-    private String password ;
+    @NonNull private String user;
+    @NonNull private String password ;
     private String database;
     private int timeout;
 
