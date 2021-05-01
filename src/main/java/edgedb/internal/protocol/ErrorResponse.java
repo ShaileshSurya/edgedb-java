@@ -20,7 +20,7 @@ public class ErrorResponse implements ServerProtocolBehaviour {
                 "mType=" + mType +
                 ", messageLength=" + messageLength +
                 ", severity=" + severity +
-                ", errorCode=" + Integer.toHexString(errorCode) +
+                ", errorCodeHex=" + Integer.toHexString(errorCode) +
                 ", errorCode=" + errorCode +
                 ", message='" + message + '\'' +
                 ", headerAttributeLength=" + headerAttributeLength +

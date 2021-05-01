@@ -12,6 +12,8 @@ import edgedb.internal.pipes.connect.ConnectionPipe;
 import edgedb.internal.pipes.connect.IConnectionPipe;
 import edgedb.internal.pipes.granularflow.GranularFlowPipeV2;
 import edgedb.internal.pipes.granularflow.IGranularFlowPipe;
+import edgedb.internal.pipes.scriptFlow.IScriptFlow;
+import edgedb.internal.pipes.scriptFlow.ScriptFlow;
 import edgedb.internal.protocol.*;
 import edgedb.internal.protocol.client.writerV2.ChannelProtocolWritableImpl;
 import edgedb.internal.protocol.constants.Cardinality;
@@ -48,8 +50,37 @@ public class BlockingConnection implements IConnection {
     }
 
     @Override
-    public ResultSet execute(String query) throws EdgeDBQueryException, EdgeDBCommandException, IOException, EdgeDBInternalErrException {
-        return executeGranularFlow(IOFormat.BINARY, Cardinality.MANY, query);
+    public void execute(String command){
+        try {
+            executeScript(command);
+        }catch (IOException e){
+
+        }
+    }
+
+    private <T extends ServerProtocolBehaviour> void executeScript(String query) throws IOException{
+
+        ExecuteScript executeScript = new ExecuteScript(query);
+        IScriptFlow scriptFlow = new ScriptFlow(new ChannelProtocolWritableImpl(getChannel()));
+
+        scriptFlow.executeScriptMessage(executeScript);
+
+        BufferReader bufferReader = new BufferReaderImpl(clientChannel);
+        ByteBuffer readBuffer = SingletonBuffer.getInstance().getBuffer();
+
+        readBuffer = bufferReader.read(readBuffer);
+
+        while (readBuffer.remaining() != -1) {
+            byte mType = readBuffer.get();
+            ProtocolReader reader = new ChannelProtocolReaderFactoryImpl(readBuffer)
+                    .getProtocolReader((char) mType, readBuffer);
+            T response = reader.read(readBuffer);
+            if (response instanceof CommandComplete) {
+                return;
+            } else if (response instanceof ErrorResponse) {
+                throw IExceptionFromErrorResponseBuilderImpl.getExceptionFromError((ErrorResponse) response);
+            }
+        }
     }
 
     @Override
@@ -235,8 +266,6 @@ public class BlockingConnection implements IConnection {
                         break;
                     case (int) NOT_IN_TRANSACTION:
                         return;
-                    default:
-                        throw new EdgeDBInternalErrException(FAILED_TO_DECODE_SERVER_TRANSACTION_STATE);
                 }
             } else if (response instanceof ServerAuthenticationBehaviour) {
                 ServerAuthenticationBehaviour serverAuthenticationBehaviour = (ServerAuthenticationBehaviour) response;
@@ -246,7 +275,10 @@ public class BlockingConnection implements IConnection {
                     return;
                 } else if (serverAuthenticationBehaviour.isAuthenticationRequiredSASLMessage()) {
                     authenticateSASL(serverAuthenticationBehaviour);
+                    continue;
                 }
+            } else if(response instanceof ServerKeyDataBehaviour){
+                continue;
             } else {
                 throw new EdgeDBInternalErrException(FAILED_TO_DECODE_SERVER_RESPONSE);
             }

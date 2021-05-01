@@ -22,22 +22,23 @@ public final class IExceptionFromErrorResponseBuilderImpl {
     private static final byte FATAL = (byte) 0xc8;
     private static final byte PANIC = (byte) 0xff;
     private static final short SERVER_STACKTRACE = (short) 0x0101;
+    private static final short HINT= (short) 0x0001;
+    private static final short DETAILS= (short) 0x0002;
 
     public static BaseException getExceptionFromError(ErrorResponse errorResponse){
-        Map<Byte, BaseException> errorCodesMap = ErrorCodesToExceptionMap.errorCodesMap;
-        BaseException exception = errorCodesMap.get((byte)errorResponse.getErrorCode());
+        Map<Integer, BaseException> errorCodesMap = ErrorCodesToExceptionMap.errorCodesMap;
+        BaseException exception = errorCodesMap.get(errorResponse.getErrorCode());
         exception.setMessage(errorResponse.getMessage());
         exception.setSeverity(getExceptionSeverity(errorResponse.getSeverity()));
 
-        Optional<Header> header = Arrays.stream(errorResponse.getHeader())
-                .filter(
-                    head -> head.getCode() == SERVER_STACKTRACE
-                )
-                .findAny();
-
-        if(header.isPresent()){
-            String stackTrace = new String(header.get().getValue());
-            exception.setEdgedbStackTrace(stackTrace);
+        for (Header head:errorResponse.getHeader()) {
+            if(head.getCode()== SERVER_STACKTRACE){
+                exception.setEdgedbStackTrace(new String(head.getValue()));
+            }else if(head.getCode() == HINT){
+                exception.setHint(new String(head.getValue()));
+            }else if(head.getCode()== DETAILS){
+                exception.setDetails(new String(head.getValue()));
+            }
         }
         return exception;
     }
