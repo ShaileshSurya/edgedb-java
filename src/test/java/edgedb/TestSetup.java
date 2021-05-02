@@ -50,12 +50,6 @@ public final class TestSetup {
         TestUtil.executeProcess(cmdList);
     }
 
-//    public static void runMigration(IConnection connection) {
-//        connection.execute(
-//                ""
-//        );
-//    }
-
     public static void changeAuthMethodToTrust() throws Exception {
         List<String> cmdList = new ArrayList<String>();
         cmdList.add("edgedb");
