@@ -1,4 +1,6 @@
 package edgedb.exceptions.clientexception;
 
-public class ClientConnectionException {
+import edgedb.exceptions.BaseException;
+
+public class ClientConnectionException extends BaseException {
 }

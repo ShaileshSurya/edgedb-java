@@ -12,6 +12,7 @@ import edgedb.internal.protocol.server.readerfactory.ChannelProtocolReaderFactor
 import edgedb.internal.protocol.server.readerv2.*;
 import lombok.extern.slf4j.Slf4j;
 
+import javax.print.attribute.standard.Severity;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
@@ -60,7 +61,7 @@ public class AsynchronousConnection {
                     ServerHandshakeBehaviour serverHandshake = (ServerHandshakeBehaviour) response;
                     log.debug("Response is an Instance Of ServerHandshake {}", serverHandshake);
                     String message = String.format("Incompatible driver expected Minor Version %s and Major Version %s,found Minor Version %s and Major Version %s", MAJOR_VERSION, MINOR_VERSION, serverHandshake.getMajorVersion(), serverHandshake.getMinorVersion());
-                    throw new ClientException(INCOMPATIBLE_DRIVER, message, Severity.ERROR);
+                    throw new ClientException(message);
                 } else if (response instanceof ReadyForCommand) {
                     ReadyForCommand readyForCommand = (ReadyForCommand) response;
                     log.debug("Response is an Instance Of ReadyForCommand {}", readyForCommand);
