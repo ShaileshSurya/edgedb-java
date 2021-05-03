@@ -16,8 +16,13 @@ repositories {
     jcenter()
 }
 
-tasks.withType<Test> {
-    useJUnitPlatform()
+task("testSetup", JavaExec::class) {
+    main = "edgedb.TestSetup"
+    classpath = sourceSets["main"].runtimeClasspath
+}
+
+tasks.test{
+    dependsOn("testSetup")
 }
 
 dependencies {
