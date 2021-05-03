@@ -1,28 +1,52 @@
-package edgedb.functional;
+package edgedb.functional.blocking;
 
+import edgedb.Credentials;
+import edgedb.TestUtil;
 import edgedb.client.EdgeDBClientV2;
 import edgedb.connection.BlockingConnection;
 import edgedb.connectionparams.ConnectionParams;
 import edgedb.exceptions.clientexception.ClientException;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.*;
 
 import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-
+@Slf4j
 public class TestConnection {
 
-    ConnectionParams connectionParams = ConnectionParams.builder()
-            .port(10700)
-            .password("2TDvaRfTziTIR4wBy6DQ4SqY")
-            .database("edgedb")
-            .user("edgedb")
-            .host("localhost")
-            .build();
+    private static Credentials credentials;
+    private static ConnectionParams connectionParams;
 
 
+    public static String instanceName = "test" + TestUtil.randomString(3);
+
+    @BeforeAll
+    public static void init(){
+        try {
+            credentials = TestUtil.deployNewInstance(instanceName);
+            TestUtil.sleepForMinute();
+            connectionParams = ConnectionParams.builder()
+                    .user(credentials.getUser())
+                    .database(credentials.getDatabase())
+                    .host("localhost")
+                    .port(Integer.parseInt(credentials.getPort()))
+                    .password(credentials.getPassword())
+                    .build();
+        }catch (Exception ex){
+            ex.printStackTrace();
+        }
+    }
+
+    @AfterAll
+    public static void tearDown(){
+        try {
+            TestUtil.destroyInstance(instanceName);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
     @Test
     public void connectAndTerminateSuccessTest() {
         Assertions.assertDoesNotThrow(
