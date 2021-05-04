@@ -1,4 +1,14 @@
 package edgedb.exceptions.clientexception;
 
-public class ClientConnectionException {
+import edgedb.exceptions.BaseException;
+
+public class ClientConnectionException extends BaseException {
+
+    public ClientConnectionException(String errorCode) {
+        super(errorCode);
+    }
+
+    public ClientConnectionException(String errorCode, String message, String severity) {
+        super(errorCode,message,severity);
+    }
 }

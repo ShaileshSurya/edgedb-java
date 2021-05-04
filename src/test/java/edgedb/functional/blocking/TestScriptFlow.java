@@ -1,15 +1,10 @@
-package edgedb.functional;
+package edgedb.functional.blocking;
 
-import edgedb.client.EdgeDBClientV2;
-import edgedb.connection.BlockingConnection;
+import edgedb.TestDBConnectionSingleton;
 import edgedb.connection.IConnection;
-import edgedb.connectionparams.ConnectionParams;
-import edgedb.exceptions.EdgeDBIncompatibleDriverException;
-import edgedb.exceptions.EdgeDBInternalErrException;
 import edgedb.exceptions.clientexception.InvalidArgumentException;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.*;
-
 import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -21,24 +16,10 @@ public class TestScriptFlow {
     static IConnection connection;
 
     @BeforeAll
-    static void init() {
-
+    public static void init() {
         try {
-            ConnectionParams connectionParams = ConnectionParams.builder()
-                    .port(10700)
-                    .password("2TDvaRfTziTIR4wBy6DQ4SqY")
-                    .database("edgedb")
-                    .user("edgedb")
-                    .host("localhost")
-                    .build();
-            connection = new EdgeDBClientV2(new BlockingConnection()).getConnection(connectionParams);
+            connection = TestDBConnectionSingleton.getInstance(null).getConnection();
         } catch (IOException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (EdgeDBIncompatibleDriverException e) {
-            e.printStackTrace();
-        } catch (EdgeDBInternalErrException e) {
             e.printStackTrace();
         }
     }
@@ -48,7 +29,6 @@ public class TestScriptFlow {
         Assertions.assertDoesNotThrow(
                 () -> executeCreateDBT()
         );
-
     }
 
     private void executeCreateDBT() {

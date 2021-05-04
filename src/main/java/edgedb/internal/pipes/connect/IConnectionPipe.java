@@ -8,6 +8,6 @@ import edgedb.internal.protocol.Terminate;
 import java.io.IOException;
 
 public interface IConnectionPipe {
-    public void sendClientHandshake(ClientHandshake clientHandshake) throws IOException, InterruptedException, EdgeDBIncompatibleDriverException, EdgeDBInternalErrException;
+    public void sendClientHandshake(ClientHandshake clientHandshake) throws IOException;
     public void sendTerminate(Terminate terminate) throws IOException;
 }
