@@ -32,7 +32,6 @@ import java.nio.channels.SocketChannel;
 
 import static edgedb.client.ClientConstants.MAJOR_VERSION;
 import static edgedb.client.ClientConstants.MINOR_VERSION;
-import static edgedb.exceptions.ErrorMessage.FAILED_TO_DECODE_SERVER_TRANSACTION_STATE;
 import static edgedb.exceptions.constants.ClientErrors.INCOMPATIBLE_DRIVER;
 import static edgedb.internal.protocol.constants.TransactionState.*;
 
@@ -46,21 +45,33 @@ public class BlockingConnection implements IConnection {
     byte[] serverKey;
 
     @Override
-    public ResultSet query(String query) throws EdgeDBQueryException, EdgeDBCommandException, IOException, EdgeDBInternalErrException {
-        return executeGranularFlow(IOFormat.BINARY, Cardinality.MANY, query);
+    public ResultSet query(String query) {
+        try {
+            return executeGranularFlow(IOFormat.BINARY, Cardinality.MANY, query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return null;
+        }
     }
 
     @Override
-    public ResultSet queryOne(String command) throws EdgeDBQueryException, EdgeDBCommandException, IOException, EdgeDBInternalErrException {
-        return executeGranularFlow(IOFormat.BINARY, Cardinality.ONE, command);
+    public ResultSet queryOne(String command) {
+        try {
+            return executeGranularFlow(IOFormat.BINARY, Cardinality.ONE, command);
+        } catch (Exception ex) {
+            log.info("Error Here {}",ex);
+            ex.printStackTrace();
+            return null;
+        }
     }
 
     @Override
     public void execute(String command) {
         try {
             executeScript(command);
-        } catch (IOException e) {
-
+        } catch (IOException ex) {
+            log.info("Error Here {}",ex);
+            ex.printStackTrace();
         }
     }
 
@@ -95,7 +106,7 @@ public class BlockingConnection implements IConnection {
     }
 
 
-    protected <T extends ServerProtocolBehaviour> PrepareComplete readPrepareComplete(IGranularFlowPipe granularFlowPipe, Prepare prepareMessage) throws IOException, EdgeDBInternalErrException, EdgeDBCommandException {
+    protected <T extends ServerProtocolBehaviour> PrepareComplete readPrepareComplete(IGranularFlowPipe granularFlowPipe, Prepare prepareMessage) throws IOException {
         log.debug("Reading prepare complete");
         BufferReader bufferReader = new BufferReaderImpl(clientChannel);
         ByteBuffer readBuffer = SingletonBuffer.getInstance().getBuffer();
@@ -143,21 +154,15 @@ public class BlockingConnection implements IConnection {
                     case (int) NOT_IN_TRANSACTION:
                         log.info("Not In Transaction");
                         break;
-                    default:
-                        throw new EdgeDBInternalErrException(FAILED_TO_DECODE_SERVER_TRANSACTION_STATE);
                 }
 
             }
         }
 
-        if (readBuffer.remaining() == -1) {
-            // TODO: fix this
-            throw new EdgeDBInternalErrException("Nothing to read in buffer");
-        }
         return null;
     }
 
-    protected ResultSet executeGranularFlow(char IOFormat, char cardinality, String command) throws EdgeDBQueryException, EdgeDBCommandException, IOException, EdgeDBInternalErrException {
+    protected ResultSet executeGranularFlow(char IOFormat, char cardinality, String command) throws IOException {
         IGranularFlowPipe granularFlowPipe = new GranularFlowPipeV2(
                 new ChannelProtocolWritableImpl(getChannel()));
 
@@ -174,16 +179,16 @@ public class BlockingConnection implements IConnection {
         return readDataResponse();
     }
 
-    protected <T extends ServerProtocolBehaviour> ResultSet readDataResponse() throws IOException, EdgeDBInternalErrException {
+    protected <T extends ServerProtocolBehaviour> ResultSet readDataResponse() throws IOException {
         log.debug("Reading DataResponse");
-        DataResponse dataResponse = null;
+        DataResponse dataResponse;
         BufferReader bufferReader = new BufferReaderImpl(getChannel());
         ByteBuffer readBuffer = SingletonBuffer.getInstance().getBuffer();
-        ;
+
         readBuffer = bufferReader.read(readBuffer);
 
         ResultSet resultSet = new ResultSetImpl();
-        while (true) {
+        while (readBuffer.hasRemaining()) {
             byte mType = readBuffer.get();
             ProtocolReader reader = new ChannelProtocolReaderFactoryImpl(readBuffer)
                     .getProtocolReader((char) mType, readBuffer);
@@ -192,11 +197,13 @@ public class BlockingConnection implements IConnection {
             if (response instanceof DataResponse) {
                 log.debug("Response is an Instance Of DataResponse {}", (DataResponse) response);
                 dataResponse = (DataResponse) response;
+
                 resultSet.setResultData(dataResponse);
+
                 log.debug("Data Response :- {}", dataResponse);
-                return resultSet;
             }
         }
+        return resultSet;
 
     }
 
@@ -217,7 +224,8 @@ public class BlockingConnection implements IConnection {
         clientChannel.configureBlocking(true);
         if (!clientChannel.connect(new InetSocketAddress(connectionParams.getHost(), connectionParams.getPort()))) {
             log.info("Trying to connect ...");
-            while (!clientChannel.finishConnect()) ;
+            while (!clientChannel.finishConnect()) {
+            }
 
             log.info("Connection Successful....");
         }
