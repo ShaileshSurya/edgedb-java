@@ -225,7 +225,6 @@ public class BlockingConnection implements IConnection {
         if (!clientChannel.connect(new InetSocketAddress(connectionParams.getHost(), connectionParams.getPort()))) {
             log.info("Trying to connect ...");
             while (!clientChannel.finishConnect()) {
-                ;
             }
 
             log.info("Connection Successful....");

@@ -1,5 +1,6 @@
 package edgedb.functional.blocking;
 
+import edgedb.TestDBConnectionSingleton;
 import edgedb.client.EdgeDBClientV2;
 import edgedb.client.ResultSet;
 import edgedb.connection.BlockingConnection;
@@ -18,15 +19,7 @@ public class TestTypes {
     @BeforeAll
     public static void init() {
         try {
-            ConnectionParams connectionParams = ConnectionParams.builder()
-                    .host("localhost")
-                    .port(10700)
-                    .database("edgedb")
-                    .user("edgedb")
-                    .password("2TDvaRfTziTIR4wBy6DQ4SqY")
-                    .build();
-
-            blockingConnection = new EdgeDBClientV2(new BlockingConnection()).getConnection(connectionParams);
+            blockingConnection = TestDBConnectionSingleton.getInstance(null).getConnection();
         } catch (IOException e) {
             e.printStackTrace();
         }

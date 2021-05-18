@@ -14,14 +14,7 @@ import java.io.IOException;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @Slf4j
-<<<<<<< HEAD
-<<<<<<< HEAD
 @Disabled
-=======
->>>>>>> code improvements
-=======
-@Disabled
->>>>>>> Disabled connection tests
 public class TestConnection {
 
     private static Credentials credentials;
