@@ -12,7 +12,7 @@ public class SyncPipeImpl implements SyncPipe {
     ProtocolWritable writer;
 
     @Override
-    public void sendSyncMessage() throws IOException {
+    public void sendSyncMessage() {
         writer.write(new SyncMessage());
     }
 }
