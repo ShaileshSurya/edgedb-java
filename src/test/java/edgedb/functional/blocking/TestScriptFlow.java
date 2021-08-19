@@ -2,6 +2,7 @@ package edgedb.functional.blocking;
 
 import edgedb.TestDBConnectionSingleton;
 import edgedb.connection.IConnection;
+import edgedb.connectionparams.ConnectionParams;
 import edgedb.exceptions.clientexception.InvalidArgumentException;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.*;
@@ -18,7 +19,15 @@ public class TestScriptFlow {
     @BeforeAll
     public static void init() {
         try {
-            connection = TestDBConnectionSingleton.getInstance(null).getConnection();
+            ConnectionParams connectionParams = ConnectionParams.builder()
+                    .user("edgedb")
+                    .database("edgedb")
+                    .host("localhost")
+                    .port(Integer.parseInt("10700"))
+                    .password("")
+                    .build();
+
+            connection = TestDBConnectionSingleton.getInstance(connectionParams).getConnection();
         } catch (IOException e) {
             e.printStackTrace();
         }

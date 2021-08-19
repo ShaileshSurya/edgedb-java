@@ -1,7 +1,5 @@
 package edgedb.internal.pipes.connect;
 
-import edgedb.exceptions.EdgeDBIncompatibleDriverException;
-import edgedb.exceptions.EdgeDBInternalErrException;
 import edgedb.internal.protocol.ClientHandshake;
 import edgedb.internal.protocol.Terminate;
 import edgedb.internal.protocol.client.writerV2.ProtocolWritable;

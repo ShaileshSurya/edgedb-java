@@ -26,7 +26,7 @@ public class TestSuite {
             ex.printStackTrace();
         } finally {
             try {
-                TestUtil.destroyInstance(instanceName);
+              //q  TestUtil.destroyInstance(instanceName);
             } catch (Exception e) {
                 e.printStackTrace();
             }

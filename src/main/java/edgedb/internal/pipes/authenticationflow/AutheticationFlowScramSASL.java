@@ -1,8 +1,5 @@
 package edgedb.internal.pipes.authenticationflow;
 
-import edgedb.exceptions.EdgeDBInternalErrException;
-import edgedb.exceptions.clientexception.ClientConnectionFailedTemporarilyException;
-import edgedb.exceptions.clientexception.ClientException;
 import edgedb.internal.pipes.authenticationflow.scram.client.ScramClientFunctionality;
 import edgedb.internal.pipes.authenticationflow.scram.client.ScramClientFunctionalityImpl;
 import edgedb.internal.pipes.authenticationflow.scram.common.ScramException;
@@ -15,9 +12,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.util.UUID;
-
-import static edgedb.exceptions.ErrorMessage.FAILED_TO_CREATE_CLIENT_FINAL_MESSAGE;
-import static edgedb.exceptions.ErrorMessage.FAILED_TO_CREATE_CLIENT_FIRST_MESSAGE;
 
 @AllArgsConstructor
 @Slf4j
