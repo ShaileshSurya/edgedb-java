@@ -6,7 +6,6 @@ import edgedb.internal.protocol.server.readerhelper.IReaderHelper;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 
 @Data
@@ -15,7 +14,7 @@ public class CommandCompleteReaderV2 implements ProtocolReader {
 
     IReaderHelper readerHelper;
 
-    public CommandComplete read(ByteBuffer readBuffer) throws IOException {
+    public CommandComplete read(ByteBuffer readBuffer) {
 
         CommandComplete commandComplete = new CommandComplete();
 

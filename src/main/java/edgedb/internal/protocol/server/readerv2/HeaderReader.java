@@ -5,7 +5,6 @@ import edgedb.internal.protocol.server.readerhelper.IReaderHelper;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 
 @Data
@@ -14,7 +13,7 @@ public class HeaderReader implements ProtocolReader {
 
     private IReaderHelper iReaderHelper;
 
-    public Header read(ByteBuffer readBuffer) throws IOException {
+    public Header read(ByteBuffer readBuffer) {
         Header header = new Header();
         header.setCode(iReaderHelper.readUint16());
         header.setValue(iReaderHelper.readBytes());

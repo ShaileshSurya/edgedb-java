@@ -6,7 +6,6 @@ import edgedb.internal.protocol.server.readerhelper.IReaderHelper;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 
 @Data
@@ -15,7 +14,7 @@ public class ErrorResponseReaderV2 implements ProtocolReader {
 
     IReaderHelper readerHelper;
 
-    public ErrorResponse read(ByteBuffer buffer) throws IOException {
+    public ErrorResponse read(ByteBuffer buffer) {
         ErrorResponse error = new ErrorResponse();
         int messageLength = readerHelper.readUint32();
         error.setMessageLength(messageLength);

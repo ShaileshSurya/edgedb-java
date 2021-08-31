@@ -6,7 +6,6 @@ import edgedb.internal.protocol.ReadyForCommand;
 import edgedb.internal.protocol.server.readerhelper.IReaderHelper;
 import lombok.AllArgsConstructor;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 
 @AllArgsConstructor
@@ -14,7 +13,7 @@ public class ReadyForCommandReaderV2 implements ProtocolReader {
 
     IReaderHelper readerHelper;
 
-    public ReadyForCommand read(ByteBuffer buffer) throws IOException {
+    public ReadyForCommand read(ByteBuffer buffer) {
         ReadyForCommand readyForCommand = new ReadyForCommand();
 
         try {
@@ -37,9 +36,6 @@ public class ReadyForCommandReaderV2 implements ProtocolReader {
         } catch (OverReadException e) {
             e.printStackTrace();
             return readyForCommand;
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw e;
         }
     }
 }

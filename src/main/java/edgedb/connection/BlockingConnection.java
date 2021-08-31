@@ -46,12 +46,7 @@ public class BlockingConnection implements IConnection {
 
     @Override
     public ResultSet query(String query) {
-        try {
-            return executeGranularFlow(IOFormat.BINARY, Cardinality.MANY, query);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            return null;
-        }
+        return executeGranularFlow(IOFormat.BINARY, Cardinality.MANY, query);
     }
 
     @Override
@@ -101,12 +96,12 @@ public class BlockingConnection implements IConnection {
     }
 
     @Override
-    public ResultSet queryJSON(String query) throws EdgeDBQueryException, EdgeDBCommandException, IOException, EdgeDBInternalErrException {
+    public ResultSet queryJSON(String query) {
         return executeGranularFlow(IOFormat.JSON, Cardinality.MANY, query);
     }
 
 
-    protected <T extends ServerProtocolBehaviour> PrepareComplete readPrepareComplete(IGranularFlowPipe granularFlowPipe, Prepare prepareMessage) throws IOException {
+    protected <T extends ServerProtocolBehaviour> PrepareComplete readPrepareComplete(IGranularFlowPipe granularFlowPipe, Prepare prepareMessage){
         log.debug("Reading prepare complete");
         BufferReader bufferReader = new BufferReaderImpl(clientChannel);
         ByteBuffer readBuffer = SingletonBuffer.getInstance().getBuffer();
@@ -162,7 +157,7 @@ public class BlockingConnection implements IConnection {
         return null;
     }
 
-    protected ResultSet executeGranularFlow(char IOFormat, char cardinality, String command) throws IOException {
+    protected ResultSet executeGranularFlow(char IOFormat, char cardinality, String command){
         IGranularFlowPipe granularFlowPipe = new GranularFlowPipeV2(
                 new ChannelProtocolWritableImpl(getChannel()));
 
@@ -179,7 +174,7 @@ public class BlockingConnection implements IConnection {
         return readDataResponse();
     }
 
-    protected <T extends ServerProtocolBehaviour> ResultSet readDataResponse() throws IOException {
+    protected <T extends ServerProtocolBehaviour> ResultSet readDataResponse(){
         log.debug("Reading DataResponse");
         DataResponse dataResponse;
         BufferReader bufferReader = new BufferReaderImpl(getChannel());

@@ -15,7 +15,7 @@ public class GranularFlowPipeV2 implements IGranularFlowPipe{
     ProtocolWritable protocolWritable;
 
     @Override
-    public void sendPrepareMessage(Prepare prepareMessage) throws IOException {
+    public void sendPrepareMessage(Prepare prepareMessage) {
         log.debug("Sending prepare message {}",prepareMessage);
         protocolWritable.write(new SyncBufferWritableDecorator<>(prepareMessage));
     }
@@ -26,7 +26,7 @@ public class GranularFlowPipeV2 implements IGranularFlowPipe{
     }
 
     @Override
-    public void sendExecuteMessage(Execute executeMessage) throws IOException {
+    public void sendExecuteMessage(Execute executeMessage) {
         log.debug("Sending execute message {}",executeMessage);
         protocolWritable.write(new SyncBufferWritableDecorator<>(executeMessage));
     }

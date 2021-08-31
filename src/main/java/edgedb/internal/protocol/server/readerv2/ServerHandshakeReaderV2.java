@@ -7,7 +7,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 
 @Data
@@ -17,7 +16,7 @@ public class ServerHandshakeReaderV2 implements ProtocolReader {
 
     IReaderHelper readerHelper;
 
-    public ServerHandshakeBehaviour read(ByteBuffer buffer) throws IOException {
+    public ServerHandshakeBehaviour read(ByteBuffer buffer) {
         log.debug("Trying to read Server Handshake");
         ServerHandshakeBehaviour serverHandshake = new ServerHandshakeBehaviour();
 

@@ -29,7 +29,7 @@ public class ChannelReaderHelperImpl implements IReaderHelper {
     }
 
     @Override
-    public byte readUint8() throws OverReadException {
+    public byte readUint8() {
         checkReadCount();
         byte value = readBuffer.get();
         currentReadCount += typeSizeHelper.getByteSize();
@@ -37,7 +37,7 @@ public class ChannelReaderHelperImpl implements IReaderHelper {
     }
 
     @Override
-    public int readUint32() throws OverReadException {
+    public int readUint32() {
         checkReadCount();
         int value = readBuffer.getInt();
         currentReadCount += typeSizeHelper.getByteSize();
@@ -45,7 +45,7 @@ public class ChannelReaderHelperImpl implements IReaderHelper {
     }
 
     @Override
-    public short readUint16() throws OverReadException {
+    public short readUint16() {
         checkReadCount();
         short value = readBuffer.getShort();
         currentReadCount += typeSizeHelper.getByteSize();
@@ -53,7 +53,7 @@ public class ChannelReaderHelperImpl implements IReaderHelper {
     }
 
     @Override
-    public String readString() throws OverReadException {
+    public String readString() {
         checkReadCount();
         int length = readBuffer.getInt();
         currentReadCount += typeSizeHelper.getIntSize();
@@ -65,7 +65,7 @@ public class ChannelReaderHelperImpl implements IReaderHelper {
     }
 
     @Override
-    public byte[] readUUID() throws OverReadException {
+    public byte[] readUUID() {
         checkReadCount();
         final int UUID_BYTE_ARRAY_LENGTH = 16;
 
@@ -75,7 +75,7 @@ public class ChannelReaderHelperImpl implements IReaderHelper {
         return uuid;
     }
 
-    public Long readUUIDLong() throws OverReadException {
+    public Long readUUIDLong() {
         checkReadCount();
         final int UUID_BYTE_ARRAY_LENGTH = 16;
 
@@ -85,7 +85,7 @@ public class ChannelReaderHelperImpl implements IReaderHelper {
         return value;
     }
 
-    public byte[] readBytes() throws OverReadException {
+    public byte[] readBytes() {
         checkReadCount();
         int length = readBuffer.getInt();
         currentReadCount += typeSizeHelper.getIntSize();
@@ -96,14 +96,14 @@ public class ChannelReaderHelperImpl implements IReaderHelper {
         return array;
     }
 
-    public byte readByte() throws OverReadException {
+    public byte readByte() {
         checkReadCount();
         byte value = readBuffer.get();
         currentReadCount += typeSizeHelper.getByteSize();
         return value;
     }
 
-    public byte[] read(byte[] destination, int fromIndex, int toIndex) throws OverReadException {
+    public byte[] read(byte[] destination, int fromIndex, int toIndex) {
         checkReadCount();
         ByteBuffer value = readBuffer.get(destination, fromIndex, toIndex);
         currentReadCount += toIndex - fromIndex;

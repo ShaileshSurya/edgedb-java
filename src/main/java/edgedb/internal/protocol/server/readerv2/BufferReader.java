@@ -4,5 +4,5 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 public interface BufferReader {
-    public ByteBuffer read(ByteBuffer readInto) throws IOException;
+    public ByteBuffer read(ByteBuffer readInto);
 }

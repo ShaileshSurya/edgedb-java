@@ -1,12 +1,10 @@
 package edgedb.internal.protocol.server.readerv2;
 
-import edgedb.exceptions.OverReadException;
 import edgedb.internal.protocol.DataElement;
 import edgedb.internal.protocol.server.readerhelper.IReaderHelper;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 
 @Slf4j
@@ -16,26 +14,19 @@ public class DataElementReaderV2 implements ProtocolReader {
     IReaderHelper readerHelper;
 
     @Override
-    public DataElement read(ByteBuffer readBuffer) throws IOException {
+    public DataElement read(ByteBuffer readBuffer) {
         DataElement dataElement = new DataElement();
+        
+        int dataElementsLength = readerHelper.readUint32();
+        dataElement.setDataLength(dataElementsLength);
 
-        try {
-            int dataElementsLength = readerHelper.readUint32();
-            dataElement.setDataLength(dataElementsLength);
-
-            byte[] data = new byte[dataElementsLength];
-            for (int i = 0; i < dataElementsLength; i++) {
-                data[i] = readerHelper.readByte();
-            }
-            dataElement.setDataElement(data);
-
-            return dataElement;
-        } catch (OverReadException e) {
-            e.printStackTrace();
-            return dataElement;
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw e;
+        byte[] data = new byte[dataElementsLength];
+        for (int i = 0; i < dataElementsLength; i++) {
+            data[i] = readerHelper.readByte();
         }
+        dataElement.setDataElement(data);
+
+        return dataElement;
+
     }
 }

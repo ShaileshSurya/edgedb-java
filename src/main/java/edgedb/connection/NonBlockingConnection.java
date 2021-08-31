@@ -2,7 +2,6 @@ package edgedb.connection;
 
 import edgedb.client.ResultSet;
 import edgedb.connectionparams.ConnectionParams;
-import edgedb.exceptions.*;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
@@ -61,7 +60,7 @@ public class NonBlockingConnection implements IConnection {
     }
 
     @Override
-    public ResultSet queryJSON(String query) throws EdgeDBQueryException, EdgeDBCommandException, IOException, EdgeDBInternalErrException {
+    public ResultSet queryJSON(String query) {
         throw new UnsupportedOperationException();
     }
 

@@ -2,6 +2,7 @@ package edgedb.internal.protocol.server.readerv2;
 
 import edgedb.exceptions.EdgeDBInternalErrException;
 import edgedb.exceptions.OverReadException;
+import edgedb.exceptions.clientexception.ClientException;
 import edgedb.internal.protocol.ServerAuthenticationBehaviour;
 import edgedb.internal.protocol.server.readerhelper.IReaderHelper;
 import lombok.AllArgsConstructor;
@@ -16,7 +17,7 @@ import static edgedb.internal.protocol.constants.AuthenticationStatus.*;
 public class ServerAuthenticationReaderV2 implements ProtocolReader {
     IReaderHelper readerHelper;
 
-    private ServerAuthenticationBehaviour readAuthenticationSASL(ServerAuthenticationBehaviour serverAuthentication) throws IOException, OverReadException {
+    private ServerAuthenticationBehaviour readAuthenticationSASL(ServerAuthenticationBehaviour serverAuthentication) {
         int methodsLength = readerHelper.readUint32();
         serverAuthentication.setMethodsLength(methodsLength);
         String[] authMethods = new String[methodsLength];
@@ -28,40 +29,28 @@ public class ServerAuthenticationReaderV2 implements ProtocolReader {
     }
 
     @Override
-    public ServerAuthenticationBehaviour read(ByteBuffer readBuffer) throws IOException {
+    public ServerAuthenticationBehaviour read(ByteBuffer readBuffer) {
         ServerAuthenticationBehaviour serverAuthentication = new ServerAuthenticationBehaviour();
 
-        try {
-            serverAuthentication.setMessageLength(readerHelper.readUint32());
 
-            int authStatus = readerHelper.readUint32();
-            serverAuthentication.setAuthStatus(authStatus);
+        serverAuthentication.setMessageLength(readerHelper.readUint32());
 
-            switch (authStatus) {
-                case AUTHENTICATION_OK:
-                    return serverAuthentication;
+        int authStatus = readerHelper.readUint32();
+        serverAuthentication.setAuthStatus(authStatus);
 
-                case AUTHENTICATION_REQUIRED_SASL:
-                    return readAuthenticationSASL(serverAuthentication);
+        switch (authStatus) {
+            case AUTHENTICATION_OK:
+                return serverAuthentication;
 
-                case AUTHENTICATION_SASL_CONTINUE:
-                case AUTHENTICATION_SASL_FINAL:
-                    serverAuthentication.setSaslData(readerHelper.readBytes());
-                    return serverAuthentication;
+            case AUTHENTICATION_REQUIRED_SASL:
+                return readAuthenticationSASL(serverAuthentication);
 
-                default:
-                    throw new EdgeDBInternalErrException(FAILED_TO_DECODE_SERVER_RESPONSE);
-            }
-
-        } catch (OverReadException e) {
-            e.printStackTrace();
-            return serverAuthentication;
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw e;
-        } catch (EdgeDBInternalErrException e) {
-            e.printStackTrace();
+            case AUTHENTICATION_SASL_CONTINUE:
+            case AUTHENTICATION_SASL_FINAL:
+                serverAuthentication.setSaslData(readerHelper.readBytes());
+                return serverAuthentication;
+            default:
+                throw new ClientException(FAILED_TO_DECODE_SERVER_RESPONSE);
         }
-        return null;
     }
 }
