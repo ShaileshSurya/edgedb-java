@@ -1,4 +1,6 @@
 package edgedb.exceptions.clientexception;
 
-public class NoDataException {
+import edgedb.exceptions.BaseException;
+
+public class NoDataException extends BaseException {
 }

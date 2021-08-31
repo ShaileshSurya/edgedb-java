@@ -2,6 +2,7 @@ package edgedb.functional.blocking;
 
 import edgedb.TestDBConnectionSingleton;
 import edgedb.connection.IConnection;
+import edgedb.exceptions.clientexception.EdgeQLSyntaxException;
 import edgedb.exceptions.clientexception.InvalidArgumentException;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.*;
@@ -38,10 +39,10 @@ public class TestScriptFlow {
 
     @Test
     public void TestScriptFlowException() {
-        InvalidArgumentException invalidArgumentException = assertThrows(InvalidArgumentException.class, () ->
+        EdgeQLSyntaxException EdgeQLSyntaxException = assertThrows(EdgeQLSyntaxException.class, () ->
                 connection.execute("INVALID COMMAND;")
         );
-        assertEquals("EdgeQLSyntaxError", invalidArgumentException.getErrorCode());
+        assertEquals("EdgeQLSyntaxError", EdgeQLSyntaxException.getErrorCode());
     }
 
 

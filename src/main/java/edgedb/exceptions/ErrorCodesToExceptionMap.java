@@ -10,90 +10,89 @@ public interface ErrorCodesToExceptionMap {
 
     public static Map<Integer, BaseException> initMap() {
         Map<Integer, BaseException> map = new HashMap<>();
-        map.put(0x01000000, new ClientException("InternalServerError"));
+        map.put(0x01000000, new InternalServerException());
 
-        map.put(0x02000000, new ClientException("UnsupportedFeatureError"));
+        map.put(0x02000000, new UnsupportedFeatureException());
 
-        map.put(0x03000000, new ClientException("ProtocolError"));
-        map.put(0x03010000, new ClientException("BinaryProtocolError"));
-        map.put(0x03010001, new ClientException("UnsupportedProtocolVersionError"));
-        map.put(0x03010002, new ClientException("TypeSpecNotFoundError"));
-        map.put(0x03010003, new ClientException("UnexpectedMessageError"));
-        map.put(0x03020000, new ClientException("InputDataError"));
-        map.put(0x03030000, new ClientException("ResultCardinalityMismatchError"));
-        map.put(0x03040000, new ClientException("CapabilityError"));
-        map.put(0x03040100, new ClientException("UnsupportedCapabilityError"));
-        map.put(0x03040200, new ClientException("DisabledCapabilityError"));
-
-
-        map.put(0x04000000, new DBQueryException("QueryError"));
-
-        map.put(0x04010000, new InvalidArgumentException("InvalidSyntaxError"));
-        map.put(0x04010100, new InvalidArgumentException("EdgeQLSyntaxError"));
-        map.put(0x04010200, new InvalidArgumentException("SchemaSyntaxError"));
-        map.put(0x04010300, new InvalidArgumentException("GraphQLSyntaxError"));
+        map.put(0x03000000, new ProtocolException());
+        map.put(0x03010000, new BinaryProtocolException());
+        map.put(0x03010001, new UnsupportedProtocolVersionException());
+        map.put(0x03010002, new TypeSpecNotFoundException());
+        map.put(0x03010003, new UnexpectedMessageException());
+        map.put(0x03020000, new InputDataException());
+        map.put(0x03030000, new ResultCardinalityMismatchException());
+        map.put(0x03040000, new CapabilityException());
+        map.put(0x03040100, new UnsupportedCapabilityException());
+        map.put(0x03040200, new DisabledCapabilityException());
 
 
-        map.put(0x04030001, new UnknownArgumentException("UnknownModuleError"));
-        map.put(0x04030002, new UnknownArgumentException("UnknownLinkError"));
-        map.put(0x04030003, new UnknownArgumentException("UnknownPropertyError"));
-        map.put(0x04030004, new UnknownArgumentException("UnknownUserError"));
-        map.put(0x04030005, new UnknownArgumentException("UnknownDatabaseError"));
-        map.put(0x04030006, new UnknownArgumentException("UnknownLinkError"));
+        map.put(0x04000000, new QueryException());
+
+        map.put(0x04010000, new InvalidSyntaxException());
+        map.put(0x04010100, new EdgeQLSyntaxException());
+        map.put(0x04010200, new SchemaSyntaxException());
+        map.put(0x04010300, new GraphQLSyntaxException());
 
 
-        map.put(0x04040000, new UnknownArgumentException("SchemaError"));
-
-        map.put(0x04050000, new UnknownArgumentException("SchemaDefinitionError"));
-
-        map.put(0x04050100, new InvalidArgumentException("InvalidDefinitionError"));
-        map.put(0x04050101, new InvalidArgumentException("InvalidModuleDefinitionError"));
-        map.put(0x04050102, new InvalidArgumentException("InvalidLinkDefinitionError"));
-        map.put(0x04050103, new InvalidArgumentException("InvalidOperatorDefinitionError"));
-        map.put(0x04050104, new InvalidArgumentException("InvalidOperatorDefinitionError"));
-        map.put(0x04050105, new InvalidArgumentException("InvalidOperatorDefinitionError"));
-        map.put(0x04050106, new InvalidArgumentException("InvalidOperatorDefinitionError"));
-        map.put(0x04050107, new InvalidArgumentException("InvalidAliasDefinitionError"));
-        map.put(0x04050108, new UnknownArgumentException("InvalidDefinitionError"));
-        map.put(0x04050109, new UnknownArgumentException("InvalidDefinitionError"));
-        map.put(0x0405010A, new UnknownArgumentException("InvalidDefinitionError"));
+        map.put(0x04030000, new InvalidReferenceException());
+        map.put(0x04030001, new UnknownModuleException());
+        map.put(0x04030002, new UnknownLinkException());
+        map.put(0x04030003, new UnknownPropertyException());
+        map.put(0x04030004, new UnknownUserException());
+        map.put(0x04030005, new UnknownDatabaseException());
+        map.put(0x04030006, new UnknownLinkException());
 
 
-        map.put(0x04050200, new InvalidArgumentException("DuplicateDefinitionError"));
-        map.put(0x04050201, new InvalidArgumentException("DuplicateModuleDefinitionError"));
-        map.put(0x04050202, new InvalidArgumentException("DuplicateLinkDefinitionError"));
-        map.put(0x04050203, new InvalidArgumentException("DuplicatePropertyDefinitionError"));
-        map.put(0x04050204, new InvalidArgumentException("DuplicateUserDefinitionError"));
-        map.put(0x04050205, new InvalidArgumentException("DuplicateDatabaseDefinitionError"));
-        map.put(0x04050206, new InvalidArgumentException("DuplicateOperatorDefinitionError"));
-        map.put(0x04050207, new InvalidArgumentException("DuplicateViewDefinitionError"));
-        map.put(0x04050208, new InvalidArgumentException("DuplicateFunctionDefinitionError"));
-        map.put(0x004050209, new InvalidArgumentException("DuplicateConstraintDefinitionError"));
-        map.put(0x0405020A, new InvalidArgumentException("DuplicateCastDefinitionError"));
+        map.put(0x04040000, new SchemaException());
+
+        map.put(0x04050000, new SchemaDefinitionException());
+
+        map.put(0x04050100, new InvalidDefinitionException());
+        map.put(0x04050101, new InvalidModuleDefinitionException());
+        map.put(0x04050102, new InvalidLinkDefinitionException());
+        map.put(0x04050103, new InvalidPropertyDefinitionException());
+        map.put(0x04050104, new InvalidUserDefinitionException());
+        map.put(0x04050105, new  InvalidDatabaseDefinitionException());
+        map.put(0x04050106, new InvalidOperatorDefinitionException());
+        map.put(0x04050107, new InvalidAliasDefinitionException());
+        map.put(0x04050108, new InvalidFunctionDefinitionException());
+        map.put(0x04050109, new InvalidConstraintDefinitionException());
+        map.put(0x0405010A, new InvalidCastDefinitionException());
 
 
-        map.put(0x04060000, new DBQueryException("QueryTimeoutError"));
+        map.put(0x04050200, new DuplicateDefinitionException());
+        map.put(0x04050201, new DuplicateModuleDefinitionException());
+        map.put(0x04050202, new DuplicateLinkDefinitionException());
+        map.put(0x04050203, new DuplicatePropertyDefinitionException());
+        map.put(0x04050204, new DuplicateUserDefinitionException());
+        map.put(0x04050205, new DuplicateDatabaseDefinitionException());
+        map.put(0x04050206, new DuplicateOperatorDefinitionException());
+        map.put(0x04050207, new DuplicateViewDefinitionException());
+        map.put(0x04050208, new DuplicateFunctionDefinitionException());
+        map.put(0x004050209, new DuplicateConstraintDefinitionException());
+        map.put(0x0405020A, new DuplicateCastDefinitionException());
 
 
-        map.put(0x05000000, new ClientException("ExecutionError"));
-        map.put(0x05010000, new ClientException("InvalidValueError"));
-        map.put(0x05010001, new ClientException("DivisionByZeroError"));
-        map.put(0x05010002, new ClientException("NumericOutOfRangeError"));
-
-        map.put(0x05020000, new ClientException("IntegrityError"));
-        map.put(0x05020001, new ClientException("ConstraintViolationError"));
-        map.put(0x05020002, new ClientException("CardinalityViolationError"));
-        map.put(0x05020003, new ClientException("MissingRequiredError"));
+        map.put(0x04060000, new QueryTimeoutException());
 
 
-        map.put(0x06000000, new ClientException("ConfigurationError"));
+        map.put(0x05000000, new ExecutionException());
+        map.put(0x05010000, new InvalidValueException());
+        map.put(0x05010001, new DivisionByZeroException());
+        map.put(0x05010002, new NumericOutOfRangeException());
 
-        map.put(0x07000000, new ClientException("AccessError"));
-        map.put(0x07010000, new ClientException("AuthenticationError"));
+        map.put(0x05020000, new IntegrityException());
+        map.put(0x05020001, new ConstraintViolationException());
+        map.put(0x05020002, new CardinalityViolationException());
+        map.put(0x05020003, new MissingRequiredException());
 
 
-        map.put(0xF0000000, new ClientException("LogMessage"));
-        map.put(0xF0010000, new ClientException("WarningMessage"));
+        map.put(0x06000000, new ConfigurationException());
+
+        map.put(0x07000000, new AccessException());
+        map.put(0x07010000, new AuthenticationException());
+
+        //TODO add more exceptions
 
         return Collections.unmodifiableMap(map);
     }

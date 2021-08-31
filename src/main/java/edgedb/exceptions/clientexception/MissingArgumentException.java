@@ -1,4 +1,6 @@
 package edgedb.exceptions.clientexception;
 
-public class MissingArgumentException {
+import edgedb.exceptions.BaseException;
+
+public class MissingArgumentException extends BaseException {
 }
