@@ -12,5 +12,4 @@ public interface IConnection extends IChannel, Query{
     public void terminate() throws IOException;
     public void initiateHandshake(String user, String database) throws IOException;
     public void handleHandshake() throws IOException;
-
 }
