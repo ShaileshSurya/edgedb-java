@@ -1,10 +1,11 @@
 package edgedb.connection;
 
 import edgedb.client.ResultSet;
-import edgedb.client.ResultSetImpl;
 import edgedb.connectionparams.ConnectionParams;
-import edgedb.exceptions.*;
+import edgedb.exceptions.IExceptionFromErrorResponseBuilderImpl;
+import edgedb.exceptions.ScalarTypeNotFoundException;
 import edgedb.exceptions.clientexception.ClientException;
+import edgedb.exceptions.clientexception.QueryException;
 import edgedb.exceptions.constants.Severity;
 import edgedb.internal.buffer.SingletonBuffer;
 import edgedb.internal.pipes.SyncFlow.SyncPipe;
@@ -23,6 +24,9 @@ import edgedb.internal.protocol.constants.Cardinality;
 import edgedb.internal.protocol.constants.IOFormat;
 import edgedb.internal.protocol.server.readerfactory.ChannelProtocolReaderFactoryImpl;
 import edgedb.internal.protocol.server.readerv2.*;
+import edgedb.internal.protocol.typedescriptor.decoder.TypeDecoderFactory;
+import edgedb.internal.protocol.typedescriptor.decoder.TypeDecoderFactoryImpl;
+import edgedb.resultset.ResultSetImpl;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
@@ -34,6 +38,8 @@ import static edgedb.client.ClientConstants.MAJOR_VERSION;
 import static edgedb.client.ClientConstants.MINOR_VERSION;
 import static edgedb.exceptions.constants.ClientErrors.INCOMPATIBLE_DRIVER;
 import static edgedb.internal.protocol.constants.TransactionState.*;
+
+;
 
 @Slf4j
 public class BlockingConnection implements IConnection {
@@ -54,18 +60,18 @@ public class BlockingConnection implements IConnection {
         try {
             return executeGranularFlow(IOFormat.BINARY, Cardinality.ONE, command);
         } catch (Exception ex) {
-            log.info("Error Here {}",ex);
+            log.info("Error Here {}", ex);
             ex.printStackTrace();
             return null;
         }
     }
 
     @Override
-    public void execute(String command) {
+    public void execute(String command) throws QueryException {
         try {
             executeScript(command);
         } catch (IOException ex) {
-            log.info("Error Here {}",ex);
+            log.info("Error Here {}", ex);
             ex.printStackTrace();
         }
     }
@@ -101,7 +107,7 @@ public class BlockingConnection implements IConnection {
     }
 
 
-    protected <T extends ServerProtocolBehaviour> PrepareComplete readPrepareComplete(IGranularFlowPipe granularFlowPipe, Prepare prepareMessage){
+    protected <T extends ServerProtocolBehaviour> PrepareComplete readPrepareComplete(IGranularFlowPipe granularFlowPipe, Prepare prepareMessage) {
         log.debug("Reading prepare complete");
         BufferReader bufferReader = new BufferReaderImpl(clientChannel);
         ByteBuffer readBuffer = SingletonBuffer.getInstance().getBuffer();
@@ -157,7 +163,11 @@ public class BlockingConnection implements IConnection {
         return null;
     }
 
-    protected ResultSet executeGranularFlow(char IOFormat, char cardinality, String command){
+    // check decompiler
+    // jd-gui => MySql Jar download open that up
+    // complete just Future.
+    // Qualification => Unit Tests.
+    protected ResultSet executeGranularFlow(char IOFormat, char cardinality, String command) {
         IGranularFlowPipe granularFlowPipe = new GranularFlowPipeV2(
                 new ChannelProtocolWritableImpl(getChannel()));
 
@@ -165,16 +175,25 @@ public class BlockingConnection implements IConnection {
         granularFlowPipe.sendPrepareMessage(prepareMessage);
         PrepareComplete prepareComplete = readPrepareComplete(granularFlowPipe, prepareMessage);
         log.info("PrepareComplete received {}", prepareComplete);
-//        try {
-//            TypeDescriptor typeDescriptor = new TypeDecoderFactoryImpl().getTypeDescriptor(prepareComplete.getResultDataDescriptorID());
-//        }catch (ScalarTypeNotFoundException e){
-//
-//        }
+
+        TypeDecoderFactory.Types typeDescriptor = getTypeDescriptor(prepareComplete);
+
         granularFlowPipe.sendExecuteMessage(new Execute());
-        return readDataResponse();
+
+        return readDataResponse(typeDescriptor);
     }
 
-    protected <T extends ServerProtocolBehaviour> ResultSet readDataResponse(){
+    private TypeDecoderFactory.Types getTypeDescriptor(PrepareComplete prepareComplete) {
+        try {
+            return new TypeDecoderFactoryImpl().getTypeDescriptor(prepareComplete.getResultDataDescriptorID());
+        } catch (ScalarTypeNotFoundException e) {
+            // granularFlowPipe.sendDescribeStatementMessage();
+            // granularCommandDataDescription message.
+        }
+        return null;
+    }
+
+    protected <T extends ServerProtocolBehaviour> ResultSet readDataResponse(TypeDecoderFactory.Types typeDescriptor) {
         log.debug("Reading DataResponse");
         DataResponse dataResponse;
         BufferReader bufferReader = new BufferReaderImpl(getChannel());
@@ -358,4 +377,6 @@ public class BlockingConnection implements IConnection {
     public SocketChannel getChannel() {
         return this.clientChannel;
     }
+
+
 }

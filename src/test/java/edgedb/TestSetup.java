@@ -22,7 +22,7 @@ public final class TestSetup {
             ex.printStackTrace();
         } finally {
             try {
-                TestUtil.destroyInstance(instanceName);
+              //  TestUtil.destroyInstance(instanceName);
             } catch (Exception e) {
                 e.printStackTrace();
             }

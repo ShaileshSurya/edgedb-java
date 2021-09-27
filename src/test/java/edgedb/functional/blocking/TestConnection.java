@@ -28,13 +28,7 @@ public class TestConnection {
         try {
             credentials = TestUtil.deployNewInstance(instanceName);
             TestUtil.sleepForMinute();
-            connectionParams = ConnectionParams.builder()
-                    .user(credentials.getUser())
-                    .database(credentials.getDatabase())
-                    .host("localhost")
-                    .port(Integer.parseInt(credentials.getPort()))
-                    .password(credentials.getPassword())
-                    .build();
+
         }catch (Exception ex){
             ex.printStackTrace();
         }

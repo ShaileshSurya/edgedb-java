@@ -17,6 +17,15 @@ public class TestDBConnectionSingleton {
     }
 
     public static TestDBConnectionSingleton getInstance(ConnectionParams connectionParams) throws IOException {
+
+        connectionParams = ConnectionParams.builder()
+                .user("edgedb")
+                .database("edgedb")
+                .host("localhost")
+                .port(Integer.parseInt("10700"))
+                .password("")
+                .build();
+
         if (uniqueConnection == null) {
             Client client = new EdgeDBClientV2(new BlockingConnection());
             uniqueConnection = new TestDBConnectionSingleton(client.getConnection(connectionParams));

@@ -1,5 +1,7 @@
 package edgedb.resultset;
 
+import edgedb.internal.protocol.DataResponse;
+
 public interface ResultSet {
-    String getString(int var1);
+    public void setResultData(DataResponse dataResponse);
 }

@@ -9,8 +9,8 @@ import java.net.InetSocketAddress;
 import java.nio.channels.*;
 
 @Slf4j
-public class NonBlockingConnection implements IConnection {
-
+public class NonBlockingConnection {
+/*
     SocketChannel clientChannel;
     Selector selector;
     byte[] serverKey;
@@ -72,5 +72,5 @@ public class NonBlockingConnection implements IConnection {
     @Override
     public SocketChannel getChannel() {
         return null;
-    }
+    }*/
 }
